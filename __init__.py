@@ -2,7 +2,7 @@
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
-#  as published by the Free Software Foundation; either version 2
+#  as published by the Free Software Foundation, either version 3
 #  of the License, or (at your option) any later version.
 #
 #  This program is distributed in the hope that it will be useful,
@@ -11,247 +11,179 @@
 #  GNU General Public License for more details.
 #
 #  You should have received a copy of the GNU General Public License
-#  along with this program; if not, write to the Free Software Foundation,
-#  Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#  All rights reserved.
 #
 # ##### END GPL LICENSE BLOCK #####
 
+# <pep8 compliant>
+
 bl_info = {
-    "name": "3D-Coat Applink",
-    "author": "Kalle-Samuli Riihikoski (haikalle)",
-    "version": (3, 5, 21),
-    "blender": (2, 59, 0),
-    "location": "Scene > 3D-Coat Applink",
-    "description": "Transfer data between 3D-Coat/Blender",
-    "warning": "",
+    "name": "DirectX X Format",
+    "author": "Chris Foster",
+    "version": (3, 1, 0),
+    "blender": (2, 69, 0),
+    "location": "File > Export > DirectX (.x)",
+    "description": "Export mesh vertices, UV's, materials, textures, "
+                   "vertex colors, armatures, empties, and actions.",
     "wiki_url": "http://wiki.blender.org/index.php/Extensions:2.6/Py/"
-                "Scripts/Import-Export/3dcoat_applink",
-    "category": "Import-Export",
-}
+                "Scripts/Import-Export/DirectX_Exporter",
+    "category": "Import-Export"}
 
-
-if "bpy" in locals():
-    import importlib
-    importlib.reload(coat)
-    importlib.reload(tex)
-else:
-    from . import coat
-    from . import tex
 
 import bpy
-from bpy.props import *
+from bpy.props import BoolProperty
+from bpy.props import EnumProperty
+from bpy.props import StringProperty
+
+
+class ExportDirectX(bpy.types.Operator):
+    """Export selection to DirectX"""
+
+    bl_idname = "export_scene.x"
+    bl_label = "Export DirectX"
+
+    filepath = StringProperty(subtype='FILE_PATH')
+
+    # Export options
+
+    SelectedOnly = BoolProperty(
+        name="Export Selected Objects Only",
+        description="Export only selected objects",
+        default=True)
+
+    CoordinateSystem = EnumProperty(
+        name="Coordinate System",
+        description="Use the selected coordinate system for export",
+        items=(('LEFT_HANDED', "Left-Handed", "Use a Y up, Z forward system or a Z up, -Y forward system"),
+               ('RIGHT_HANDED', "Right-Handed", "Use a Y up, -Z forward system or a Z up, Y forward system")),
+        default='LEFT_HANDED')
+
+    UpAxis = EnumProperty(
+        name="Up Axis",
+        description="The selected axis points upward",
+        items=(('Y', "Y", "The Y axis points up"),
+               ('Z', "Z", "The Z axis points up")),
+        default='Y')
+
+    ExportMeshes = BoolProperty(
+        name="Export Meshes",
+        description="Export mesh objects",
+        default=True)
+
+    ExportNormals = BoolProperty(
+        name="    Export Normals",
+        description="Export mesh normals",
+        default=True)
+
+    FlipNormals = BoolProperty(
+        name="        Flip Normals",
+        description="Flip mesh normals before export",
+        default=False)
+
+    ExportUVCoordinates = BoolProperty(
+        name="    Export UV Coordinates",
+        description="Export mesh UV coordinates, if any",
+        default=True)
+
+    ExportMaterials = BoolProperty(
+        name="    Export Materials",
+        description="Export material properties and reference image textures",
+        default=True)
+
+    ExportActiveImageMaterials = BoolProperty(
+        name="        Reference Active Images as Textures",
+        description="Reference the active image of each face as a texture, "\
+            "as opposed to the image assigned to the material",
+        default=False)
+
+    ExportVertexColors = BoolProperty(
+        name="    Export Vertex Colors",
+        description="Export mesh vertex colors, if any",
+        default=False)
+
+    ExportSkinWeights = BoolProperty(
+        name="    Export Skin Weights",
+        description="Bind mesh vertices to armature bones",
+        default=False)
+
+    ApplyModifiers = BoolProperty(
+        name="    Apply Modifiers",
+        description="Apply the effects of object modifiers before export",
+        default=False)
+
+    ExportArmatureBones = BoolProperty(
+        name="Export Armature Bones",
+        description="Export armatures bones",
+        default=False)
+
+    ExportRestBone = BoolProperty(
+        name="    Export Rest Position",
+        description="Export bones in their rest position (recommended for "\
+            "animation)",
+        default=False)
+
+    ExportAnimation = BoolProperty(
+        name="Export Animations",
+        description="Export object and bone animations.  Data is exported for "\
+            "every frame",
+        default=False)
+
+    IncludeFrameRate = BoolProperty(
+        name="    Include Frame Rate",
+        description="Include the AnimTicksPerSecond template which is "\
+            "used by some engines to control animation speed",
+        default=False)
+
+    ExportActionsAsSets = BoolProperty(
+        name="    Export Actions as AnimationSets",
+        description="Export each action of each object as a separate "\
+            "AnimationSet. Otherwise all current actions are lumped "\
+            "together into a single set",
+        default=False)
+
+    AttachToFirstArmature = BoolProperty(
+        name="        Attach Unused Actions to First Armature",
+        description="Export each unused action as if used by the first "\
+            "armature object",
+        default=False)
+
+    Verbose = BoolProperty(
+        name="Verbose",
+        description="Run the exporter in debug mode. Check the console for "\
+            "output",
+        default=False)
+
+    def execute(self, context):
+        self.filepath = bpy.path.ensure_ext(self.filepath, ".x")
+
+        from . import export_x
+        Exporter = export_x.DirectXExporter(self, context)
+        Exporter.Export()
+        return {'FINISHED'}
+
+    def invoke(self, context, event):
+        if not self.filepath:
+            self.filepath = bpy.path.ensure_ext(bpy.data.filepath, ".x")
+        context.window_manager.fileselect_add(self)
+        return {'RUNNING_MODAL'}
+
+
+def menu_func(self, context):
+    self.layout.operator(ExportDirectX.bl_idname, text="DirectX (.x)")
 
 
 def register():
-    bpy.coat3D = dict()
-    bpy.coat3D['active_coat'] = ''
-    bpy.coat3D['status'] = 0
-    bpy.coat3D['kuva'] = 1
-
-    class ObjectCoat3D(bpy.types.PropertyGroup):
-        objpath = StringProperty(name="Object_Path")
-        applink_name = StringProperty(name="Object_Applink_name")
-        coatpath = StringProperty(name="Coat_Path")
-        objectdir = StringProperty(name="ObjectPath", subtype="FILE_PATH")
-        objecttime = StringProperty(name="ObjectTime", subtype="FILE_PATH")
-        texturefolder = StringProperty(name="Texture folder:", subtype="DIR_PATH")
-        path3b = StringProperty(name="3B Path", subtype="FILE_PATH")
-        export_on = BoolProperty(name="Export_On", description="Add Modifiers and export",default= False)
-        dime = FloatVectorProperty(name="dime",description="Dimension")
-        loc = FloatVectorProperty(name="Location",description="Location")
-        rot = FloatVectorProperty(name="Rotation",description="Rotation",subtype='EULER')
-        sca = FloatVectorProperty(name="Scale",description="Scale")
-
-    class SceneCoat3D(bpy.types.PropertyGroup):
-
-        defaultfolder = StringProperty(
-            name="FilePath",
-            subtype="DIR_PATH",
-        )
-        cursor_loc = FloatVectorProperty(name="Cursor_loc",description="location")
-
-        exchangedir = StringProperty(
-            name="FilePath",
-            subtype="DIR_PATH"
-        )
-        exchangefolder = StringProperty(
-            name="FilePath",
-            subtype="DIR_PATH"
-        )
-
-
-
-
-        wasactive = StringProperty(
-            name="Pass active object",
-        )
-        import_box = BoolProperty(
-            name="Import window",
-            description="Allows to skip import dialog",
-            default= True
-        )
-        exchange_found = BoolProperty(
-            name="Exchange Found",
-            description="Alert if Exchange folder is not found",
-            default= True
-        )
-        export_box = BoolProperty(
-            name="Export window",
-            description="Allows to skip export dialog",
-            default= True
-        )
-        export_color = BoolProperty(
-            name="Export color",
-            description="Export color texture",
-            default= True
-        )
-        export_spec = BoolProperty(
-            name="Export specular",
-            description="Export specular texture",
-            default= True
-        )
-        export_normal = BoolProperty(
-            name="Export Normal",
-            description="Export normal texture",
-            default= True
-        )
-        export_disp = BoolProperty(
-            name="Export Displacement",
-            description="Export displacement texture",
-            default= True
-        )
-        export_position = BoolProperty(
-            name="Export Source Position",
-            description="Export source position",
-            default= True
-        )
-        export_zero_layer = BoolProperty(
-            name="Export from Layer 0",
-            description="Export mesh from Layer 0",
-            default= True
-        )
-        export_coarse = BoolProperty(
-            name="Export Coarse",
-            description="Export Coarse",
-            default= True
-        )
-        exportfile = BoolProperty(
-            name="No Import File",
-            description="Add Modifiers and export",
-            default= False
-        )
-        importmod = BoolProperty(
-            name="Remove Modifiers",
-            description="Import and add modifiers",
-            default= False
-        )
-        exportmod = BoolProperty(
-            name="Modifiers",
-            description="Export modifiers",
-            default= False
-        )
-        export_pos = BoolProperty(
-            name="Remember Position",
-            description="Remember position",
-            default= True
-        )
-        importtextures = BoolProperty(
-            name="Bring Textures",
-            description="Import Textures",
-            default= True
-        )
-        importlevel = BoolProperty(
-            name="Multires. Level",
-            description="Bring Specific Multires Level",
-            default= False
-        )
-        exportover = BoolProperty(
-            name="Export Obj",
-            description="Import Textures",
-            default= False
-        )
-        importmesh = BoolProperty(
-            name="Mesh",
-            description="Import Mesh",
-            default= True
-        )
-
-        # copy location
-        cursor = FloatVectorProperty(
-            name="Cursor",
-            description="Location",
-            subtype="XYZ",
-            default=(0.0, 0.0, 0.0)
-        )
-        loca = FloatVectorProperty(
-            name="location",
-            description="Location",
-            subtype="XYZ",
-            default=(0.0, 0.0, 0.0)
-        )
-        rota = FloatVectorProperty(
-            name="location",
-            description="Location",
-            subtype="EULER",
-            default=(0.0, 0.0, 0.0)
-        )
-        scal = FloatVectorProperty(
-            name="location",
-            description="Location",
-            subtype="XYZ",
-            default=(0.0, 0.0, 0.0)
-        )
-        dime = FloatVectorProperty(
-            name="dimension",
-            description="Dimension",
-            subtype="XYZ",
-            default=(0.0, 0.0, 0.0)
-        )
-
-        type = EnumProperty( name= "Export Type",
-            description= "Different Export Types",
-            items=(("ppp",   "Per-Pixel Painting", ""),
-                   ("mv",   "Microvertex Painting", ""),
-                   ("ptex",   "Ptex Painting", ""),
-                   ("uv",   "UV-Mapping", ""),
-                   ("ref",  "Reference Mesh", ""),
-                   ("retopo",  "Retopo mesh as new layer", ""),
-                   ("vox",  "Mesh As Voxel Object", ""),
-                   ("alpha",  "Mesh As New Pen Alpha", ""),
-                   ("prim",  "Mesh As Voxel Primitive", ""),
-                   ("curv", "Mesh As a Curve Profile", ""),
-                   ("autopo",  "Mesh For Auto-retopology", ""),
-                   ),
-            default= "ppp"
-        )
-
     bpy.utils.register_module(__name__)
 
-    bpy.types.Object.coat3D= PointerProperty(
-        name= "Applink Variables",
-        type=  ObjectCoat3D,
-        description= "Applink variables"
-    )
-
-    bpy.types.Scene.coat3D= PointerProperty(
-        name= "Applink Variables",
-        type=  SceneCoat3D,
-        description= "Applink variables"
-    )
+    bpy.types.INFO_MT_file_export.append(menu_func)
 
 
 def unregister():
-    import bpy
-
-    del bpy.types.Object.coat3D
-    del bpy.types.Scene.coat3D
-    del bpy.coat3D
-
     bpy.utils.unregister_module(__name__)
+
+    bpy.types.INFO_MT_file_export.remove(menu_func)
 
 
 if __name__ == "__main__":
     register()
-
-
-
