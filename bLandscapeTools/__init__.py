@@ -1,94 +1,257 @@
-bl_info= {
-    "name": "bLandscape Tools",
-    "author": "Miroslav Horvath",
-    "version": (0, 1),
-    "blender": (2, 7, 8),
-    "location": "View3D > Properties > Landscape Tools",
-    "description": "Tools for virtual landscaping",
+# ##### BEGIN GPL LICENSE BLOCK #####
+#
+#  This program is free software; you can redistribute it and/or
+#  modify it under the terms of the GNU General Public License
+#  as published by the Free Software Foundation; either version 2
+#  of the License, or (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, write to the Free Software Foundation,
+#  Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+#
+# ##### END GPL LICENSE BLOCK #####
+
+bl_info = {
+    "name": "3D-Coat Applink",
+    "author": "Kalle-Samuli Riihikoski (haikalle)",
+    "version": (3, 5, 21),
+    "blender": (2, 59, 0),
+    "location": "Scene > 3D-Coat Applink",
+    "description": "Transfer data between 3D-Coat/Blender",
     "warning": "",
-    "wiki_url": "https://github.com/paxetgloria/BlenderLandscapeTools/wiki",
-    "tracker_url": "https://github.com/paxetgloria/BlenderLandscapeTools/issues",
-    "support" : "COMMUNITY",
-    "category": "3D View"}
+    "wiki_url": "http://wiki.blender.org/index.php/Extensions:2.6/Py/"
+                "Scripts/Import-Export/3dcoat_applink",
+    "category": "Import-Export",
+}
 
-import sys
-import os
-# ----------------------------------------------
-# Import modules
-# ----------------------------------------------
+
 if "bpy" in locals():
-    import imp
-
-    imp.reload(bLT_main)
-    print("BTT: Reloaded multifiles")
+    import importlib
+    importlib.reload(coat)
+    importlib.reload(tex)
 else:
-    from . import bLT_main
+    from . import coat
+    from . import tex
 
-    print("BTT: Imported multifiles")
-
-
-    
 import bpy
-from . import bLT_utils
-from bpy.types import AddonPreferences
-from bpy.props import StringProperty
+from bpy.props import *
 
-        
-class AddonPref_bLT(AddonPreferences):
-    bl_idname = __name__
 
-    GDALPath = StringProperty(name="",
-        attr="GDALPath",
-        description="Path to GDAL",
-        maxlen= 1024,
-        subtype='DIR_PATH',
-        default='c:\Program Files\GDAL\\')
-    
-    def draw(self, context):
-        layout = self.layout
-        
-        #External tools
-        box = layout.box()
-        box.label('External Tools')
-        box.prop(self, "GDALPath")
-
-    
 def register():
-    bpy.utils.register_class(bLT_main.VIEW3D_ProjectSettings)
-    bpy.utils.register_class(bLT_main.VIEW3D_LocationsManager)
-    
-    bpy.utils.register_class(bLT_main.OP_CreateProject)
-    bpy.utils.register_class(bLT_main.OP_ImportLocation)
-    bpy.utils.register_class(bLT_main.OP_CreateLocation)
-    bpy.utils.register_class(bLT_main.OP_CommitLocation)
-    bpy.utils.register_class(bLT_main.OP_PickLocation)
-    bpy.utils.register_class(bLT_main.OP_DrawSplashScreen)
-    
-    bpy.utils.register_class(AddonPref_bLT)
-    
-    # turn off relative paths and use absolute instead
-    bpy.context.user_preferences.filepaths.use_relative_paths = False
-    
-    
+    bpy.coat3D = dict()
+    bpy.coat3D['active_coat'] = ''
+    bpy.coat3D['status'] = 0
+    bpy.coat3D['kuva'] = 1
+
+    class ObjectCoat3D(bpy.types.PropertyGroup):
+        objpath = StringProperty(name="Object_Path")
+        applink_name = StringProperty(name="Object_Applink_name")
+        coatpath = StringProperty(name="Coat_Path")
+        objectdir = StringProperty(name="ObjectPath", subtype="FILE_PATH")
+        objecttime = StringProperty(name="ObjectTime", subtype="FILE_PATH")
+        texturefolder = StringProperty(name="Texture folder:", subtype="DIR_PATH")
+        path3b = StringProperty(name="3B Path", subtype="FILE_PATH")
+        export_on = BoolProperty(name="Export_On", description="Add Modifiers and export",default= False)
+        dime = FloatVectorProperty(name="dime",description="Dimension")
+        loc = FloatVectorProperty(name="Location",description="Location")
+        rot = FloatVectorProperty(name="Rotation",description="Rotation",subtype='EULER')
+        sca = FloatVectorProperty(name="Scale",description="Scale")
+
+    class SceneCoat3D(bpy.types.PropertyGroup):
+
+        defaultfolder = StringProperty(
+            name="FilePath",
+            subtype="DIR_PATH",
+        )
+        cursor_loc = FloatVectorProperty(name="Cursor_loc",description="location")
+
+        exchangedir = StringProperty(
+            name="FilePath",
+            subtype="DIR_PATH"
+        )
+        exchangefolder = StringProperty(
+            name="FilePath",
+            subtype="DIR_PATH"
+        )
+
+
+
+
+        wasactive = StringProperty(
+            name="Pass active object",
+        )
+        import_box = BoolProperty(
+            name="Import window",
+            description="Allows to skip import dialog",
+            default= True
+        )
+        exchange_found = BoolProperty(
+            name="Exchange Found",
+            description="Alert if Exchange folder is not found",
+            default= True
+        )
+        export_box = BoolProperty(
+            name="Export window",
+            description="Allows to skip export dialog",
+            default= True
+        )
+        export_color = BoolProperty(
+            name="Export color",
+            description="Export color texture",
+            default= True
+        )
+        export_spec = BoolProperty(
+            name="Export specular",
+            description="Export specular texture",
+            default= True
+        )
+        export_normal = BoolProperty(
+            name="Export Normal",
+            description="Export normal texture",
+            default= True
+        )
+        export_disp = BoolProperty(
+            name="Export Displacement",
+            description="Export displacement texture",
+            default= True
+        )
+        export_position = BoolProperty(
+            name="Export Source Position",
+            description="Export source position",
+            default= True
+        )
+        export_zero_layer = BoolProperty(
+            name="Export from Layer 0",
+            description="Export mesh from Layer 0",
+            default= True
+        )
+        export_coarse = BoolProperty(
+            name="Export Coarse",
+            description="Export Coarse",
+            default= True
+        )
+        exportfile = BoolProperty(
+            name="No Import File",
+            description="Add Modifiers and export",
+            default= False
+        )
+        importmod = BoolProperty(
+            name="Remove Modifiers",
+            description="Import and add modifiers",
+            default= False
+        )
+        exportmod = BoolProperty(
+            name="Modifiers",
+            description="Export modifiers",
+            default= False
+        )
+        export_pos = BoolProperty(
+            name="Remember Position",
+            description="Remember position",
+            default= True
+        )
+        importtextures = BoolProperty(
+            name="Bring Textures",
+            description="Import Textures",
+            default= True
+        )
+        importlevel = BoolProperty(
+            name="Multires. Level",
+            description="Bring Specific Multires Level",
+            default= False
+        )
+        exportover = BoolProperty(
+            name="Export Obj",
+            description="Import Textures",
+            default= False
+        )
+        importmesh = BoolProperty(
+            name="Mesh",
+            description="Import Mesh",
+            default= True
+        )
+
+        # copy location
+        cursor = FloatVectorProperty(
+            name="Cursor",
+            description="Location",
+            subtype="XYZ",
+            default=(0.0, 0.0, 0.0)
+        )
+        loca = FloatVectorProperty(
+            name="location",
+            description="Location",
+            subtype="XYZ",
+            default=(0.0, 0.0, 0.0)
+        )
+        rota = FloatVectorProperty(
+            name="location",
+            description="Location",
+            subtype="EULER",
+            default=(0.0, 0.0, 0.0)
+        )
+        scal = FloatVectorProperty(
+            name="location",
+            description="Location",
+            subtype="XYZ",
+            default=(0.0, 0.0, 0.0)
+        )
+        dime = FloatVectorProperty(
+            name="dimension",
+            description="Dimension",
+            subtype="XYZ",
+            default=(0.0, 0.0, 0.0)
+        )
+
+        type = EnumProperty( name= "Export Type",
+            description= "Different Export Types",
+            items=(("ppp",   "Per-Pixel Painting", ""),
+                   ("mv",   "Microvertex Painting", ""),
+                   ("ptex",   "Ptex Painting", ""),
+                   ("uv",   "UV-Mapping", ""),
+                   ("ref",  "Reference Mesh", ""),
+                   ("retopo",  "Retopo mesh as new layer", ""),
+                   ("vox",  "Mesh As Voxel Object", ""),
+                   ("alpha",  "Mesh As New Pen Alpha", ""),
+                   ("prim",  "Mesh As Voxel Primitive", ""),
+                   ("curv", "Mesh As a Curve Profile", ""),
+                   ("autopo",  "Mesh For Auto-retopology", ""),
+                   ),
+            default= "ppp"
+        )
+
+    bpy.utils.register_module(__name__)
+
+    bpy.types.Object.coat3D= PointerProperty(
+        name= "Applink Variables",
+        type=  ObjectCoat3D,
+        description= "Applink variables"
+    )
+
+    bpy.types.Scene.coat3D= PointerProperty(
+        name= "Applink Variables",
+        type=  SceneCoat3D,
+        description= "Applink variables"
+    )
+
 
 def unregister():
-    bpy.utils.unregister_class(bLT_main.VIEW3D_ProjectSettings)
-    bpy.utils.unregister_class(bLT_main.VIEW3D_LocationsManager)
-    
-    bpy.utils.unregister_class(bLT_main.OP_CreateProject)
-    bpy.utils.unregister_class(bLT_main.OP_ImportLocation)
-    bpy.utils.unregister_class(bLT_main.OP_CreateLocation)
-    bpy.utils.unregister_class(bLT_main.OP_CommitLocation)
-    bpy.utils.unregister_class(bLT_main.OP_PickLocation)
-    bpy.utils.unregister_class(bLT_main.OP_DrawSplashScreen)
-    
-    
-    bpy.utils.unregister_class(AddonPref_bLT)
+    import bpy
 
+    del bpy.types.Object.coat3D
+    del bpy.types.Scene.coat3D
+    del bpy.coat3D
+
+    bpy.utils.unregister_module(__name__)
 
 
 if __name__ == "__main__":
     register()
-    
-    
-    
+
+
+
