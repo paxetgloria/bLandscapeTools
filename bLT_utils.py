@@ -5,112 +5,112 @@ from math import floor, isnan, ceil
 from numpy import genfromtxt,vstack,hstack,array,savetxt,delete,ones,flipud,empty,fromfile,float16,float32,reshape
 from mathutils import Vector, Matrix
 
-def doblqp01(self, context):
-    dl10qobp = bpy.data.scenes["Default_Location"].doqbpl10
+def d01lqobp(self, context):
+    doql0b1pPath = bpy.data.scenes["Default_Location"].dlqop10b
     
-    d0oqpbl1 = bpy.context.user_preferences.addons["bLandscapeTools"].preferences.d0oqpbl1
-    dq1o0pbl = bpy.data.scenes["Default_Location"].dq1o0pbl
-    dpboql01 = 'Project_{}'.format(dq1o0pbl.split('\\')[-2])
-    dq01blpo = d0o1blpq(d0oqpbl1,dl10qobp)
+    dp01lobq = bpy.context.user_preferences.addons["bLandscapeTools"].preferences.dp01lobq
+    db0pl1oq = bpy.data.scenes["Default_Location"].db0pl1oq
+    do0qpb1l = 'Project_{}'.format(db0pl1oq.split('\\')[-2])
+    dl1qpbo0 = d1l0qbpo(dp01lobq,doql0b1pPath)
     
-    if os.path.exists('{}ProjectData\\Textures\\previewSatTex.png'.format(dq1o0pbl)):
-        os.remove('{}ProjectData\\Textures\\previewSatTex.png'.format(dq1o0pbl))
+    if os.path.exists('{}ProjectData\\Textures\\previewSatTex.png'.format(db0pl1oq)):
+        os.remove('{}ProjectData\\Textures\\previewSatTex.png'.format(db0pl1oq))
     
-    if dq01blpo < 5000:
-        copy(bpy.context.scene.doqbpl10,'{}ProjectData\\Textures\\'.format(dq1o0pbl))
-        dq01lbop = bpy.context.scene.doqbpl10.split('\\')[-1]
-        os.rename('{}ProjectData\\Textures\\{}'.format(dq1o0pbl,dq01lbop),'{}ProjectData\\Textures\\previewSatTex.png'.format(dq1o0pbl))
+    if dl1qpbo0 < 5000:
+        copy(bpy.context.scene.dlqop10b,'{}ProjectData\\Textures\\'.format(db0pl1oq))
+        dopql10b = bpy.context.scene.dlqop10b.split('\\')[-1]
+        os.rename('{}ProjectData\\Textures\\{}'.format(db0pl1oq,dopql10b),'{}ProjectData\\Textures\\previewSatTex.png'.format(db0pl1oq))
     else:
-        cmd = '"{}gdal_translate.exe" "{}" -of PNG -outsize 5000 5000 "{}ProjectData\Textures\previewSatTex.png"'.format(d0oqpbl1,dl10qobp,dq1o0pbl)
+        cmd = '"{}gdal_translate.exe" "{}" -of PNG -outsize 5000 5000 "{}ProjectData\Textures\previewSatTex.png"'.format(dp01lobq,doql0b1pPath,db0pl1oq)
         subprocess.call(cmd)
     if bpy.data.images.get('previewSatTex.png') is None:
-        bpy.data.images.load('{}ProjectData\\Textures\\previewSatTex.png'.format(dq1o0pbl))
+        bpy.data.images.load('{}ProjectData\\Textures\\previewSatTex.png'.format(db0pl1oq))
         bpy.data.images['previewSatTex.png'].use_fake_user = True
     else:
         bpy.data.images['previewSatTex.png'].reload()
         
-    do10pqlb = bpy.data.scenes['Default_Location']    
-    do10pqlb["ImageryResolution"] = dq01blpo
+    dp10boql = bpy.data.scenes['Default_Location']    
+    dp10boql["ImageryResolution"] = dl1qpbo0
     
-    bpy.ops.wm.save_as_mainfile(filepath='{}{}.blend'.format(dq1o0pbl,dpboql01))
+    bpy.ops.wm.save_as_mainfile(filepath='{}{}.blend'.format(db0pl1oq,do0qpb1l))
     
-def d1opl0qb(self, context):
+def dlbpo1q0(self, context):
     
     
-    doql10pb = bpy.data.scenes["Default_Location"].d0bq1olp
+    dp01lqob = bpy.data.scenes["Default_Location"].dlbo0qp1
     
-    d0oqpbl1 = bpy.context.user_preferences.addons["bLandscapeTools"].preferences.d0oqpbl1
-    dq1o0pbl = bpy.data.scenes["Default_Location"].dq1o0pbl
-    dpboql01 = 'Project_{}'.format(dq1o0pbl.split('\\')[-2])
-    dqlpb1o0 = d0bqop1l(doql10pb)
-    d01lbpqo = genfromtxt(doql10pb, delimiter=' ', skip_header=6)
-    dpq10lbo = '{}ProjectData\\Textures\\elevation.bLTe'.format(dq1o0pbl)
-    d01lbpqo.astype('float32').tofile(dpq10lbo)
+    dp01lobq = bpy.context.user_preferences.addons["bLandscapeTools"].preferences.dp01lobq
+    db0pl1oq = bpy.data.scenes["Default_Location"].db0pl1oq
+    do0qpb1l = 'Project_{}'.format(db0pl1oq.split('\\')[-2])
+    db0oq1lp = dbop1lq0(dp01lqob)
+    dp0bql1o = genfromtxt(dp01lqob, delimiter=' ', skip_header=6)
+    do10lqbp = '{}ProjectData\\Textures\\elevation.bLTe'.format(db0pl1oq)
+    dp0bql1o.astype('float32').tofile(do10lqbp)
 
     print('Elevation converted')
     
-    db0opq1l(doql10pb)
+    dp1b0oql(dp01lqob)
     
-    do10pqlb = bpy.data.scenes['Default_Location']
-    do10pqlb["d0l1qpbo"] = dqlpb1o0[0]
-    do10pqlb["dblq0po1"] = dqlpb1o0[1]
-    do10pqlb["d0l1obqp"] = dqlpb1o0[2]
-    do10pqlb["dqlp0o1b"] = dqlpb1o0[3]
-    bpy.data.scenes['Default_Location'].dlq1bpo0 = dpq10lbo
+    dp10boql = bpy.data.scenes['Default_Location']
+    dp10boql["dlqp0o1b"] = db0oq1lp[0]
+    dp10boql["dbo0qlp1"] = db0oq1lp[1]
+    dp10boql["db0qpol1"] = db0oq1lp[2]
+    dp10boql["d01bopql"] = db0oq1lp[3]
+    bpy.data.scenes['Default_Location'].doplq0b1 = do10lqbp
 
     
-    bpy.ops.wm.save_as_mainfile(filepath='{}{}.blend'.format(dq1o0pbl,dpboql01))
+    bpy.ops.wm.save_as_mainfile(filepath='{}{}.blend'.format(db0pl1oq,do0qpb1l))
     
-def db0opq1l(doql10pb):
-    d0oqpbl1 = bpy.context.user_preferences.addons["bLandscapeTools"].preferences.d0oqpbl1
-    dq1o0pbl = bpy.data.scenes["Default_Location"].dq1o0pbl
+def dp1b0oql(dp01lqob):
+    dp01lobq = bpy.context.user_preferences.addons["bLandscapeTools"].preferences.dp01lobq
+    db0pl1oq = bpy.data.scenes["Default_Location"].db0pl1oq
     
-    cmd = '"{}gdaldem.exe" hillshade -az 45 -z 1.3 "{}" "{}ProjectData\Textures\previewTerTex.tif"'.format(d0oqpbl1,doql10pb,dq1o0pbl)
+    cmd = '"{}gdaldem.exe" hillshade -az 45 -z 1.3 "{}" "{}ProjectData\Textures\previewTerTex.tif"'.format(dp01lobq,dp01lqob,db0pl1oq)
     subprocess.call(cmd)
     
     if bpy.data.images.get('previewTerTex.tif') is None:
-        bpy.data.images.load('{}ProjectData\\Textures\\previewTerTex.tif'.format(dq1o0pbl))
+        bpy.data.images.load('{}ProjectData\\Textures\\previewTerTex.tif'.format(db0pl1oq))
         bpy.data.images['previewTerTex.tif'].use_fake_user = True
     else:
         bpy.data.images['previewTerTex.tif'].reload()
 
 
-def dpobq0l1():
+def dob01qpl():
     import addon_utils
     
     addons = [mod for mod in addon_utils.modules(refresh=False)]
 
     for mod in addons:
         if mod.__name__ == "bLandscapeTools":
-            dlobp10q = mod.__file__
+            scriptPath = mod.__file__
             pass
            
-    dlpq1b0o = dlobp10q[:-12]
-    dq01plob = '{}\\data'.format(dlpq1b0o)
+    scriptFolder = scriptPath[:-12]
+    d0lqop1b = '{}\\data'.format(scriptFolder)
     
-    return dlobp10q,dlpq1b0o,dq01plob
+    return scriptPath,scriptFolder,d0lqop1b
      
-def d0o1blpq(d0oqpbl1,dl10qobp):
-    ext = dl10qobp.split('.')[-1]
+def d1l0qbpo(dp01lobq,doql0b1pPath):
+    ext = doql0b1pPath.split('.')[-1]
     if ext == 'png':
-        dq1p0bol = 'pgw'
+        dbopql10 = 'pgw'
     if ext == 'tif' or ext == 'tiff':
-        dq1p0bol = 'tfw'
+        dbopql10 = 'tfw'
     if ext == 'jpg' or ext == 'jpeg':
-        dq1p0bol = 'jgw'
+        dbopql10 = 'jgw'
         
-    cmd = '{}gdalinfo.exe "{}"'.format(d0oqpbl1,dl10qobp)
+    cmd = '{}gdalinfo.exe "{}"'.format(dp01lobq,doql0b1pPath)
     print(cmd)
-    dl0bo1pq = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+    dolb0qp1 = subprocess.Popen(cmd, stdout=subprocess.PIPE)
     
     for i in range(0,10):
-        line = str(dl0bo1pq.stdout.readline()).rstrip('\\r\\n\'')
+        line = str(dolb0qp1.stdout.readline()).rstrip('\\r\\n\'')
         if line.split(' ')[0][2:] == 'Size':
             info = int(line.split(' ')[3])
 
     return info
     
-def d0bqop1l(path):
+def dbop1lq0(path):
     info = []
     f = open(path,"r")
     line = f.readline().split(" ")
@@ -119,19 +119,19 @@ def d0bqop1l(path):
         line = f.readline().split(" ")
     f.close()
     ncols = int(info[0])
-    d0op1bql = float(info[4])
+    dpoq01bl = float(info[4])
     x = float(info[2])
     y = float(info[3])
-    return ncols,x,y,d0op1bql
+    return ncols,x,y,dpoq01bl
 
     
     
 
-def dbp0oql1(dbqp1lo0):
+def d1pb0oql(d0oplq1b):
     bpy.ops.object.lamp_add(type='HEMI')
     hemi = bpy.context.object
     hemi.hide = True
-    hemi.name = "Hemi_" + dbqp1lo0
+    hemi.name = "Hemi_" + d0oplq1b
 
     Areas = bpy.context.screen.areas
     for Area in Areas:
@@ -150,34 +150,34 @@ def dbp0oql1(dbqp1lo0):
             Area.spaces.active.fx_settings.ssao.samples = 70
     
             
-def dlq0pob1():
-    dq01plob = dpobq0l1()[2]
-    dq1o0pbl = bpy.context.scene.dq1o0pbl
-    dpboql01 = 'Project_{}'.format(dq1o0pbl.split('\\')[-2])
+def dp1q0blo():
+    d0lqop1b = dob01qpl()[2]
+    db0pl1oq = bpy.context.scene.db0pl1oq
+    do0qpb1l = 'Project_{}'.format(db0pl1oq.split('\\')[-2])
 
         
   
     
-    bpy.ops.wm.open_mainfile(filepath='{}\\dummy.blend'.format(dq01plob))
+    bpy.ops.wm.open_mainfile(filepath='{}\\dummy.blend'.format(d0lqop1b))
 
-    bpy.context.scene.db0opql1 = True
-    bpy.context.scene.dq1o0pbl = dq1o0pbl
-    bpy.context.scene['dolqp1b0'] = False
+    bpy.context.scene.dlo01pqb = True
+    bpy.context.scene.db0pl1oq = db0pl1oq
+    bpy.context.scene['dq1bplo0'] = False
     
-    bpy.ops.wm.save_as_mainfile(filepath='{}{}.blend'.format(bpy.context.scene.dq1o0pbl,dpboql01),copy=False)
+    bpy.ops.wm.save_as_mainfile(filepath='{}{}.blend'.format(bpy.context.scene.db0pl1oq,do0qpb1l),copy=False)
 
-    if not os.path.exists(bpy.context.scene.dq1o0pbl + 'ProjectData'):
-	    os.makedirs(bpy.context.scene.dq1o0pbl + 'ProjectData')
-    if not os.path.exists(bpy.context.scene.dq1o0pbl + 'ProjectData\\Textures'):
-	    os.makedirs(bpy.context.scene.dq1o0pbl + 'ProjectData\\Textures')
+    if not os.path.exists(bpy.context.scene.db0pl1oq + 'ProjectData'):
+	    os.makedirs(bpy.context.scene.db0pl1oq + 'ProjectData')
+    if not os.path.exists(bpy.context.scene.db0pl1oq + 'ProjectData\\Textures'):
+	    os.makedirs(bpy.context.scene.db0pl1oq + 'ProjectData\\Textures')
     else:
-        rmtree(bpy.context.scene.dq1o0pbl + 'ProjectData\\Textures')
-        os.makedirs(bpy.context.scene.dq1o0pbl + 'ProjectData\\Textures')
-    if not os.path.exists(bpy.context.scene.dq1o0pbl + 'Output'):
-	    os.makedirs(bpy.context.scene.dq1o0pbl + 'Output')
+        rmtree(bpy.context.scene.db0pl1oq + 'ProjectData\\Textures')
+        os.makedirs(bpy.context.scene.db0pl1oq + 'ProjectData\\Textures')
+    if not os.path.exists(bpy.context.scene.db0pl1oq + 'Output'):
+	    os.makedirs(bpy.context.scene.db0pl1oq + 'Output')
 
         
-def d1lp0bqo():
+def d1qlo0pb():
     bpy.context.area.type = 'IMAGE_EDITOR'
     
     for space in bpy.context.area.spaces:
@@ -195,9 +195,9 @@ def d1lp0bqo():
             for region in area.regions:
                 if region.type == 'WINDOW':
                     override = {'window': bpy.context.window, 'screen': screen, 'area': area, 'region': region}
-    bpy.ops.view2d.d10bqpol(override,'INVOKE_DEFAULT')
+    bpy.ops.view2d.d0bqp1ol(override,'INVOKE_DEFAULT')
 
-def dobql01p(self,context):
+def d1bl0opq(self,context):
     region = context.region
 
     width,height = region.width,region.height
@@ -237,7 +237,7 @@ def dobql01p(self,context):
     bgl.glColor4f(0.0, 0.0, 0.0, 1.0)
     blf.disable(0, blf.SHADOW)
     
-def d1b0qlop(self, context):
+def d10qlobp(self, context):
     region = context.region
 
     width,height = region.width,region.height
@@ -255,331 +255,331 @@ def d1b0qlop(self, context):
     
     if not self.switch:
         bgl.glBegin(bgl.GL_LINES)
-        bgl.glVertex2i(0, self.dpq1b0ol)
-        bgl.glVertex2i(width, self.dpq1b0ol)
-        bgl.glVertex2i(self.dbplo1q0, 0)
-        bgl.glVertex2i(self.dbplo1q0, height)
+        bgl.glVertex2i(0, self.dbql0p1o)
+        bgl.glVertex2i(width, self.dbql0p1o)
+        bgl.glVertex2i(self.dqlbp1o0, 0)
+        bgl.glVertex2i(self.dqlbp1o0, height)
         bgl.glEnd()
         
     else:
-        d1p0lboq = self.dpoqbl01
-        d1bpolq0 = list(bpy.context.region.view2d.view_to_region(d1p0lboq[0],d1p0lboq[1],clip=False))
+        dopb1l0q = self.d0bqlop1
+        dqlop0b1 = list(bpy.context.region.view2d.view_to_region(dopb1l0q[0],dopb1l0q[1],clip=False))
         
         bgl.glBegin(bgl.GL_LINE_LOOP)
-        bgl.glVertex2i(self.dbplo1q0, self.dpq1b0ol)
-        bgl.glVertex2i(d1bpolq0[0], self.dpq1b0ol)
-        bgl.glVertex2i(d1bpolq0[0], d1bpolq0[1])
-        bgl.glVertex2i(self.dbplo1q0, d1bpolq0[1])
+        bgl.glVertex2i(self.dqlbp1o0, self.dbql0p1o)
+        bgl.glVertex2i(dqlop0b1[0], self.dbql0p1o)
+        bgl.glVertex2i(dqlop0b1[0], dqlop0b1[1])
+        bgl.glVertex2i(self.dqlbp1o0, dqlop0b1[1])
         bgl.glEnd()
 
         bgl.glColor4f(0.0, 1.0, 0.0, 0.3)
         bgl.glBegin(bgl.GL_POLYGON)
-        bgl.glVertex2i(self.dbplo1q0, self.dpq1b0ol)
-        bgl.glVertex2i(d1bpolq0[0], self.dpq1b0ol)
-        bgl.glVertex2i(d1bpolq0[0], d1bpolq0[1])
-        bgl.glVertex2i(self.dbplo1q0, d1bpolq0[1])
+        bgl.glVertex2i(self.dqlbp1o0, self.dbql0p1o)
+        bgl.glVertex2i(dqlop0b1[0], self.dbql0p1o)
+        bgl.glVertex2i(dqlop0b1[0], dqlop0b1[1])
+        bgl.glVertex2i(self.dqlbp1o0, dqlop0b1[1])
         bgl.glEnd()
         bgl.glColor4f(1.0, 1.0, 1.0, 1.0)
-        blf.position(font_id, self.dbplo1q0 - 210, self.dpq1b0ol - 15, 0)
-        blf.draw(font_id, self.dql1pb0o)
-        blf.position(font_id, self.dbplo1q0 - 210, self.dpq1b0ol - 30, 0)
-        blf.draw(font_id, self.dbpql1o0)
-        blf.position(font_id, self.dbplo1q0 - 210, self.dpq1b0ol - 45, 0)
-        blf.draw(font_id, self.d0bpqlo1)      
+        blf.position(font_id, self.dqlbp1o0 - 210, self.dbql0p1o - 15, 0)
+        blf.draw(font_id, self.d0lo1qbp)
+        blf.position(font_id, self.dqlbp1o0 - 210, self.dbql0p1o - 30, 0)
+        blf.draw(font_id, self.do1q0bpl)
+        blf.position(font_id, self.dqlbp1o0 - 210, self.dbql0p1o - 45, 0)
+        blf.draw(font_id, self.dlp1qb0o)      
 
     bgl.glColor4f(0.0, 0.0, 0.0, 1.0)
     bgl.glDisable(bgl.GL_LINE_STIPPLE)
     blf.disable(0, blf.SHADOW)
           
-def dop1lbq0(dbp1olq0,dblq0o1p):
-    dl0q1opb, dopbql01, d0lb1poq, dbq0pl1o = dbp1olq0[0], dbp1olq0[1], dblq0o1p[0], dblq0o1p[1]
+def dobl1p0q(dpl0bo1q,dpl1oq0b):
+    d0plb1oq, d1qlpo0b, dqblop10, dbpl01oq = dpl0bo1q[0], dpl0bo1q[1], dpl1oq0b[0], dpl1oq0b[1]
 
-    if d0lb1poq < 0:
-        d0lb1poq = 0.0
-    elif d0lb1poq > 1:
-        d0lb1poq = 1.0
+    if dqblop10 < 0:
+        dqblop10 = 0.0
+    elif dqblop10 > 1:
+        dqblop10 = 1.0
         
-    if dbq0pl1o < 0:
-        dbq0pl1o = 0.0
-    elif dbq0pl1o > 1:
-        dbq0pl1o = 1.0
+    if dbpl01oq < 0:
+        dbpl01oq = 0.0
+    elif dbpl01oq > 1:
+        dbpl01oq = 1.0
 
-    if dl0q1opb < 0:
-        dl0q1opb = 0.0
-    elif dl0q1opb > 1:
-        dl0q1opb = 1.0
+    if d0plb1oq < 0:
+        d0plb1oq = 0.0
+    elif d0plb1oq > 1:
+        d0plb1oq = 1.0
     
-    if dopbql01 < 0:
-        dopbql01 = 0.0
-    elif dopbql01 > 1:
-        dopbql01 = 1.0
+    if d1qlpo0b < 0:
+        d1qlpo0b = 0.0
+    elif d1qlpo0b > 1:
+        d1qlpo0b = 1.0
 
-    if d0lb1poq < dl0q1opb:
-        dqol1bp0 = d0lb1poq
-        d1loq0pb = dl0q1opb
+    if dqblop10 < d0plb1oq:
+        dlo0qbp1 = dqblop10
+        dl0qopb1 = d0plb1oq
     else:
-        dqol1bp0 = dl0q1opb
-        d1loq0pb = d0lb1poq
+        dlo0qbp1 = d0plb1oq
+        dl0qopb1 = dqblop10
 
-    if dbq0pl1o > dopbql01:
-        d0q1olpb = dbq0pl1o
-        dlq01bop = dopbql01
+    if dbpl01oq > d1qlpo0b:
+        dlqobp10 = dbpl01oq
+        d0plboq1 = d1qlpo0b
     else:
-        d0q1olpb = dopbql01
-        dlq01bop = dbq0pl1o
+        dlqobp10 = d1qlpo0b
+        d0plboq1 = dbpl01oq
   
-    return d0q1olpb,dqol1bp0,dlq01bop,d1loq0pb
+    return dlqobp10,dlo0qbp1,d0plboq1,dl0qopb1
     
-def dblqo1p0(d0op1bql,dloq0b1p,d0q1olpb,dqol1bp0,dlq01bop,d1loq0pb):
-    dpoql0b1 = False
-    db1oql0p = False
+def dlbp0oq1(dpoq01bl,dbl0qpo1,dlqobp10,dlo0qbp1,d0plboq1,dl0qopb1):
+    d1lbpq0o = False
+    d1olq0pb = False
     
-    if isnan(d0q1olpb):
-        d0q1olpb = 0.0
-    if isnan(dqol1bp0):
-        dqol1bp0 = 0.0
+    if isnan(dlqobp10):
+        dlqobp10 = 0.0
+    if isnan(dlo0qbp1):
+        dlo0qbp1 = 0.0
 
-    if d0q1olpb == 1.0:
-        d0p1oqbl = 0
-        dpoql0b1 = True
+    if dlqobp10 == 1.0:
+        dqlbpo10 = 0
+        d1lbpq0o = True
     else:
-        d0p1oqbl = floor((1 - d0q1olpb) * dloq0b1p)
+        dqlbpo10 = floor((1 - dlqobp10) * dbl0qpo1)
         
-    topLeftColumn = ceil(dqol1bp0 * dloq0b1p)
+    topLeftColumn = ceil(dlo0qbp1 * dbl0qpo1)
     
-    if dlq01bop == 0.0:
-        bottomRightRow = dloq0b1p - 1
+    if d0plboq1 == 0.0:
+        bottomRightRow = dbl0qpo1 - 1
     else:
-        bottomRightRow = floor((1 - dlq01bop) * dloq0b1p) - 1
+        bottomRightRow = floor((1 - d0plboq1) * dbl0qpo1) - 1
         
-    if d1loq0pb == 1.0:
-         bottomRightColumn = dloq0b1p - 1
-         db1oql0p = True
+    if dl0qopb1 == 1.0:
+         bottomRightColumn = dbl0qpo1 - 1
+         d1olq0pb = True
     else:
-        bottomRightColumn = ceil(d1loq0pb * dloq0b1p) - 1
+        bottomRightColumn = ceil(dl0qopb1 * dbl0qpo1) - 1
         
-    dq0lbp1o = bottomRightColumn - topLeftColumn + 2 if db1oql0p else bottomRightColumn - topLeftColumn + 1
-    dq10obpl = bottomRightRow - d0p1oqbl + 2 if dpoql0b1 else bottomRightRow - d0p1oqbl + 1
+    doql1bp0 = bottomRightColumn - topLeftColumn + 2 if d1olq0pb else bottomRightColumn - topLeftColumn + 1
+    dlo1q0pb = bottomRightRow - dqlbpo10 + 2 if d1lbpq0o else bottomRightRow - dqlbpo10 + 1
         
-    return d0p1oqbl, topLeftColumn, bottomRightRow, bottomRightColumn, dpoql0b1, db1oql0p, dq0lbp1o, dq10obpl
+    return dqlbpo10, topLeftColumn, bottomRightRow, bottomRightColumn, d1lbpq0o, d1olq0pb, doql1bp0, dlo1q0pb
     
-def d1lob0qp(dqb1p0lo,dloq0b1p,d0p1oqbl,topLeftColumn,bottomRightRow,bottomRightColumn,dpoql0b1,db1oql0p):
+def db0loq1p(dlboqp10,dbl0qpo1,dqlbpo10,topLeftColumn,bottomRightRow,bottomRightColumn,d1lbpq0o,d1olq0pb):
     print(1111,time.ctime())
-    db01lopq = fromfile(dqb1p0lo, dtype=float32)
-    doq0p1lb = reshape(db01lopq,(dloq0b1p,dloq0b1p))
-    db01lopq = doq0p1lb[d0p1oqbl:bottomRightRow + 1,topLeftColumn:bottomRightColumn + 1]
+    d1poql0b = fromfile(dlboqp10, dtype=float32)
+    dq0ol1pb = reshape(d1poql0b,(dbl0qpo1,dbl0qpo1))
+    d1poql0b = dq0ol1pb[dqlbpo10:bottomRightRow + 1,topLeftColumn:bottomRightColumn + 1]
     
     print(1112,time.ctime())
-    if dpoql0b1 and db1oql0p:
-        d0oqp1lb = db01lopq[0]
-        db01lopq = vstack((d0oqp1lb,db01lopq))
-        dlq0bpo1 = db01lopq[:,[-1]]
-        db01lopq = hstack((db01lopq,dlq0bpo1))
+    if d1lbpq0o and d1olq0pb:
+        dpq1lb0o = d1poql0b[0]
+        d1poql0b = vstack((dpq1lb0o,d1poql0b))
+        d1qob0lp = d1poql0b[:,[-1]]
+        d1poql0b = hstack((d1poql0b,d1qob0lp))
     else:
-        if dpoql0b1:
-            d0oqp1lb = db01lopq[0]
-            db01lopq = vstack((d0oqp1lb,db01lopq))
-        if db1oql0p:
-            dlq0bpo1 = db01lopq[:,[-1]]
-            db01lopq = hstack((db01lopq,dlq0bpo1))
-    return db01lopq
+        if d1lbpq0o:
+            dpq1lb0o = d1poql0b[0]
+            d1poql0b = vstack((dpq1lb0o,d1poql0b))
+        if d1olq0pb:
+            d1qob0lp = d1poql0b[:,[-1]]
+            d1poql0b = hstack((d1poql0b,d1qob0lp))
+    return d1poql0b
 
-def do0qbpl1(d0bqlp1o,dpqbl0o1,topLeftColumn,d1olb0pq,dq0bpol1,d10bqopl,dbo01plq,dp0qlbo1):
-    dl0p1obq = dpqbl0o1 * topLeftColumn - d0bqlp1o * dq0bpol1
-    dpo0b1lq = dpqbl0o1 * d1olb0pq - d0bqlp1o * d10bqopl
-    print('Pixel edge to vertex distance: ', dl0p1obq,dpo0b1lq)
-    doql0bp1 = 1 / d0bqlp1o * dl0p1obq
-    dql1opb0 = 1 / d0bqlp1o * dpo0b1lq
-    print('Vertex from pixel shift: ', doql0bp1,dql1opb0)
+def db0pq1ol(dlo1p0qb,do1pl0qb,topLeftColumn,dqlbpo10Changed,dob10lqp,dbqp0o1l,dl1pq0bo,doqbl01p):
+    d1pl0obq = do1pl0qb * topLeftColumn - dlo1p0qb * dob10lqp
+    dqbo01pl = do1pl0qb * dqlbpo10Changed - dlo1p0qb * dbqp0o1l
+    print('Pixel edge to vertex distance: ', d1pl0obq,dqbo01pl)
+    db1ol0pq = 1 / dlo1p0qb * d1pl0obq
+    db0lo1pq = 1 / dlo1p0qb * dqbo01pl
+    print('Vertex from pixel shift: ', db1ol0pq,db0lo1pq)
     
-    dpoqb01l = 1 / dbo01plq * doql0bp1
-    dqo10plb = 1 - (1 / dp0qlbo1 * dql1opb0)
-    print('uvStart at: ', dpoqb01l, dqo10plb)
+    do10pqlb = 1 / dl1pq0bo * db1ol0pq
+    d1l0boqp = 1 - (1 / doqbl01p * db0lo1pq)
+    print('uvStart at: ', do10pqlb, d1l0boqp)
     
-    dobp10lq = (dpqbl0o1 / d0bqlp1o) * (1 / dbo01plq)
-    dlp01oqb = (dpqbl0o1 / d0bqlp1o) * (1 / dp0qlbo1)
-    print('terrainUVcellsizeLoc: ', dobp10lq, dlp01oqb)
-    return dpoqb01l, dqo10plb, dobp10lq, dlp01oqb
+    db10qplo = (do1pl0qb / dlo1p0qb) * (1 / dl1pq0bo)
+    d0p1qblo = (do1pl0qb / dlo1p0qb) * (1 / doqbl01p)
+    print('terrainUVcellsizeLoc: ', db10qplo, d0p1qblo)
+    return do10pqlb, d1l0boqp, db10qplo, d0p1qblo
 
-def dl0ob1pq(originalHeightField, doq0p1lb, d0l1pboq):
-    originalHeightField[d0l1pboq[0]:d0l1pboq[0] + doq0p1lb.shape[0], d0l1pboq[1]:d0l1pboq[1] + doq0p1lb.shape[1]] = doq0p1lb
+def db0qlpo1(originalHeightField, dq0ol1pb, dl1o0qpb):
+    originalHeightField[dl1o0qpb[0]:dl1o0qpb[0] + dq0ol1pb.shape[0], dl1o0qpb[1]:dl1o0qpb[1] + dq0ol1pb.shape[1]] = dq0ol1pb
     return originalHeightField
     
-def d1lq0opb():
-    dl10qbpo = bpy.data.scenes['Default_Location']
-    dob0q1pl = dl10qbpo.dlq1bpo0
-    dq1o0pbl = dl10qbpo.dq1o0pbl
-    dloq0b1p,dblq0po1,d0l1obqp,d0op1bql = dl10qbpo["d0l1qpbo"],dl10qbpo["dblq0po1"],dl10qbpo["d0l1obqp"],dl10qbpo["dqlp0o1b"]
-    dopbl1q0 = fromfile(dob0q1pl,dtype=float32)
-    d1qlpb0o = dopbl1q0.reshape((dloq0b1p,dloq0b1p))
+def d10lboqp():
+    dqo01lpb = bpy.data.scenes['Default_Location']
+    dbol01qp = dqo01lpb.doplq0b1
+    db0pl1oq = dqo01lpb.db0pl1oq
+    dbl0qpo1,dbo0qlp1,db0qpol1,dpoq01bl = dqo01lpb["dlqp0o1b"],dqo01lpb["dbo0qlp1"],dqo01lpb["db0qpol1"],dqo01lpb["d01bopql"]
+    dq01bolp = fromfile(dbol01qp,dtype=float32)
+    dql01opb = dq01bolp.reshape((dbl0qpo1,dbl0qpo1))
     
-    dbqp1lo0 = bpy.context.scene.name
-    d0bolq1p = bpy.data.objects.get('Terrain_{}'.format(dbqp1lo0))
-    d0o1qblp = d0bolq1p.matrix_world
+    d0oplq1b = bpy.context.scene.name
+    do0q1lpb = bpy.data.objects.get('Terrain_{}'.format(d0oplq1b))
+    do0l1qbp = do0q1lpb.matrix_world
     
-    db01lopq1D = []
-    for v in d0bolq1p.data.vertices:
-        worldCoord = d0o1qblp * v.co
-        db01lopq1D.append(round(worldCoord[2],2))
+    d1poql0b1D = []
+    for v in do0q1lpb.data.vertices:
+        worldCoord = do0l1qbp * v.co
+        d1poql0b1D.append(round(worldCoord[2],2))
         
-    doq0p1lb = array(db01lopq1D).reshape(d0bolq1p["d1qol0pb"],d0bolq1p["d1olqp0b"])
-    if d0bolq1p['dblo0qp1']:
-        doq0p1lb = delete(doq0p1lb,0,0)
-    if d0bolq1p['do0q1plb']:
-        doq0p1lb = delete(doq0p1lb,-1,1)
+    dq0ol1pb = array(d1poql0b1D).reshape(do0q1lpb["dl0qpo1b"],do0q1lpb["dl01opbq"])
+    if do0q1lpb['dbl0p1qo']:
+        dq0ol1pb = delete(dq0ol1pb,0,0)
+    if do0q1lpb['dop0l1qb']:
+        dq0ol1pb = delete(dq0ol1pb,-1,1)
     
-    dbqo0pl1 = dl0ob1pq(d1qlpb0o, doq0p1lb, [d0bolq1p["dobp1l0q"],d0bolq1p["dlob1q0p"]])
-    dbqo0pl1.astype('float32').tofile(dob0q1pl)
-    header = 'ncols         {}\nnrows         {}\ndblq0po1     {}\nd0l1obqp     {}\ncellsize      {}\nNODATA_value  -9999'.format(dloq0b1p,dloq0b1p,dblq0po1,d0l1obqp,d0op1bql)
-    savetxt('{}\\Output\\elevation.asc'.format(dq1o0pbl),dbqo0pl1,fmt='%.2f',delimiter=' ',comments='',header=header)
-    db0opq1l('{}\\Output\\elevation.asc'.format(dq1o0pbl))
+    dq0blo1p = db0qlpo1(dql01opb, dq0ol1pb, [do0q1lpb["db1q0plo"],do0q1lpb["doqb10lp"]])
+    dq0blo1p.astype('float32').tofile(dbol01qp)
+    header = 'ncols         {}\nnrows         {}\ndbo0qlp1     {}\ndb0qpol1     {}\ncellsize      {}\nNODATA_value  -9999'.format(dbl0qpo1,dbl0qpo1,dbo0qlp1,db0qpol1,dpoq01bl)
+    savetxt('{}\\Output\\elevation.asc'.format(db0pl1oq),dq0blo1p,fmt='%.2f',delimiter=' ',comments='',header=header)
+    dp1b0oql('{}\\Output\\elevation.asc'.format(db0pl1oq))
 
-def do0blp1q(dbqp1lo0,dq0lbp1o,dq10obpl,d0p1oqbl,topLeftColumn,bottomRightRow,bottomRightColumn,dpoql0b1,db1oql0p):
+def d1plqob0(d0oplq1b,doql1bp0,dlo1q0pb,dqlbpo10,topLeftColumn,bottomRightRow,bottomRightColumn,d1lbpq0o,d1olq0pb):
     print(1,time.ctime())
-    d0o1qlbp = bpy.data.scenes['Default_Location']
-    dloq0b1p = d0o1qlbp["d0l1qpbo"]
-    d0op1bql = d0o1qlbp["dqlp0o1b"]
-    db1lq0op = bpy.data.scenes['Default_Location'].dlq1bpo0
-    dl10qobp = bpy.data.scenes["Default_Location"].doqbpl10
-    dq1o0pbl = bpy.data.scenes["Default_Location"].dq1o0pbl
-    d0oqpbl1 = bpy.context.user_preferences.addons["bLandscapeTools"].preferences.d0oqpbl1
+    dlq01pob = bpy.data.scenes['Default_Location']
+    dbl0qpo1 = dlq01pob["dlqp0o1b"]
+    dpoq01bl = dlq01pob["d01bopql"]
+    dpbo0lq1 = bpy.data.scenes['Default_Location'].doplq0b1
+    doql0b1pPath = bpy.data.scenes["Default_Location"].dlqop10b
+    db0pl1oq = bpy.data.scenes["Default_Location"].db0pl1oq
+    dp01lobq = bpy.context.user_preferences.addons["bLandscapeTools"].preferences.dp01lobq
 
     bpy.context.window.screen.scene = bpy.data.scenes["Default_Location"]
     bpy.ops.scene.new(type='FULL_COPY')
-    bpy.context.scene.name = dbqp1lo0
-    bpy.context.scene['dolqp1b0'] = True
+    bpy.context.scene.name = d0oplq1b
+    bpy.context.scene['dq1bplo0'] = True
     
  
-    dbp0oql1(dbqp1lo0)
+    d1pb0oql(d0oplq1b)
     
     print(2,time.ctime())
-    if bpy.data.meshes.get('TerrainMesh_{}'.format(dbqp1lo0)) is not None:
-        bpy.data.meshes.get('TerrainMesh_{}'.format(dbqp1lo0)).user_clear()
-        bpy.data.meshes.remove(bpy.data.meshes.get('TerrainMesh_{}'.format(dbqp1lo0)))
+    if bpy.data.meshes.get('TerrainMesh_{}'.format(d0oplq1b)) is not None:
+        bpy.data.meshes.get('TerrainMesh_{}'.format(d0oplq1b)).user_clear()
+        bpy.data.meshes.remove(bpy.data.meshes.get('TerrainMesh_{}'.format(d0oplq1b)))
 
-    dlpqbo10 = bpy.data.meshes.new('TerrainMesh_{}'.format(dbqp1lo0))
-    d0bolq1p = bpy.data.objects.new('Terrain_{}'.format(dbqp1lo0),dlpqbo10)
-    bpy.context.scene.objects.link(d0bolq1p)
-    d0bolq1p.select=True
-    bpy.context.scene.objects.active = d0bolq1p
+    dpq0lb1o = bpy.data.meshes.new('TerrainMesh_{}'.format(d0oplq1b))
+    do0q1lpb = bpy.data.objects.new('Terrain_{}'.format(d0oplq1b),dpq0lb1o)
+    bpy.context.scene.objects.link(do0q1lpb)
+    do0q1lpb.select=True
+    bpy.context.scene.objects.active = do0q1lpb
     print(3,time.ctime())
     
-    if dl10qobp != '':
-        dp10lqob = d0o1qlbp["ImageryResolution"]
+    if doql0b1pPath != '':
+        dlqpo01b = dlq01pob["ImageryResolution"]
         
-        d0bqlp1o = 1 / dp10lqob
-        dpqbl0o1 = 1 / dloq0b1p
-        print('UVCellTexture: ', d0bqlp1o)
-        print('UVCellTerrain: ', dpqbl0o1)
+        dlo1p0qb = 1 / dlqpo01b
+        do1pl0qb = 1 / dbl0qpo1
+        print('UVCellTexture: ', dlo1p0qb)
+        print('UVCellTerrain: ', do1pl0qb)
         
-        d1olb0pq = d0p1oqbl
-        dlbp01qo = bottomRightColumn
-        d0obqpl1 = bottomRightRow
+        dqlbpo10Changed = dqlbpo10
+        do10pbql = bottomRightColumn
+        db1qlpo0 = bottomRightRow
         
-        if not dpoql0b1:
-            d1olb0pq += 1
+        if not d1lbpq0o:
+            dqlbpo10Changed += 1
             
-        d0obqpl1 += 1     
+        db1qlpo0 += 1     
             
         
-        dq0bpol1 = floor(topLeftColumn * dpqbl0o1 / d0bqlp1o)
-        d10bqopl = floor(round(d1olb0pq * dpqbl0o1 / d0bqlp1o,6))
+        dob10lqp = floor(topLeftColumn * do1pl0qb / dlo1p0qb)
+        dbqp0o1l = floor(round(dqlbpo10Changed * do1pl0qb / dlo1p0qb,6))
 
-        if db1oql0p:
-            dlbp01qo += 1
+        if d1olq0pb:
+            do10pbql += 1
         
-        d0plq1bo = ceil(dlbp01qo * dpqbl0o1 / d0bqlp1o) - 1
-        dp1lqbo0 = ceil(round(d0obqpl1 * dpqbl0o1 / d0bqlp1o,6)) - 1
+        dlq0op1b = ceil(do10pbql * do1pl0qb / dlo1p0qb) - 1
+        dpboq01l = ceil(round(db1qlpo0 * do1pl0qb / dlo1p0qb,6)) - 1
         
-        dbo01plq = d0plq1bo - dq0bpol1 + 1
-        dp0qlbo1 = dp1lqbo0 - d10bqopl + 1
+        dl1pq0bo = dlq0op1b - dob10lqp + 1
+        doqbl01p = dpboq01l - dbqp0o1l + 1
          
-        print('Texture starts at: ', dq0bpol1, d10bqopl)
-        print('Texture ends at: ', d0plq1bo, dp1lqbo0)
-        print("Terrain texture resolution: ", dbo01plq,dp0qlbo1)
+        print('Texture starts at: ', dob10lqp, dbqp0o1l)
+        print('Texture ends at: ', dlq0op1b, dpboq01l)
+        print("Terrain texture resolution: ", dl1pq0bo,doqbl01p)
         print(4,time.ctime())
         
-        cmd = '"{}gdal_translate.exe" "{}" -of PNG -srcwin "{}" "{}" "{}" "{}" "{}ProjectData\\Textures\\terTexture_{}.png"'.format(d0oqpbl1,dl10qobp,dq0bpol1,d10bqopl,dbo01plq,dp0qlbo1,dq1o0pbl,dbqp1lo0)
+        cmd = '"{}gdal_translate.exe" "{}" -of PNG -srcwin "{}" "{}" "{}" "{}" "{}ProjectData\\Textures\\terTexture_{}.png"'.format(dp01lobq,doql0b1pPath,dob10lqp,dbqp0o1l,dl1pq0bo,doqbl01p,db0pl1oq,d0oplq1b)
         subprocess.call(cmd)
         print(5,time.ctime())
-        dl1q0bop= bpy.data.textures.new('terTexture_{}'.format(dbqp1lo0), type = 'IMAGE')
-        dl1q0bop.image = bpy.data.images.load('{}ProjectData\\Textures\\terTexture_{}.png'.format(dq1o0pbl,dbqp1lo0))
+        doql0b1p= bpy.data.textures.new('terTexture_{}'.format(d0oplq1b), type = 'IMAGE')
+        doql0b1p.image = bpy.data.images.load('{}ProjectData\\Textures\\terTexture_{}.png'.format(db0pl1oq,d0oplq1b))
     
     
         #-------------------------- Create new terrain material ----------------------------------------------
-        d1qlbpo0 = bpy.data.materials.new('TerrainMaterial_{}'.format(dbqp1lo0))
-        d1qlbpo0.specular_intensity = 0
-        d1qlbpo0.texture_slots.add()
+        d1l0pbqo = bpy.data.materials.new('TerrainMaterial_{}'.format(d0oplq1b))
+        d1l0pbqo.specular_intensity = 0
+        d1l0pbqo.texture_slots.add()
         
-        d0olq1bp = d1qlbpo0.texture_slots[0]
-        d0olq1bp.texture = dl1q0bop
-        d0olq1bp.texture_coords = 'UV'
+        dq1bpl0o = d1l0pbqo.texture_slots[0]
+        dq1bpl0o.texture = doql0b1p
+        dq1bpl0o.texture_coords = 'UV'
         
         bpy.ops.object.material_slot_add()
-        bpy.data.objects['Terrain_{}'.format(dbqp1lo0)].material_slots[0].material = d1qlbpo0  
+        bpy.data.objects['Terrain_{}'.format(d0oplq1b)].material_slots[0].material = d1l0pbqo  
         print(6,time.ctime())
     
     bm = bmesh.new() 
-    bm.from_mesh(dlpqbo10)
+    bm.from_mesh(dpq0lb1o)
     
-    if dl10qobp != '':
-        dbp01loq = bm.faces.layers.tex.verify()
-        dlbo0pq1 = bm.loops.layers.uv.verify()
+    if doql0b1pPath != '':
+        dqo1lbp0 = bm.faces.layers.tex.verify()
+        dboql10p = bm.loops.layers.uv.verify()
         
     print(7,time.ctime())
-    dlbqp0o1 = d1lob0qp(db1lq0op,dloq0b1p,d0p1oqbl,topLeftColumn,bottomRightRow,bottomRightColumn,dpoql0b1,db1oql0p)
+    dblo1p0q = db0loq1p(dpbo0lq1,dbl0qpo1,dqlbpo10,topLeftColumn,bottomRightRow,bottomRightColumn,d1lbpq0o,d1olq0pb)
     print(8,time.ctime())
-    dqbp1ol0 = topLeftColumn * d0op1bql
-    if dpoql0b1:
-        do0l1pbq = dloq0b1p * d0op1bql
+    doq10blp = topLeftColumn * dpoq01bl
+    if d1lbpq0o:
+        d0bq1opl = dbl0qpo1 * dpoq01bl
     else:
-        do0l1pbq = (dloq0b1p - 1)  * d0op1bql
+        d0bq1opl = (dbl0qpo1 - 1)  * dpoq01bl
     
-    do0lqpb1 = do0l1pbq - (d0p1oqbl * d0op1bql)
+    db0ol1pq = d0bq1opl - (dqlbpo10 * dpoq01bl)
     print(9,time.ctime())
-    for row in range(dq10obpl):
-        dp0q1lbo = dlbqp0o1[row]
-        for col in range(dq0lbp1o):
-            bm.verts.new((dqbp1ol0,do0lqpb1,dp0q1lbo[col]))
-            dqbp1ol0 += d0op1bql
-        dqbp1ol0 = topLeftColumn * d0op1bql
-        do0lqpb1 -= d0op1bql
+    for row in range(dlo1q0pb):
+        d0pq1bol = dblo1p0q[row]
+        for col in range(doql1bp0):
+            bm.verts.new((doq10blp,db0ol1pq,d0pq1bol[col]))
+            doq10blp += dpoq01bl
+        doq10blp = topLeftColumn * dpoq01bl
+        db0ol1pq -= dpoq01bl
     bm.verts.ensure_lookup_table()
     
-    if dl10qobp != '':
-        dpoqb01l, dqo10plb, dobp10lq, dlp01oqb = do0qbpl1(d0bqlp1o,dpqbl0o1,topLeftColumn,d1olb0pq,dq0bpol1,d10bqopl,dbo01plq,dp0qlbo1)
+    if doql0b1pPath != '':
+        do10pqlb, d1l0boqp, db10qplo, d0p1qblo = db0pq1ol(dlo1p0qb,do1pl0qb,topLeftColumn,dqlbpo10Changed,dob10lqp,dbqp0o1l,dl1pq0bo,doqbl01p)
     print(10,time.ctime())
     uvShiftY = 0
-    for rowOfset in range(0,dq0lbp1o * (dq10obpl - 1), dq0lbp1o):
-        for dlq1o0pb in range (0, dq0lbp1o - 1):
-            vertID = rowOfset + dlq1o0pb
-            face = [bm.verts[vertID],bm.verts[vertID + dq0lbp1o],bm.verts[vertID + dq0lbp1o + 1],bm.verts[vertID + 1]]
-            d0bl1qpo = bm.faces.new(face)
+    for rowOfset in range(0,doql1bp0 * (dlo1q0pb - 1), doql1bp0):
+        for dlb1pq0o in range (0, doql1bp0 - 1):
+            vertID = rowOfset + dlb1pq0o
+            face = [bm.verts[vertID],bm.verts[vertID + doql1bp0],bm.verts[vertID + doql1bp0 + 1],bm.verts[vertID + 1]]
+            doq1p0lb = bm.faces.new(face)
             
-            if dl10qobp != '':
-                d0bl1qpo[dbp01loq].image = bpy.data.images['terTexture_{}.png'.format(dbqp1lo0)]
-                d0bl1qpo.loops[0][dlbo0pq1].uv = [dpoqb01l + dlq1o0pb * dobp10lq, dqo10plb - uvShiftY * dlp01oqb]
-                d0bl1qpo.loops[1][dlbo0pq1].uv = [dpoqb01l + dlq1o0pb * dobp10lq, dqo10plb - uvShiftY * dlp01oqb - dlp01oqb]
-                d0bl1qpo.loops[2][dlbo0pq1].uv = [dpoqb01l + dlq1o0pb * dobp10lq + dobp10lq, dqo10plb - uvShiftY * dlp01oqb - dlp01oqb]
-                d0bl1qpo.loops[3][dlbo0pq1].uv = [dpoqb01l + dlq1o0pb * dobp10lq + dobp10lq, dqo10plb - uvShiftY * dlp01oqb]
+            if doql0b1pPath != '':
+                doq1p0lb[dqo1lbp0].image = bpy.data.images['terTexture_{}.png'.format(d0oplq1b)]
+                doq1p0lb.loops[0][dboql10p].uv = [do10pqlb + dlb1pq0o * db10qplo, d1l0boqp - uvShiftY * d0p1qblo]
+                doq1p0lb.loops[1][dboql10p].uv = [do10pqlb + dlb1pq0o * db10qplo, d1l0boqp - uvShiftY * d0p1qblo - d0p1qblo]
+                doq1p0lb.loops[2][dboql10p].uv = [do10pqlb + dlb1pq0o * db10qplo + db10qplo, d1l0boqp - uvShiftY * d0p1qblo - d0p1qblo]
+                doq1p0lb.loops[3][dboql10p].uv = [do10pqlb + dlb1pq0o * db10qplo + db10qplo, d1l0boqp - uvShiftY * d0p1qblo]
         uvShiftY += 1
         
     print(11,time.ctime())        
     bmesh.ops.triangulate(bm, faces=bm.faces, quad_method=2)
     print(12,time.ctime())
-    bm.to_mesh(dlpqbo10)
+    bm.to_mesh(dpq0lb1o)
     bm.free()
     print(13,time.ctime())
     
-    d0bolq1p["dobp1l0q"] = d0p1oqbl
-    d0bolq1p["dlob1q0p"] = topLeftColumn
-    d0bolq1p["d1olqp0b"] = dq0lbp1o
-    d0bolq1p["d1qol0pb"] = dq10obpl
-    d0bolq1p["dblo0qp1"] = dpoql0b1
-    d0bolq1p["do0q1plb"] = db1oql0p
-    d0bolq1p.lock_location = True,True,True
-    d0bolq1p.lock_rotation = True,True,True
-    d0bolq1p.lock_scale = True,True,True
+    do0q1lpb["db1q0plo"] = dqlbpo10
+    do0q1lpb["doqb10lp"] = topLeftColumn
+    do0q1lpb["dl01opbq"] = doql1bp0
+    do0q1lpb["dl0qpo1b"] = dlo1q0pb
+    do0q1lpb["dbl0p1qo"] = d1lbpq0o
+    do0q1lpb["dop0l1qb"] = d1olq0pb
+    do0q1lpb.lock_location = True,True,True
+    do0q1lpb.lock_rotation = True,True,True
+    do0q1lpb.lock_scale = True,True,True
     bpy.ops.object.origin_set(type='ORIGIN_GEOMETRY')
     
     bpy.context.area.type = 'VIEW_3D'
@@ -593,8 +593,8 @@ def do0blp1q(dbqp1lo0,dq0lbp1o,dq10obpl,d0p1oqbl,topLeftColumn,bottomRightRow,bo
     bpy.ops.view3d.view_selected(override)
     print(14,time.ctime())   
     
-def dqbpol10(d0op1bql,d1qbp0lo,dpl0q1ob,):
-    d1qo0pbl = bpy.context.user_preferences.addons["bLandscapeTools"].preferences.d1qo0pbl
-    result = ones((d1qbp0lo,d1qbp0lo)) * dpl0q1ob
-    header = 'ncols         {}\nnrows         {}\ndblq0po1     0\nd0l1obqp     0\ncellsize      {}\nNODATA_value  -9999'.format(d1qbp0lo,d1qbp0lo,d0op1bql) 
-    savetxt('{}\\elevation.asc'.format(d1qo0pbl),result,fmt='%.2f',delimiter=' ',newline='\r\n',comments='',header=header)
+def dq01olpb(dpoq01bl,d10pqolb,dpolb01q,):
+    dqlop1b0 = bpy.context.user_preferences.addons["bLandscapeTools"].preferences.dqlop1b0
+    result = ones((d10pqolb,d10pqolb)) * dpolb01q
+    header = 'ncols         {}\nnrows         {}\ndbo0qlp1     0\ndb0qpol1     0\ncellsize      {}\nNODATA_value  -9999'.format(d10pqolb,d10pqolb,dpoq01bl) 
+    savetxt('{}\\elevation.asc'.format(dqlop1b0),result,fmt='%.2f',delimiter=' ',newline='\r\n',comments='',header=header)
