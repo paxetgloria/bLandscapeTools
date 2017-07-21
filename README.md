@@ -1,5 +1,4 @@
 Installation instruction:
-
 Grab Blender from https://download.blender.org/release/Blender2.79/
 
 Addon installation
@@ -15,3 +14,6 @@ Now, to have addon work properly we need also external tool called GDAL
 - go to addon's preferences, in "External Tools" locate GDAL folder(by default installed to c:\Program Files\GDAL\)
 
 Viola, tool's ready!!!
+
+Please subscribe to bLandspaceTools youtube channel
+https://www.youtube.com/channel/UC1WHzt6hys5PB3nL3SKn6CA
