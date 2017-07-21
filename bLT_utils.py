@@ -232,7 +232,7 @@ def d1bl0opq(self,context):
     
     bgl.glColor4f(1.0, 1.0, 1.0, 1.0)
     blf.position(font_id, center[0] - 380, center[1] - 184, 0)
-    blf.draw(font_id, 'Version: Bushlurker')
+    blf.draw(font_id, 'Version: Bushlurker(Test build: 0.1)')
     
     bgl.glColor4f(0.0, 0.0, 0.0, 1.0)
     blf.disable(0, blf.SHADOW)
