@@ -17,5 +17,5 @@ Now, to have addon work properly we need also external tool called GDAL
 
 Viola, tool's ready!!!
 
-Please subscribe to bLandspaceTools youtube channel
-https://www.youtube.com/channel/UC1WHzt6hys5PB3nL3SKn6CA
+For more information please subscribe to bLandspaceTools youtube channel https://www.youtube.com/channel/UC1WHzt6hys5PB3nL3SKn6CA
+or visit Wiki https://github.com/paxetgloria/bLandscapeTools/wiki
