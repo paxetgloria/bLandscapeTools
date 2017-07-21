@@ -13,6 +13,7 @@ Now, to have addon work properly we need also external tool called GDAL
 - visit www.gisinternals.com/release.php
 - choose 32/64 bit version, download "gdal-201-1800-x64-core.msi" and install it
 - go to addon's preferences, in "External Tools" locate GDAL folder(by default installed to c:\Program Files\GDAL\)
+- at the bottom of the window press "Save User Settings"
 
 Viola, tool's ready!!!
 
