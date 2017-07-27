@@ -1,3 +1,8 @@
+bLandscapeTools
+==========
+
+[Wiki](https://github.com/paxetgloria/bLandscapeTools/wiki) available for further information.
+
 Installation instruction:
 
 Grab Blender from https://download.blender.org/release/Blender2.79/
