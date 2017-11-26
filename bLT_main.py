@@ -7,11 +7,10 @@ from bpy.types import Panel,Scene,AddonPreferences,UIList,PropertyGroup,WindowMa
 
 class dplq01bo(PropertyGroup):
     d0blo1qp = BoolProperty(name="",default=False)
-            
+
 class dpq0bl1o(UIList):
     def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
         layout.prop(item, "name", text="", emboss=False)
-        
         
         icon = 'RESTRICT_VIEW_OFF' if item.d0blo1qp else 'RESTRICT_VIEW_ON'
         op = layout.operator("scene.dq10polb", text="", emboss=False, icon=icon)
@@ -22,7 +21,7 @@ class d1qoplb0(bpy.types.Operator):
     bl_label = "Remove Location"
     bl_options = {'REGISTER'}
     bl_description = 'Removes current location(eye icon) without commiting any changes!!!'
-
+    
     def execute(self, context):
         scene = bpy.data.scenes['Default_Location']
         d0obpql1 = scene.d0obpql1
@@ -49,14 +48,12 @@ class d1qoplb0(bpy.types.Operator):
             context.window.screen.scene = bpy.data.scenes['Default_Location']
             context.scene.dbq0po1l = False
             context.scene.dlqbo01p = True
-
         
         return {'FINISHED'}
-        
+    
     def invoke(self, context, event):
-
         return context.window_manager.invoke_confirm(self,event)
-        
+
 class dbq10plo(bpy.types.Operator):
     bl_idname = "scene.dq10polb"
     bl_label = "Switch Locations"
@@ -81,7 +78,7 @@ class dbq10plo(bpy.types.Operator):
         bpy.ops.view3d.view_selected()
         
         return {'FINISHED'}
-        
+
 class dobqlp01(bpy.types.Operator):
     bl_idname = "scene.do0lbq1p"
     bl_label = "Create Project"
@@ -102,12 +99,12 @@ class dobqlp01(bpy.types.Operator):
         context.scene.d0blop1q = True
         
         return {'FINISHED'}
-        
+
 class d0qobl1p(bpy.types.Operator):
     bl_idname = "scene.d1bqpo0l"
     bl_label = "Import Location"
     bl_description = 'Imports a new location'
-     
+    
     def execute(self, context):
         db0lqo1p()
         return {'FINISHED'}
@@ -123,7 +120,7 @@ class dlob0p1q(bpy.types.Operator):
                 self.report({'WARNING'}, "Location with this name already exists! Try a different name.")
                 bpy.ops.scene.d1bqpo0l()
                 return {'CANCELLED'}
-                
+        
         global d0bp1qol,topLeftColumn,bottomRightRow,bottomRightColumn,d1qbpo0l,dlpo0q1b,dbl1o0qp,d01pqlob
         dq0b1plo(self.db10qolp,dbl1o0qp,d01pqlob,d0bp1qol,topLeftColumn,bottomRightRow,bottomRightColumn,d1qbpo0l,dlpo0q1b)
         
@@ -143,28 +140,28 @@ class dlob0p1q(bpy.types.Operator):
         
         bpy.ops.wm.save_mainfile()
         return {'FINISHED'}
-        
+    
     def invoke(self, context, event):
         self.db10qolp = 'Type location name here...'
         return context.window_manager.invoke_props_dialog(self)
-        
+    
     def cancel(self, context):
         context.area.type = 'VIEW_3D'
         return {'CANCELLED'}
-        
+
 class d0o1plqb(bpy.types.Operator):
     bl_idname = "scene.dqpolb01"
     bl_label = "Commit Location"
     bl_description = 'Commits all terrain changes to elevation.bLTe\nand elevation.asc(Project\\Output)'
-
+    
     def execute(self, context):
         dbpo1ql0()
         return {'FINISHED'}
-     
+
 class dp0qbl1o(bpy.types.Operator):
     bl_idname = "view2d.dp0ql1bo"
     bl_label = "Pick Location"
-
+    
     def modal(self, context, event):
         global d0bp1qol,topLeftColumn,bottomRightRow,bottomRightColumn,d1qbpo0l,dlpo0q1b,dbl1o0qp,d01pqlob
         context.area.tag_redraw()
@@ -187,7 +184,6 @@ class dp0qbl1o(bpy.types.Operator):
         
         if event.type == 'MOUSEMOVE':
             self.do1qpbl0, self.dqo0p1lb = event.mouse_region_x,event.mouse_region_y
-            
         elif event.type == 'LEFTMOUSE' and event.value == 'PRESS':
             self.switch = True
             self.dqbo0pl1 += 1
@@ -200,9 +196,7 @@ class dp0qbl1o(bpy.types.Operator):
                     bpy.ops.scene.d1ob0plq('INVOKE_DEFAULT')
                     bpy.types.SpaceImageEditor.draw_handler_remove(self._handle, 'WINDOW')
                     return {'FINISHED'}
-                
             self.dlp01qbo = context.region.view2d.region_to_view(event.mouse_region_x, event.mouse_region_y)
-            
         elif event.type == 'BACK_SPACE':
             if bpy.data.images.get('previewSatTex.png') is not None and bpy.data.images.get('previewTerTex.tif') is not None:
                 for space in bpy.context.area.spaces:
@@ -217,18 +211,15 @@ class dp0qbl1o(bpy.types.Operator):
                     for space in bpy.context.area.spaces:
                         if space.type == 'IMAGE_EDITOR':
                             space.image = bpy.data.images['previewSatTex.png']
-                            
             return {'PASS_THROUGH'}
-            
         elif event.type in {'RIGHTMOUSE', 'ESC'}:
             context.area.type = 'VIEW_3D'
             bpy.types.SpaceImageEditor.draw_handler_remove(self._handle, 'WINDOW')
             return {'CANCELLED'}
-            
         elif event.type in {'WHEELUPMOUSE', 'WHEELDOWNMOUSE','MIDDLEMOUSE','LEFT_SHIFT'}:
             return {'PASS_THROUGH'}
         return {'RUNNING_MODAL'}
-  
+    
     def invoke(self, context, event):
         self.do1qpbl0,self.dqo0p1lb = 0,0
         self.dqbo0pl1 = 0
@@ -243,28 +234,28 @@ class dp0qbl1o(bpy.types.Operator):
         else:
             self.report({'WARNING'}, "Image Editor not found, cannot run operator")
             return {'CANCELLED'}
- 
+
 class dpbo10ql(bpy.types.Operator):
     bl_idname = "view3d.d1lp0obq"
     bl_label = "Draw splash screen"
-
+    
     def modal(self, context, event):
         context.area.tag_redraw()
-
+        
         if event.type in {'RIGHTMOUSE', 'LEFTMOUSE', 'ESC'}:
             self.img.gl_free()
             bpy.types.SpaceView3D.draw_handler_remove(self._handle, 'WINDOW')
             return {'FINISHED'}
-
+        
         return {'RUNNING_MODAL'}
-
+    
     def invoke(self, context, event):
         if context.area.type == 'VIEW_3D':
             args = (self, context)
             self._handle = bpy.types.SpaceView3D.draw_handler_add(dql0o1pb, args, 'WINDOW', 'POST_PIXEL')
             dboplq01 = dqolbp10()[2]
             if bpy.data.images.get('splash.png') is None:
-                bpy.data.images.load('{}\\splash.png'.format(dboplq01))
+                bpy.data.images.load( os.path.join(dboplq01, 'splash.png') )
                 bpy.data.images['splash.png'].use_fake_user = True
             else:
                 bpy.data.images['splash.png'].reload()
@@ -279,7 +270,7 @@ class dpbo10ql(bpy.types.Operator):
 class dp10bqol(bpy.types.Operator):
     bl_idname = "object.dlpoq0b1"
     bl_label = "Textured + Wire overlay"
-
+    
     def execute(self, context):
         Areas = context.screen.areas
         for Area in Areas:
@@ -294,7 +285,7 @@ class dp10bqol(bpy.types.Operator):
 class dol1pbq0(bpy.types.Operator):
     bl_idname = "object.dlb0pq1o"
     bl_label = "Textured"
-
+    
     def execute(self, context):
         Areas = context.screen.areas
         for Area in Areas:
@@ -309,7 +300,7 @@ class dol1pbq0(bpy.types.Operator):
 class dp1oqb0l(bpy.types.Operator):
     bl_idname = "scene.dlobq0p1"
     bl_label = "MatCap"
-
+    
     def execute(self, context):
         Areas = context.screen.areas
         for Area in Areas:
@@ -325,7 +316,7 @@ class dp1oqb0l(bpy.types.Operator):
 class d0qo1lbp(bpy.types.Operator):
     bl_idname = "scene.dlob10pq"
     bl_label = "MatCap + Wire overlay"
-
+    
     def execute(self, context):
         Areas = context.screen.areas
         for Area in Areas:
@@ -349,10 +340,10 @@ class dq0po1bl(bpy.types.Operator):
     def execute(self, context):
         dlb0o1pq(self.d1oqlpb0,self.db1l0opq,self.dq01lobp)
         return {'FINISHED'}
-        
+    
     def invoke(self, context, event):
         return context.window_manager.invoke_props_dialog(self)
-        
+
 class dblqo0p1(Panel):
     bl_category = "bLandscape Tools"
     bl_label = "Project Settings"
@@ -376,20 +367,20 @@ class dblqo0p1(Panel):
         maxlen= 1024,
         subtype='FILE_PATH',
         update=d0lbqop1)
-
+    
     Scene.dlp1qo0b = StringProperty(name="",
         attr="terrainPath",
         description="Path to terrain heightmap to create 3D terrain",
         maxlen= 1024,
         subtype='FILE_PATH',
         update=d1qpbo0l)
-        
+    
     Scene.d10bqlop = StringProperty(name="",
         attr="terrainPath",
         description="Path to bLT internal elevation file",
         maxlen= 1024,
         subtype='FILE_PATH')
-        
+    
     d0p1lqob = [
     ("RVEngine", "RVEngine", "", 1),
     ("Unreal Engine 4", "Unreal Engine 4", "", 2),
@@ -397,7 +388,7 @@ class dblqo0p1(Panel):
     ("Unity", "Unity", "", 4),
     ("Enfusion", "Enfusion", "", 5)
     ]
-
+    
     Scene.db1q0opl = bpy.props.EnumProperty(items=d0p1lqob,name="Engine",default='RVEngine')
     
     Scene.dlpb1qo0 = BoolProperty(default=True)
@@ -405,18 +396,18 @@ class dblqo0p1(Panel):
     @classmethod
     def poll(cls, context):
         return context.scene.dlpb1qo0
-
+    
     def draw(self, context):
         scene = context.scene
         layout = self.layout
-
+        
         box = layout.box()
         row = box.column()
         row.label(text="Project Folder")
         row.prop(scene,'dblo0p1q')
         row.separator()
         row.prop(scene, 'db1q0opl')
-
+        
         row3 = box.column()
         row3.separator()
         row3.operator("scene.do0lbq1p",text='Create Project')
@@ -425,7 +416,7 @@ class dblqo0p1(Panel):
             row3.enabled = False
         else:
             row3.enabled = True
-                
+
 class d0bpqol1(Panel):
     bl_category = "bLandscape Tools"
     bl_label = "Data Source"
@@ -437,11 +428,10 @@ class d0bpqol1(Panel):
     @classmethod
     def poll(cls, context):
         return context.scene.dlqbo01p
-
+    
     def draw(self, context):
         scene = context.scene
         layout = self.layout
-
         
         box = layout.box()
         row1 = box.column()
@@ -455,14 +445,12 @@ class d0bpqol1(Panel):
         if len(bpy.data.scenes) > 1:
             row1.enabled = False
             row2.enabled = False
-                
-        
+
 class dbolpq10(Panel):
     bl_category = "bLandscape Tools"
     bl_label = "Locations manager"
     bl_space_type = "VIEW_3D"
     bl_region_type = "TOOLS"
-
     
     Scene.d0b1olqp = BoolProperty(name="",
     description="",
@@ -473,7 +461,7 @@ class dbolpq10(Panel):
     @classmethod
     def poll(cls, context):
         return context.scene.d0blop1q
-
+    
     def draw(self, context):
         scene = context.scene
         layout = self.layout
@@ -489,7 +477,7 @@ class dbolpq10(Panel):
         elif bpy.context.object is not None:
             if bpy.context.object.mode == 'EDIT':
                 row1.enabled = False
-                    
+        
         row2 = col.row()        
         row2.operator("scene.dqpolb01",icon='APPEND_BLEND',text="")
         if not scene.d0b1olqp:
@@ -507,10 +495,6 @@ class dbolpq10(Panel):
         elif bpy.context.object is not None:
             if bpy.context.object.mode == 'EDIT':
                 row3.enabled = False    
-       
-   
-                
-            
 
 class d0ob1lpq(Panel):
     bl_category = "bLandscape Tools"
@@ -524,7 +508,7 @@ class d0ob1lpq(Panel):
     @classmethod
     def poll(cls, context):
         return context.scene.dbq0po1l
-
+    
     def draw(self, context):
         scene = context.scene
         view = context.space_data
@@ -548,7 +532,7 @@ class d0ob1lpq(Panel):
                     row4.template_icon_view(view, "matcap_icon")
                     if not scene.d0b1olqp:
                         row4.enabled = False
-
+        
         col = layout.column()
         col.prop(fx_settings, "use_ssao", text="Ambient Occlusion")
         if fx_settings.use_ssao:
@@ -558,14 +542,14 @@ class d0ob1lpq(Panel):
                 subcol.prop(ssao_settings, "distance_max")
                 subcol.prop(ssao_settings, "attenuation")
                 subcol.prop(ssao_settings, "samples")
-                    
+        
         if not scene.d0b1olqp:
             row.enabled = False 
             row1.enabled = False
             row2.enabled = False
             
             col.enabled = False
-            
+
 class dpqol01b(Panel):
     bl_category = "bLandscape Tools"
     bl_label = "Create"
@@ -576,7 +560,7 @@ class dpqol01b(Panel):
     def draw(self, context):
         scene = context.scene
         layout = self.layout
-
+        
         row = layout.row(align=True)
         row.operator("scene.dl10qbpo",icon='MESH_GRID')
-        
+

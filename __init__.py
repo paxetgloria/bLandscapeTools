@@ -13,16 +13,17 @@ bl_info= {
 
 import sys
 import os
+
 if "bpy" in locals():
     import imp
-
+    
     imp.reload(bLT_main)
     imp.reload(bLT_utils)
     print("bLT: Reloaded multifiles")
 else:
     from . import bLT_main
     from . import bLT_utils
-
+    
     print("bLT: Imported multifiles")
     
 import bpy
@@ -30,7 +31,7 @@ import bpy
 from bpy.types import AddonPreferences
 from bpy.props import StringProperty,CollectionProperty,IntProperty,BoolProperty
 
-        
+
 class d0obqp1l(AddonPreferences):
     bl_idname = __name__
 
@@ -38,13 +39,17 @@ class d0obqp1l(AddonPreferences):
         description="Path to GDAL",
         maxlen= 1024,
         subtype='DIR_PATH',
-        default='c:\Program Files\GDAL\\')
-        
+        default="/usr/bin/" if os.name == "posix" else "c:\\Program Files\\GDAL\\"
+        )
+    # Actually, this option makes little sense on Linux/Mac Systems, as the executables of GDAL are
+    # usually available in the path environment anyway.
+    
     d0p1olqb = StringProperty(name="Output",
         description="Path to Output folder",
         maxlen= 1024,
         subtype='DIR_PATH',
-        default='{}\\Documents\\'.format(os.environ['USERPROFILE']))
+        default="{}".format(os.environ["HOME"]) if os.name == "posix" else os.path.join(os.environ['USERPROFILE'], "Documents")
+        )
     
     def draw(self, context):
         layout = self.layout   
@@ -85,7 +90,7 @@ def register():
     bpy.types.Scene.dq0p1bol = IntProperty(default=-1)
 
     bpy.context.user_preferences.filepaths.use_relative_paths = False
-    
+
 def unregister():
     for cls in classes:
         bpy.utils.unregister_class(cls)
