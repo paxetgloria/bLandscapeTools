@@ -6,9 +6,9 @@ from numpy import genfromtxt,vstack,hstack,array,savetxt,delete,ones,zeros,flipu
 from mathutils import Vector, Matrix
 
 
-def dlsa31meu():
-    dma31usle = '{}\lib'.format(dusaem31l()[1])
-    sys.path.append(dma31usle)
+def install_opencv():
+    libFolder = '{}\lib'.format(getPaths()[1])
+    sys.path.append(libFolder)
     import pip
     pip.main(['install', 'opencv-python', '--no-deps'])
     try:
@@ -21,146 +21,146 @@ def dlsa31meu():
     
 
     
-def dl31seamu(self, context):
-    dsluae31m = context.scene.demual31s
+def update_importterraintexturepath(self, context):
+    terrainTexturePath = context.scene.ImportTerrainTexturePath
     
-    if dsluae31m != '':
-        if dsluae31m.split('.')[-1] in ['png','tif','tiff','jpg','jpeg']:
-            context.scene.du31lames = True
-            from cv2 import imread as dl31mueas, imwrite as dusea31lm, resize as dlausme31, IMREAD_COLOR as dl31usame
+    if terrainTexturePath != '':
+        if terrainTexturePath.split('.')[-1] in ['png','tif','tiff','jpg','jpeg']:
+            context.scene.TerrainTextureFormatValid = True
+            from cv2 import imread as cv2imread, imwrite as cv2imwrite, resize as cv2resize, IMREAD_COLOR as cv2IMREAD_COLOR
             
-            d31lemsau = context.user_preferences.addons["bLandscapeTools-master"].preferences.d31lemsau
-            daue31msl = context.scene.daue31msl
-            dsm31ueal = 'Project_{}'.format(daue31msl.split('\\')[-2])
-            dasm31eul = deu31alsm(d31lemsau,dsluae31m)
+            GDALPath = context.user_preferences.addons["bLandscapeTools-master"].preferences.GDALPath
+            ProjFolderPath = context.scene.ProjFolderPath
+            ProjectName = 'Project_{}'.format(ProjFolderPath.split('\\')[-2])
+            imagerySize = getImagerySize(GDALPath,terrainTexturePath)
             
-            if os.path.exists('{}ProjectData\\Textures\\previewSatTex.png'.format(daue31msl)):
-                os.remove('{}ProjectData\\Textures\\previewSatTex.png'.format(daue31msl))
+            if os.path.exists('{}ProjectData\\Textures\\previewSatTex.png'.format(ProjFolderPath)):
+                os.remove('{}ProjectData\\Textures\\previewSatTex.png'.format(ProjFolderPath))
 
             print('\nbLT_Info: Terrain texture preview creation started {}'.format(time.ctime()))
-            if dasm31eul < 5000:
+            if imagerySize < 5000:
                 print(' Input imagery size <= 5000x5000 px, no resizing necessary.')
-                copy(context.scene.demual31s,'{}ProjectData\\Textures\\'.format(daue31msl))
-                deums31la = context.scene.demual31s.split('\\')[-1]
-                os.rename('{}ProjectData\\Textures\\{}'.format(daue31msl,deums31la),'{}ProjectData\\Textures\\previewSatTex.png'.format(daue31msl))
+                copy(context.scene.ImportTerrainTexturePath,'{}ProjectData\\Textures\\'.format(ProjFolderPath))
+                oldName = context.scene.ImportTerrainTexturePath.split('\\')[-1]
+                os.rename('{}ProjectData\\Textures\\{}'.format(ProjFolderPath,oldName),'{}ProjectData\\Textures\\previewSatTex.png'.format(ProjFolderPath))
             else:
                 print(' Input imagery size > 5000x5000 px, needs to be downscaled.')
-                dms31aeul = dl31mueas(dsluae31m, dl31usame)
-                delsamu31 = dlausme31(dms31aeul, (5000, 5000))
-                dusea31lm(r'{}ProjectData\Textures\previewSatTex.png'.format(daue31msl), delsamu31)
+                input_image_cv = cv2imread(terrainTexturePath, cv2IMREAD_COLOR)
+                resizedImage = cv2resize(input_image_cv, (5000, 5000))
+                cv2imwrite(r'{}ProjectData\Textures\previewSatTex.png'.format(ProjFolderPath), resizedImage)
             
                 
             if bpy.data.images.get('previewSatTex.png') is None:
-                bpy.data.images.load('{}ProjectData\\Textures\\previewSatTex.png'.format(daue31msl))
+                bpy.data.images.load('{}ProjectData\\Textures\\previewSatTex.png'.format(ProjFolderPath))
                 bpy.data.images['previewSatTex.png'].use_fake_user = True
             else:
                 bpy.data.images['previewSatTex.png'].reload()
                 
-            daml31sue = bpy.data.scenes['Default_Location']    
-            daml31sue["ImageryResolution"] = dasm31eul
+            defaultLocationScene = bpy.data.scenes['Default_Location']    
+            defaultLocationScene["ImageryResolution"] = imagerySize
             
-            bpy.ops.wm.save_as_mainfile(filepath='{}{}.blend'.format(daue31msl,dsm31ueal))
+            bpy.ops.wm.save_as_mainfile(filepath='{}{}.blend'.format(ProjFolderPath,ProjectName))
             
             print(' Terrain texture preview image created successfully.')
             print('bLT_Info: Terrain texture preview creation finished {}'.format(time.ctime()))    
         else:
-            context.scene.du31lames = False
-            print('\nbLT_Info: {} is unsupported imagery file format! Use PNG, TIF, TIFF, JPG, JPEG instead.'.format(dsluae31m.split('.')[-1]))
+            context.scene.TerrainTextureFormatValid = False
+            print('\nbLT_Info: {} is unsupported imagery file format! Use PNG, TIF, TIFF, JPG, JPEG instead.'.format(terrainTexturePath.split('.')[-1]))
     else:
-        context.scene.du31lames = False
+        context.scene.TerrainTextureFormatValid = False
         
-def dulae31ms(self, context):
-    dmealsu31 = context.scene.dumlse31a
-    daue31msl = context.scene.daue31msl
-    dsm31ueal = 'Project_{}'.format(daue31msl.split('\\')[-2])
+def update_importterrainsplatmaskpath(self, context):
+    terrainSplatMaskPath = context.scene.ImportTerrainSplatMaskPath
+    ProjFolderPath = context.scene.ProjFolderPath
+    ProjectName = 'Project_{}'.format(ProjFolderPath.split('\\')[-2])
     
-    if dmealsu31 != '':
-        if dmealsu31.split('.')[-1] in ['png','tif','tiff']:
-            context.scene.dml31eaus = True
-            bpy.ops.wm.save_as_mainfile(filepath='{}{}.blend'.format(daue31msl,dsm31ueal))
+    if terrainSplatMaskPath != '':
+        if terrainSplatMaskPath.split('.')[-1] in ['png','tif','tiff']:
+            context.scene.SurfaceMaskFormatValid = True
+            bpy.ops.wm.save_as_mainfile(filepath='{}{}.blend'.format(ProjFolderPath,ProjectName))
         else:
-            context.scene.dml31eaus = False
-            print('\nbLT_Info: {} is unsupported surface mask file format! Use PNG, TIF, TIFF instead.'.format(dmealsu31.split('.')[-1]))
+            context.scene.SurfaceMaskFormatValid = False
+            print('\nbLT_Info: {} is unsupported surface mask file format! Use PNG, TIF, TIFF instead.'.format(terrainSplatMaskPath.split('.')[-1]))
     else:
-        context.scene.dml31eaus = False
+        context.scene.SurfaceMaskFormatValid = False
     
-def delmsa31u(self, context):
+def update_importterrainheightmappath(self, context):
     
-    du31laems = context.scene.dlsumea31
+    terrainHeightmapPath = context.scene.ImportTerrainHeightmapPath
     
-    if du31laems !='':
-        if du31laems.split('.')[-1] in ['asc','ascii']:
-            context.scene.deal31mus = True
-            d31lemsau = bpy.context.user_preferences.addons["bLandscapeTools-master"].preferences.d31lemsau
-            daue31msl = bpy.data.scenes["Default_Location"].daue31msl
-            dsm31ueal = 'Project_{}'.format(daue31msl.split('\\')[-2])
-            d31samelu = dsma31ule(du31laems)
+    if terrainHeightmapPath !='':
+        if terrainHeightmapPath.split('.')[-1] in ['asc','ascii']:
+            context.scene.HeightmapFormatValid = True
+            GDALPath = bpy.context.user_preferences.addons["bLandscapeTools-master"].preferences.GDALPath
+            ProjFolderPath = bpy.data.scenes["Default_Location"].ProjFolderPath
+            ProjectName = 'Project_{}'.format(ProjFolderPath.split('\\')[-2])
+            elevationInfo = getElevFileHeader(terrainHeightmapPath)
             print('\nbLT_Info: ASC elevation to bLTe format conversion started {}'.format(time.ctime()))
-            dael31usm = genfromtxt(du31laems, delimiter=' ', skip_header=6)
-            dslu31mea = '{}ProjectData\\Textures\\elevation.bLTe'.format(daue31msl)
-            dael31usm.astype('float32').tofile(dslu31mea)
+            ascElevation = genfromtxt(terrainHeightmapPath, delimiter=' ', skip_header=6)
+            binElevFilePath = '{}ProjectData\\Textures\\elevation.bLTe'.format(ProjFolderPath)
+            ascElevation.astype('float32').tofile(binElevFilePath)
             print('bLT_Info: ASC elevation to bLTe format conversion finished {}'.format(time.ctime()))
             
             print('\nbLT_Info: Shaded terrain preview creation started {}'.format(time.ctime()))
-            dmels31au(du31laems)
+            updateterrainpreview(terrainHeightmapPath)
             print('bLT_Info: Shaded terrain preview creation finished {}'.format(time.ctime()))
             
-            daml31sue = bpy.data.scenes['Default_Location']
-            daml31sue["da31mlues"] = d31samelu[0]
-            daml31sue["dmaseu31l"] = d31samelu[1]
-            daml31sue["dual31sem"] = d31samelu[2]
-            daml31sue["ds31uamle"] = d31samelu[3]
-            bpy.data.scenes['Default_Location'].d31emusal = dslu31mea
+            defaultLocationScene = bpy.data.scenes['Default_Location']
+            defaultLocationScene["TerrainResolution"] = elevationInfo[0]
+            defaultLocationScene["xllcorner"] = elevationInfo[1]
+            defaultLocationScene["yllcorner"] = elevationInfo[2]
+            defaultLocationScene["CellSize"] = elevationInfo[3]
+            bpy.data.scenes['Default_Location'].bLTElevationPath = binElevFilePath
 
-            bpy.ops.wm.save_as_mainfile(filepath='{}{}.blend'.format(daue31msl,dsm31ueal))
+            bpy.ops.wm.save_as_mainfile(filepath='{}{}.blend'.format(ProjFolderPath,ProjectName))
         else:
-            context.scene.deal31mus = False
-            print('bLT_Info: {} is unsupported elevation file format! Use ASC or ASCII instead.'.format(du31laems.split('.')[-1]))
+            context.scene.HeightmapFormatValid = False
+            print('bLT_Info: {} is unsupported elevation file format! Use ASC or ASCII instead.'.format(terrainHeightmapPath.split('.')[-1]))
     else:
-        context.scene.deal31mus = False
+        context.scene.HeightmapFormatValid = False
 
-def dlmeuas31(self, context):
-    dlmeusa31 = context.scene.dl31uesma
-    daue31msl = bpy.data.scenes["Default_Location"].daue31msl
-    dsm31ueal = 'Project_{}'.format(daue31msl.split('\\')[-2])
+def update_importsurfacedefinitionpath(self, context):
+    surfaceDefinitionPath = context.scene.ImportSurfacesDefinitionPath
+    ProjFolderPath = bpy.data.scenes["Default_Location"].ProjFolderPath
+    ProjectName = 'Project_{}'.format(ProjFolderPath.split('\\')[-2])
     
-    if dlmeusa31 != '':
-        if dlmeusa31.split('.')[-1] == 'cfg':
-            if len(context.scene.dulem31as) != 0:
-                for textureBrushName in context.scene.dulem31as:
+    if surfaceDefinitionPath != '':
+        if surfaceDefinitionPath.split('.')[-1] == 'cfg':
+            if len(context.scene.TexturePaintBrushNames) != 0:
+                for textureBrushName in context.scene.TexturePaintBrushNames:
                     bpy.data.brushes.remove(bpy.data.brushes[textureBrushName.name])
-                for daslme31uName in context.scene.dulem31as:
-                    context.scene.dulem31as.remove(0)
+                for TexturePaintBrushName in context.scene.TexturePaintBrushNames:
+                    context.scene.TexturePaintBrushNames.remove(0)
                     
             
-            dus31lema = open(dlmeusa31,encoding="utf8")
-            de31sulma = context.scene.de31sulma
-            daue31msl = bpy.data.scenes["Default_Location"].daue31msl
+            surfaceDefinitionFile = open(surfaceDefinitionPath,encoding="utf8")
+            DevDriveLetter = context.scene.DevDriveLetter
+            ProjFolderPath = bpy.data.scenes["Default_Location"].ProjFolderPath
             
             surfaces = []
             materials = {}
             colors = {}
             
-            for line in dus31lema.readlines():
+            for line in surfaceDefinitionFile.readlines():
                 line = (line.lstrip()).rstrip('\n')
                 if line.split(' ')[0] == 'class' and line.split(' ')[1] not in ['Layers','Legend','Colors']:
-                    dsmaule31 = line.split(' ')[1].strip().lower()
+                    surfaceName = line.split(' ')[1].strip().lower()
                     if '\t' in line.split(' ')[1].strip():
-                        dsmaule31 = line.split(' ')[1].strip().split('\t')[0].lower()
-                    surfaces.append(dsmaule31)
+                        surfaceName = line.split(' ')[1].strip().split('\t')[0].lower()
+                    surfaces.append(surfaceName)
                 if line.split('=')[0].rstrip() == 'material':
                     materials[surfaces[-1]] = line.split('=')[1].split(';')[0].strip()[1:-1]
                 if (line.split('=')[0].strip()).rstrip('[]') in surfaces:
-                    du31lsmea = list(map(int, line.split('=')[1].strip().split(';')[0].lstrip('{{').rstrip('}}').split(',')))
-                    colors[(line.split('=')[0].strip()).rstrip('[]')] = du31lsmea
+                    RGBvalues = list(map(int, line.split('=')[1].strip().split(';')[0].lstrip('{{').rstrip('}}').split(',')))
+                    colors[(line.split('=')[0].strip()).rstrip('[]')] = RGBvalues
                     
-            dus31lema.close()
+            surfaceDefinitionFile.close()
             
-            from cv2 import imread as dl31mueas, imwrite as dusea31lm, resize as dlausme31, IMREAD_COLOR as dl31usame
+            from cv2 import imread as cv2imread, imwrite as cv2imwrite, resize as cv2resize, IMREAD_COLOR as cv2IMREAD_COLOR
             
             print('\nbLT_Info: Surface brushes and previews creation started {}'.format(time.ctime()))
-            for dsmaule31, dsm31uale in materials.items():
-                f = open('{}\\{}'.format(de31sulma,dsm31uale))
+            for surfaceName, materialPath in materials.items():
+                f = open('{}\\{}'.format(DevDriveLetter,materialPath))
                 textures = []
                 for line in f.readlines():
                     line = (line.lstrip()).rstrip('\n')
@@ -168,65 +168,65 @@ def dlmeuas31(self, context):
                         textures.append(line.split('=')[1][1:-2])
                 f.close()
                 
-                dms31aeul = dl31mueas('{}{}'.format(de31sulma,textures[1]), dl31usame)
-                delsamu31 = dlausme31(dms31aeul, (128, 128))
-                dusea31lm(r'{}ProjectData\Textures\previewIcon_{}.png'.format(daue31msl,dsmaule31), delsamu31)
+                input_image_cv = cv2imread('{}{}'.format(DevDriveLetter,textures[1]), cv2IMREAD_COLOR)
+                resizedImage = cv2resize(input_image_cv, (128, 128))
+                cv2imwrite(r'{}ProjectData\Textures\previewIcon_{}.png'.format(ProjFolderPath,surfaceName), resizedImage)
 
-                dlmseua31 = bpy.data.brushes.new(dsmaule31)
-                dlmseua31.use_custom_icon = True
-                dlmseua31.icon_filepath = '{}ProjectData\Textures\previewIcon_{}.png'.format(daue31msl,dsmaule31)
-                dlmseua31.strength = 1.0
+                currentBrush = bpy.data.brushes.new(surfaceName)
+                currentBrush.use_custom_icon = True
+                currentBrush.icon_filepath = '{}ProjectData\Textures\previewIcon_{}.png'.format(ProjFolderPath,surfaceName)
+                currentBrush.strength = 1.0
                 bpy.context.scene.tool_settings.image_paint.use_normal_falloff = False
                 bpy.context.scene.tool_settings.image_paint.seam_bleed = 0
-                dlmseua31.color = (0 if colors[dsmaule31][0] == 0 else colors[dsmaule31][0] / 255,
-                                      0 if colors[dsmaule31][1] == 0 else colors[dsmaule31][1] / 255,
-                                      0 if colors[dsmaule31][2] == 0 else colors[dsmaule31][2] / 255)
-                dlmseua31.secondary_color = (0 if colors[dsmaule31][0] == 0 else colors[dsmaule31][0] / 255,
-                                                0 if colors[dsmaule31][1] == 0 else colors[dsmaule31][1] / 255,
-                                                0 if colors[dsmaule31][2] == 0 else colors[dsmaule31][2] / 255)
-                dlmseua31.curve.curves[0].points.remove(dlmseua31.curve.curves[0].points[1])
-                dlmseua31.curve.curves[0].points.remove(dlmseua31.curve.curves[0].points[1])
-                dlmseua31.curve.curves[0].points[1].location[1] = 1.0
-                dlmseua31.curve.update()
-                dlmseua31 = context.scene.dulem31as.add()
-                dlmseua31.name = dsmaule31
+                currentBrush.color = (0 if colors[surfaceName][0] == 0 else colors[surfaceName][0] / 255,
+                                      0 if colors[surfaceName][1] == 0 else colors[surfaceName][1] / 255,
+                                      0 if colors[surfaceName][2] == 0 else colors[surfaceName][2] / 255)
+                currentBrush.secondary_color = (0 if colors[surfaceName][0] == 0 else colors[surfaceName][0] / 255,
+                                                0 if colors[surfaceName][1] == 0 else colors[surfaceName][1] / 255,
+                                                0 if colors[surfaceName][2] == 0 else colors[surfaceName][2] / 255)
+                currentBrush.curve.curves[0].points.remove(currentBrush.curve.curves[0].points[1])
+                currentBrush.curve.curves[0].points.remove(currentBrush.curve.curves[0].points[1])
+                currentBrush.curve.curves[0].points[1].location[1] = 1.0
+                currentBrush.curve.update()
+                currentBrush = context.scene.TexturePaintBrushNames.add()
+                currentBrush.name = surfaceName
                 
-            bpy.ops.wm.save_as_mainfile(filepath='{}{}.blend'.format(daue31msl,dsm31ueal))
+            bpy.ops.wm.save_as_mainfile(filepath='{}{}.blend'.format(ProjFolderPath,ProjectName))
             print('bLT_Info: Surface brushes and previews creation finished {}'.format(time.ctime()))
                 
         else:
-            print('\nbLT_Info: {} is unsupported config file format! Use CFG instead.'.format(dlmeusa31.split('.')[-1]))
+            print('\nbLT_Info: {} is unsupported config file format! Use CFG instead.'.format(surfaceDefinitionPath.split('.')[-1]))
             
-def de31smlua(self, context):
-    if not os.path.exists(context.scene.de31sulma):
-        context.scene.ds31aulem = False
-        print('\nbLT_Info: System drive {} doesn\'t exist!'.format(context.scene.de31sulma))
+def update_devdriveletter(self, context):
+    if not os.path.exists(context.scene.DevDriveLetter):
+        context.scene.DevDriveValid = False
+        print('\nbLT_Info: System drive {} doesn\'t exist!'.format(context.scene.DevDriveLetter))
     else:
-        context.scene.ds31aulem = True
-        daue31msl = bpy.data.scenes["Default_Location"].daue31msl
-        dsm31ueal = 'Project_{}'.format(daue31msl.split('\\')[-2])
-        bpy.ops.wm.save_as_mainfile(filepath='{}{}.blend'.format(daue31msl,dsm31ueal))
-        print('\nbLT_Info: System drive {} does exist.'.format(context.scene.de31sulma))
+        context.scene.DevDriveValid = True
+        ProjFolderPath = bpy.data.scenes["Default_Location"].ProjFolderPath
+        ProjectName = 'Project_{}'.format(ProjFolderPath.split('\\')[-2])
+        bpy.ops.wm.save_as_mainfile(filepath='{}{}.blend'.format(ProjFolderPath,ProjectName))
+        print('\nbLT_Info: System drive {} does exist.'.format(context.scene.DevDriveLetter))
           
-def dmalseu31(self, context):
-    if context.scene.dl31aesum:
+def update_switchsculptmode(self, context):
+    if context.scene.SculptModeSwitch:
         bpy.ops.object.select_all(action='DESELECT')
-        dlmsa31ue = bpy.data.objects['Terrain_' + context.scene.name]
-        dlmsa31ue.select=True
-        context.scene.objects.active = dlmsa31ue
+        terrainObject = bpy.data.objects['Terrain_' + context.scene.name]
+        terrainObject.select=True
+        context.scene.objects.active = terrainObject
         bpy.ops.object.mode_set(mode='SCULPT')
     else:
         bpy.ops.object.mode_set(mode='OBJECT')
         bpy.ops.object.select_all(action='DESELECT')
         
-def d31ausmel(self, context):
-    if context.scene.dsem31alu:
+def update_switchpaintmode(self, context):
+    if context.scene.PaintModeSwitch:
         bpy.ops.object.select_all(action='DESELECT')
-        dlmsa31ue = bpy.data.objects['Terrain_' + context.scene.name]
-        dlmsa31ue.select=True
-        context.scene.objects.active = dlmsa31ue
-        bpy.ops.object.ds31ealmu()
-        dlmsa31ue.material_slots[0].material.use_textures[1] = True
+        terrainObject = bpy.data.objects['Terrain_' + context.scene.name]
+        terrainObject.select=True
+        context.scene.objects.active = terrainObject
+        bpy.ops.object.appearance_textured_nowire()
+        terrainObject.material_slots[0].material.use_textures[1] = True
         bpy.ops.object.mode_set(mode='TEXTURE_PAINT')
     else:
         bpy.context.area.type = 'IMAGE_EDITOR'
@@ -236,57 +236,57 @@ def d31ausmel(self, context):
         bpy.ops.object.mode_set(mode='OBJECT')
         bpy.ops.object.select_all(action='DESELECT')
         
-def d31umlesa(self, context):
-    dueamls31 = context.active_object
-    dmeasul31 = dueamls31.children[0]
-    dmeasul31.scale.y = self.dameslu31
+def update_flatterwidth(self, context):
+    splineTerrainModifier = context.active_object
+    flatterObject = splineTerrainModifier.children[0]
+    flatterObject.scale.y = self.FlatterWidth
     
-def dmels31au(du31laems):
-    d31lemsau = bpy.context.user_preferences.addons["bLandscapeTools-master"].preferences.d31lemsau
-    daue31msl = bpy.data.scenes["Default_Location"].daue31msl
+def updateterrainpreview(terrainHeightmapPath):
+    GDALPath = bpy.context.user_preferences.addons["bLandscapeTools-master"].preferences.GDALPath
+    ProjFolderPath = bpy.data.scenes["Default_Location"].ProjFolderPath
     
-    cmd = '"{}gdaldem.exe" hillshade -az 45 -z 1.3 "{}" "{}ProjectData\Textures\previewTerTex.tif"'.format(d31lemsau,du31laems,daue31msl)
+    cmd = '"{}gdaldem.exe" hillshade -az 45 -z 1.3 "{}" "{}ProjectData\Textures\previewTerTex.tif"'.format(GDALPath,terrainHeightmapPath,ProjFolderPath)
     subprocess.call(cmd)
     
     if bpy.data.images.get('previewTerTex.tif') is None:
-        bpy.data.images.load('{}ProjectData\\Textures\\previewTerTex.tif'.format(daue31msl))
+        bpy.data.images.load('{}ProjectData\\Textures\\previewTerTex.tif'.format(ProjFolderPath))
         bpy.data.images['previewTerTex.tif'].use_fake_user = True
     else:
         bpy.data.images['previewTerTex.tif'].reload()      
         
-def dusaem31l():
+def getPaths():
     import addon_utils
     addons = [mod for mod in addon_utils.modules(refresh=False)]
     for mod in addons:
         if mod.__name__ == "bLandscapeTools-master":
-            dam31usel = mod.__file__
+            scriptPath = mod.__file__
             pass
            
-    desula31m = dam31usel[:-12]
-    dmseul31a = '{}\\data'.format(desula31m)
+    scriptFolder = scriptPath[:-12]
+    dataFolder = '{}\\data'.format(scriptFolder)
     
-    return dam31usel,desula31m,dmseul31a
+    return scriptPath,scriptFolder,dataFolder
      
-def deu31alsm(d31lemsau,dsluae31m):
-    ext = dsluae31m.split('.')[-1]
+def getImagerySize(GDALPath,terrainTexturePath):
+    ext = terrainTexturePath.split('.')[-1]
     if ext == 'png':
-        d31euasml = 'pgw'
+        worldFile = 'pgw'
     if ext == 'tif' or ext == 'tiff':
-        d31euasml = 'tfw'
+        worldFile = 'tfw'
     if ext == 'jpg' or ext == 'jpeg':
-        d31euasml = 'jgw'
+        worldFile = 'jgw'
         
-    cmd = '{}gdalinfo.exe "{}"'.format(d31lemsau,dsluae31m)
-    d31sleamu = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+    cmd = '{}gdalinfo.exe "{}"'.format(GDALPath,terrainTexturePath)
+    satInfo = subprocess.Popen(cmd, stdout=subprocess.PIPE)
     
     for i in range(0,10):
-        line = str(d31sleamu.stdout.readline()).rstrip('\\r\\n\'')
+        line = str(satInfo.stdout.readline()).rstrip('\\r\\n\'')
         if line.split(' ')[0][2:] == 'Size':
             info = int(line.split(' ')[3])
 
     return info
     
-def dsma31ule(path):
+def getElevFileHeader(path):
     info = []
     f = open(path,"r")
     line = f.readline().split(" ")
@@ -295,28 +295,28 @@ def dsma31ule(path):
         line = f.readline().split(" ")
     f.close()
     ncols = int(info[0])
-    dl31mseau = float(info[4])
+    cellSize = float(info[4])
     x = float(info[2])
     y = float(info[3])
-    return ncols,x,y,dl31mseau
+    return ncols,x,y,cellSize
 
     
     
 
-def dalemsu31(du31almes, dsl31uame):
+def setupLocationAppearance(locationName, hasMaterial):
     bpy.ops.object.lamp_add(type='HEMI')
     hemi = bpy.context.object
     hemi.hide = True
-    hemi.name = "Hemi_" + du31almes
+    hemi.name = "Hemi_" + locationName
 
     Areas = bpy.context.screen.areas
     for Area in Areas:
         if Area.type == 'VIEW_3D':
-            if dsl31uame:
+            if hasMaterial:
                 Area.spaces.active.viewport_shade = 'MATERIAL'
             else:
                 Area.spaces.active.viewport_shade = 'SOLID'
-                bpy.ops.scene.d31auemls()
+                bpy.ops.scene.appearance_matcap_nowire()
             Area.spaces.active.cursor_location = [0,0,0]
             Area.spaces.active.clip_start = 0.1
             Area.spaces.active.clip_end = 20000
@@ -331,32 +331,32 @@ def dalemsu31(du31almes, dsl31uame):
             Area.spaces.active.fx_settings.use_ssao = False
     
             
-def dlm31suea():
-    dmseul31a = dusaem31l()[2]
+def createProject():
+    dataFolder = getPaths()[2]
     print('\nbLT_Info: Project created.')
-    daue31msl = bpy.context.scene.daue31msl
+    ProjFolderPath = bpy.context.scene.ProjFolderPath
 
         
   
     
     
     bpy.ops.wm.read_homefile(use_splash=False, app_template="bLandscapeTools")
-    bpy.context.scene.desl31uma = True
-    bpy.context.scene.daue31msl = daue31msl
-    bpy.context.scene['dlm31saue'] = False
+    bpy.context.scene.isProject = True
+    bpy.context.scene.ProjFolderPath = ProjFolderPath
+    bpy.context.scene['isLocation'] = False
 
-    if not os.path.exists(bpy.context.scene.daue31msl + 'ProjectData'):
-	    os.makedirs(bpy.context.scene.daue31msl + 'ProjectData')
+    if not os.path.exists(bpy.context.scene.ProjFolderPath + 'ProjectData'):
+	    os.makedirs(bpy.context.scene.ProjFolderPath + 'ProjectData')
     else:
-        rmtree(bpy.context.scene.daue31msl + 'ProjectData')
-        os.makedirs(bpy.context.scene.daue31msl + 'ProjectData\\Textures')
-    if not os.path.exists(bpy.context.scene.daue31msl + 'Output'):
-	    os.makedirs(bpy.context.scene.daue31msl + 'Output\\bLTilities')
+        rmtree(bpy.context.scene.ProjFolderPath + 'ProjectData')
+        os.makedirs(bpy.context.scene.ProjFolderPath + 'ProjectData\\Textures')
+    if not os.path.exists(bpy.context.scene.ProjFolderPath + 'Output'):
+	    os.makedirs(bpy.context.scene.ProjFolderPath + 'Output\\bLTilities')
     else:
-        rmtree(bpy.context.scene.daue31msl + 'Output')
-        os.makedirs(bpy.context.scene.daue31msl + 'Output\\bLTilities')
+        rmtree(bpy.context.scene.ProjFolderPath + 'Output')
+        os.makedirs(bpy.context.scene.ProjFolderPath + 'Output\\bLTilities')
         
-def demusla31():
+def setup2dMapPreview():
     
     bpy.context.area.type = 'IMAGE_EDITOR'
     
@@ -374,9 +374,9 @@ def demusla31():
             for region in area.regions:
                 if region.type == 'WINDOW':
                     override = {'window': bpy.context.window, 'screen': screen, 'area': area, 'region': region}
-    bpy.ops.view2d.ds31meaul(override,'INVOKE_DEFAULT')
+    bpy.ops.view2d.pick_location(override,'INVOKE_DEFAULT')
 
-def dsml31eau(self,context):
+def drawSplashScreen(self,context):
     region = context.region
 
     width,height = region.width,region.height
@@ -416,7 +416,7 @@ def dsml31eau(self,context):
     bgl.glColor4f(0.0, 0.0, 0.0, 1.0)
     blf.disable(0, blf.SHADOW)
     
-def daseu31lm(self, context):
+def drawLocationSelectionRectangle(self, context):
     region = context.region
 
     width,height = region.width,region.height
@@ -434,408 +434,408 @@ def daseu31lm(self, context):
     
     if not self.switch:
         bgl.glBegin(bgl.GL_LINES)
-        bgl.glVertex2i(0, self.de31amlus)
-        bgl.glVertex2i(width, self.de31amlus)
-        bgl.glVertex2i(self.dalms31ue, 0)
-        bgl.glVertex2i(self.dalms31ue, height)
+        bgl.glVertex2i(0, self.mouseY)
+        bgl.glVertex2i(width, self.mouseY)
+        bgl.glVertex2i(self.mouseX, 0)
+        bgl.glVertex2i(self.mouseX, height)
         bgl.glEnd()
         
     else:
-        duems31la = self.desuam31l
-        damles31u = list(bpy.context.region.view2d.view_to_region(duems31la[0],duems31la[1],clip=False))
+        selOrigUV = self.selectionRectangleOriginUV
+        selOrigWindow = list(bpy.context.region.view2d.view_to_region(selOrigUV[0],selOrigUV[1],clip=False))
         
         bgl.glBegin(bgl.GL_LINE_LOOP)
-        bgl.glVertex2i(self.dalms31ue, self.de31amlus)
-        bgl.glVertex2i(damles31u[0], self.de31amlus)
-        bgl.glVertex2i(damles31u[0], damles31u[1])
-        bgl.glVertex2i(self.dalms31ue, damles31u[1])
+        bgl.glVertex2i(self.mouseX, self.mouseY)
+        bgl.glVertex2i(selOrigWindow[0], self.mouseY)
+        bgl.glVertex2i(selOrigWindow[0], selOrigWindow[1])
+        bgl.glVertex2i(self.mouseX, selOrigWindow[1])
         bgl.glEnd()
 
         bgl.glColor4f(0.0, 1.0, 0.0, 0.3)
         bgl.glBegin(bgl.GL_POLYGON)
-        bgl.glVertex2i(self.dalms31ue, self.de31amlus)
-        bgl.glVertex2i(damles31u[0], self.de31amlus)
-        bgl.glVertex2i(damles31u[0], damles31u[1])
-        bgl.glVertex2i(self.dalms31ue, damles31u[1])
+        bgl.glVertex2i(self.mouseX, self.mouseY)
+        bgl.glVertex2i(selOrigWindow[0], self.mouseY)
+        bgl.glVertex2i(selOrigWindow[0], selOrigWindow[1])
+        bgl.glVertex2i(self.mouseX, selOrigWindow[1])
         bgl.glEnd()
         bgl.glColor4f(1.0, 1.0, 1.0, 1.0)
-        blf.position(font_id, self.dalms31ue - 210, self.de31amlus - 15, 0)
-        blf.draw(font_id, self.d31ulaems)
-        blf.position(font_id, self.dalms31ue - 210, self.de31amlus - 30, 0)
-        blf.draw(font_id, self.dsau31eml)
-        blf.position(font_id, self.dalms31ue - 210, self.de31amlus - 45, 0)
-        blf.draw(font_id, self.d31lsaeum)      
+        blf.position(font_id, self.mouseX - 210, self.mouseY - 15, 0)
+        blf.draw(font_id, self.vertexCount)
+        blf.position(font_id, self.mouseX - 210, self.mouseY - 30, 0)
+        blf.draw(font_id, self.trianglesCount)
+        blf.position(font_id, self.mouseX - 210, self.mouseY - 45, 0)
+        blf.draw(font_id, self.mapSize)      
 
     bgl.glColor4f(0.0, 0.0, 0.0, 1.0)
     bgl.glDisable(bgl.GL_LINE_STIPPLE)
     blf.disable(0, blf.SHADOW)
           
-def dulmse31a(dmuale31s,da31muesl):
-    dula31mse, dmal31seu, demasu31l, d31usamle = dmuale31s[0], dmuale31s[1], da31muesl[0], da31muesl[1]
+def selectionCorrection(locCursor,locOrigin):
+    cursorX, cursorY, originX, originY = locCursor[0], locCursor[1], locOrigin[0], locOrigin[1]
 
-    if demasu31l < 0:
-        demasu31l = 0.0
-    elif demasu31l > 1:
-        demasu31l = 1.0
+    if originX < 0:
+        originX = 0.0
+    elif originX > 1:
+        originX = 1.0
         
-    if d31usamle < 0:
-        d31usamle = 0.0
-    elif d31usamle > 1:
-        d31usamle = 1.0
+    if originY < 0:
+        originY = 0.0
+    elif originY > 1:
+        originY = 1.0
 
-    if dula31mse < 0:
-        dula31mse = 0.0
-    elif dula31mse > 1:
-        dula31mse = 1.0
+    if cursorX < 0:
+        cursorX = 0.0
+    elif cursorX > 1:
+        cursorX = 1.0
     
-    if dmal31seu < 0:
-        dmal31seu = 0.0
-    elif dmal31seu > 1:
-        dmal31seu = 1.0
+    if cursorY < 0:
+        cursorY = 0.0
+    elif cursorY > 1:
+        cursorY = 1.0
 
-    if demasu31l < dula31mse:
-        dmlsa31eu = demasu31l
-        dual31ems = dula31mse
+    if originX < cursorX:
+        leftSelectionEdge = originX
+        rightSelectionEdge = cursorX
     else:
-        dmlsa31eu = dula31mse
-        dual31ems = demasu31l
+        leftSelectionEdge = cursorX
+        rightSelectionEdge = originX
 
-    if d31usamle > dmal31seu:
-        dua31smel = d31usamle
-        dsmlu31ae = dmal31seu
+    if originY > cursorY:
+        topSelectionEdge = originY
+        bottomSelectionEdge = cursorY
     else:
-        dua31smel = dmal31seu
-        dsmlu31ae = d31usamle
+        topSelectionEdge = cursorY
+        bottomSelectionEdge = originY
   
-    return dua31smel,dmlsa31eu,dsmlu31ae,dual31ems
+    return topSelectionEdge,leftSelectionEdge,bottomSelectionEdge,rightSelectionEdge
     
-def dlu31maes(dl31mseau,dlmuae31s,dua31smel,dmlsa31eu,dsmlu31ae,dual31ems):
-    dmselau31 = False
-    d31esamlu = False
+def terrainImportInfo(cellSize,terrainResolution,topSelectionEdge,leftSelectionEdge,bottomSelectionEdge,rightSelectionEdge):
+    copyTopEdge = False
+    copyRightEdge = False
     
-    if isnan(dua31smel):
-        dua31smel = 0.0
-    if isnan(dmlsa31eu):
-        dmlsa31eu = 0.0
+    if isnan(topSelectionEdge):
+        topSelectionEdge = 0.0
+    if isnan(leftSelectionEdge):
+        leftSelectionEdge = 0.0
 
-    if dua31smel == 1.0:
-        duseml31a = 0
-        dmselau31 = True
+    if topSelectionEdge == 1.0:
+        topLeftRow = 0
+        copyTopEdge = True
     else:
-        duseml31a = floor((1 - dua31smel) * dlmuae31s)
+        topLeftRow = floor((1 - topSelectionEdge) * terrainResolution)
         
-    dem31lasu = ceil(dmlsa31eu * dlmuae31s)
+    topLeftColumn = ceil(leftSelectionEdge * terrainResolution)
     
-    if dsmlu31ae == 0.0:
-        dmleuas31 = dlmuae31s - 1
+    if bottomSelectionEdge == 0.0:
+        bottomRightRow = terrainResolution - 1
     else:
-        dmleuas31 = floor((1 - dsmlu31ae) * dlmuae31s) - 1
+        bottomRightRow = floor((1 - bottomSelectionEdge) * terrainResolution) - 1
         
-    if dual31ems == 1.0:
-         deulm31as = dlmuae31s - 1
-         d31esamlu = True
+    if rightSelectionEdge == 1.0:
+         bottomRightColumn = terrainResolution - 1
+         copyRightEdge = True
     else:
-        deulm31as = ceil(dual31ems * dlmuae31s) - 1
+        bottomRightColumn = ceil(rightSelectionEdge * terrainResolution) - 1
         
-    dl31uemsa = deulm31as - dem31lasu + 2 if d31esamlu else deulm31as - dem31lasu + 1
-    delas31um = dmleuas31 - duseml31a + 2 if dmselau31 else dmleuas31 - duseml31a + 1
+    gridResX = bottomRightColumn - topLeftColumn + 2 if copyRightEdge else bottomRightColumn - topLeftColumn + 1
+    gridResY = bottomRightRow - topLeftRow + 2 if copyTopEdge else bottomRightRow - topLeftRow + 1
         
-    return duseml31a, dem31lasu, dmleuas31, deulm31as, dmselau31, d31esamlu, dl31uemsa, delas31um
+    return topLeftRow, topLeftColumn, bottomRightRow, bottomRightColumn, copyTopEdge, copyRightEdge, gridResX, gridResY
     
-def dsmu31lea(demsu31al,dlmuae31s,duseml31a,dem31lasu,dmleuas31,deulm31as,dmselau31,d31esamlu):
+def prepareHeightfield(dataPath,terrainResolution,topLeftRow,topLeftColumn,bottomRightRow,bottomRightColumn,copyTopEdge,copyRightEdge):
     print(' Heightfield preparation started {}'.format(time.ctime()))
-    dsuale31m = fromfile(demsu31al, dtype=float32)
-    demasul31 = reshape(dsuale31m,(dlmuae31s,dlmuae31s))
-    dsuale31m = demasul31[duseml31a:dmleuas31 + 1,dem31lasu:deulm31as + 1]
+    heightField = fromfile(dataPath, dtype=float32)
+    heightField2D = reshape(heightField,(terrainResolution,terrainResolution))
+    heightField = heightField2D[topLeftRow:bottomRightRow + 1,topLeftColumn:bottomRightColumn + 1]
     
-    if dmselau31 and d31esamlu:
-        dle31aums = dsuale31m[0]
-        dsuale31m = vstack((dle31aums,dsuale31m))
-        dealus31m = dsuale31m[:,[-1]]
-        dsuale31m = hstack((dsuale31m,dealus31m))
+    if copyTopEdge and copyRightEdge:
+        copiedTopEdge = heightField[0]
+        heightField = vstack((copiedTopEdge,heightField))
+        copiedRightEdge = heightField[:,[-1]]
+        heightField = hstack((heightField,copiedRightEdge))
     else:
-        if dmselau31:
-            dle31aums = dsuale31m[0]
-            dsuale31m = vstack((dle31aums,dsuale31m))
-        if d31esamlu:
-            dealus31m = dsuale31m[:,[-1]]
-            dsuale31m = hstack((dsuale31m,dealus31m))
+        if copyTopEdge:
+            copiedTopEdge = heightField[0]
+            heightField = vstack((copiedTopEdge,heightField))
+        if copyRightEdge:
+            copiedRightEdge = heightField[:,[-1]]
+            heightField = hstack((heightField,copiedRightEdge))
     print(' Heightfield preparation finished {}'.format(time.ctime()))
-    return dsuale31m
+    return heightField
 
-def duam31les(dumea31ls,dlsmue31a,dem31lasu,duseml31aChanged,duase31ml,damsule31,dumse31al,dsmlea31u):
-    dal31umes = dlsmue31a * dem31lasu - dumea31ls * duase31ml
-    dea31lums = dlsmue31a * duseml31aChanged - dumea31ls * damsule31
-    print(' Pixel edge to vertex distance: ', dal31umes,dea31lums)
-    d31sameul = 1 / dumea31ls * dal31umes
-    dul31esma = 1 / dumea31ls * dea31lums
-    print(' Vertex from pixel shift: ', d31sameul,dul31esma)
+def getUVmapInfo(textureUVcellsizeMap,terrainUVcellsizeMap,topLeftColumn,topLeftRowChanged,topLeftPixelX,topLeftPixelY,locTextureResolutionX,locTextureResolutionY):
+    uvShiftXMap = terrainUVcellsizeMap * topLeftColumn - textureUVcellsizeMap * topLeftPixelX
+    uvShiftYMap = terrainUVcellsizeMap * topLeftRowChanged - textureUVcellsizeMap * topLeftPixelY
+    print(' Pixel edge to vertex distance: ', uvShiftXMap,uvShiftYMap)
+    vertexFromEdgeShiftX = 1 / textureUVcellsizeMap * uvShiftXMap
+    vertexFromEdgeShiftY = 1 / textureUVcellsizeMap * uvShiftYMap
+    print(' Vertex from pixel shift: ', vertexFromEdgeShiftX,vertexFromEdgeShiftY)
     
-    dmlsuae31 = 1 / dumse31al * d31sameul
-    dsul31ame = 1 - (1 / dsmlea31u * dul31esma)
-    print(' uvStart at: ', dmlsuae31, dsul31ame)
+    uvStartX = 1 / locTextureResolutionX * vertexFromEdgeShiftX
+    uvStartY = 1 - (1 / locTextureResolutionY * vertexFromEdgeShiftY)
+    print(' uvStart at: ', uvStartX, uvStartY)
     
-    ds31umale = (dlsmue31a / dumea31ls) * (1 / dumse31al)
-    dml31eusa = (dlsmue31a / dumea31ls) * (1 / dsmlea31u)
-    print(' terrainUVcellsizeLoc: ', ds31umale, dml31eusa)
-    return dmlsuae31, dsul31ame, ds31umale, dml31eusa
+    terrainUVcellsizeLocX = (terrainUVcellsizeMap / textureUVcellsizeMap) * (1 / locTextureResolutionX)
+    terrainUVcellsizeLocY = (terrainUVcellsizeMap / textureUVcellsizeMap) * (1 / locTextureResolutionY)
+    print(' terrainUVcellsizeLoc: ', terrainUVcellsizeLocX, terrainUVcellsizeLocY)
+    return uvStartX, uvStartY, terrainUVcellsizeLocX, terrainUVcellsizeLocY
 
-def d31leasmu(deu31smal, demasul31, dlumesa31):
-    deu31smal[dlumesa31[0]:dlumesa31[0] + demasul31.shape[0], dlumesa31[1]:dlumesa31[1] + demasul31.shape[1]] = demasul31
-    return deu31smal
+def mergeTerrain(originalHeightField, heightField2D, mergePosition):
+    originalHeightField[mergePosition[0]:mergePosition[0] + heightField2D.shape[0], mergePosition[1]:mergePosition[1] + heightField2D.shape[1]] = heightField2D
+    return originalHeightField
     
-def dauslm31e(dlsamue31):
+def exportTerrain(overwriteSource):
     print('\nbLT_Info: Heightmap export started ', time.ctime())
-    d31emausl = bpy.data.scenes['Default_Location']
-    demalu31s = d31emausl.d31emusal
-    daue31msl = d31emausl.daue31msl
-    dlmuae31s,dmaseu31l,dual31sem,dl31mseau = d31emausl["da31mlues"],d31emausl["dmaseu31l"],d31emausl["dual31sem"],d31emausl["ds31uamle"]
-    d31saelum = fromfile(demalu31s,dtype=float32)
-    dulmaes31 = d31saelum.reshape((dlmuae31s,dlmuae31s))
+    defaultProperties = bpy.data.scenes['Default_Location']
+    binaryElevationPath = defaultProperties.bLTElevationPath
+    ProjFolderPath = defaultProperties.ProjFolderPath
+    terrainResolution,xllcorner,yllcorner,cellSize = defaultProperties["TerrainResolution"],defaultProperties["xllcorner"],defaultProperties["yllcorner"],defaultProperties["CellSize"]
+    originalHeightField1D = fromfile(binaryElevationPath,dtype=float32)
+    originalHeightField2D = originalHeightField1D.reshape((terrainResolution,terrainResolution))
     
-    du31almes = bpy.context.scene.name
-    dlmsa31ue = bpy.data.objects.get('Terrain_{}'.format(du31almes))
-    deusmla31 = dlmsa31ue.matrix_world
+    locationName = bpy.context.scene.name
+    terrainObject = bpy.data.objects.get('Terrain_{}'.format(locationName))
+    wMatrix = terrainObject.matrix_world
     
-    dsuale31m1D = []
-    for v in dlmsa31ue.data.vertices:
-        dsu31laem = deusmla31 * v.co
-        dsuale31m1D.append(round(dsu31laem[2],2))
+    heightField1D = []
+    for v in terrainObject.data.vertices:
+        worldCoord = wMatrix * v.co
+        heightField1D.append(round(worldCoord[2],2))
     
-    demasul31 = array(dsuale31m1D).reshape(dlmsa31ue["dms31luea"],dlmsa31ue["dalems31u"])
+    heightField2D = array(heightField1D).reshape(terrainObject["GridResY"],terrainObject["GridResX"])
     
-    if dlmsa31ue['dm31sleau']:
-        demasul31 = delete(demasul31,0,0)
-    if dlmsa31ue['dealsu31m']:
-        demasul31 = delete(demasul31,-1,1)
+    if terrainObject['TopEdgeAdded']:
+        heightField2D = delete(heightField2D,0,0)
+    if terrainObject['RightEdgeAdded']:
+        heightField2D = delete(heightField2D,-1,1)
     
-    deu31amls = d31leasmu(dulmaes31, demasul31, [dlmsa31ue["dsea31mlu"],dlmsa31ue["dsme31lua"]])
-    deu31amls.astype('float32').tofile(demalu31s)
-    if dlsamue31:
-        daemu31sl = d31emausl.dlsumea31
+    mergedElevation = mergeTerrain(originalHeightField2D, heightField2D, [terrainObject["MergeRow"],terrainObject["MergeCol"]])
+    mergedElevation.astype('float32').tofile(binaryElevationPath)
+    if overwriteSource:
+        outputPath = defaultProperties.ImportTerrainHeightmapPath
     else:
-        daemu31sl = '{}\\Output\\elevation.asc'.format(daue31msl)
-    header = 'ncols         {}\nnrows         {}\ndmaseu31l     {}\ndual31sem     {}\ncellsize      {}\nNODATA_value  -9999'.format(dlmuae31s,dlmuae31s,dmaseu31l,dual31sem,dl31mseau)
-    savetxt(daemu31sl,deu31amls,fmt='%.2f',delimiter=' ',comments='',header=header)
+        outputPath = '{}\\Output\\elevation.asc'.format(ProjFolderPath)
+    header = 'ncols         {}\nnrows         {}\nxllcorner     {}\nyllcorner     {}\ncellsize      {}\nNODATA_value  -9999'.format(terrainResolution,terrainResolution,xllcorner,yllcorner,cellSize)
+    savetxt(outputPath,mergedElevation,fmt='%.2f',delimiter=' ',comments='',header=header)
     print(' bLT_Info: Shaded terrain preview regeneration started ', time.ctime())
-    dmels31au(daemu31sl)
+    updateterrainpreview(outputPath)
     print(' bLT_Info: Shaded terrain preview regeneration finished ', time.ctime())
     print('bLT_Info: Heightmap export finished ', time.ctime())
     
-def dua31mles(dlsamue31):
-    dmealsu31 = bpy.data.scenes["Default_Location"].dumlse31a
-    if bpy.context.scene.dml31eaus:
+def exportSurfaceMask(overwriteSource):
+    terrainSplatMaskPath = bpy.data.scenes["Default_Location"].ImportTerrainSplatMaskPath
+    if bpy.context.scene.SurfaceMaskFormatValid:
         print('\nbLT_Info: Surface map export started ', time.ctime())
-        from cv2 import imread as dl31mueas, imwrite as dusea31lm, IMREAD_COLOR as dl31usame
-        daue31msl = bpy.data.scenes["Default_Location"].daue31msl
-        du31almes = bpy.context.scene.name
-        dslemua31 = dl31mueas(bpy.data.scenes["Default_Location"].dumlse31a, dl31usame)
-        dleusma31 = dl31mueas(r'{}ProjectData\Textures\TerrainMask_{}.png'.format(daue31msl,du31almes), dl31usame)
-        dlmsa31ue = bpy.data.objects.get('Terrain_{}'.format(du31almes))
-        dslemua31[dlmsa31ue['MergeTopLeftY']:dlmsa31ue["MergeBottomRightY"],dlmsa31ue["MergeTopLeftX"]:dlmsa31ue["MergeBottomRightX"]] = dleusma31
-        if dlsamue31:
-            daemu31sl = dmealsu31
+        from cv2 import imread as cv2imread, imwrite as cv2imwrite, IMREAD_COLOR as cv2IMREAD_COLOR
+        ProjFolderPath = bpy.data.scenes["Default_Location"].ProjFolderPath
+        locationName = bpy.context.scene.name
+        sourceSurfaceMask = cv2imread(bpy.data.scenes["Default_Location"].ImportTerrainSplatMaskPath, cv2IMREAD_COLOR)
+        locationSurfaceMask = cv2imread(r'{}ProjectData\Textures\TerrainMask_{}.png'.format(ProjFolderPath,locationName), cv2IMREAD_COLOR)
+        terrainObject = bpy.data.objects.get('Terrain_{}'.format(locationName))
+        sourceSurfaceMask[terrainObject['MergeTopLeftY']:terrainObject["MergeBottomRightY"],terrainObject["MergeTopLeftX"]:terrainObject["MergeBottomRightX"]] = locationSurfaceMask
+        if overwriteSource:
+            outputPath = terrainSplatMaskPath
         else:
-            daemu31sl = '{}\\Output\\d31slmuae.png'.format(daue31msl)
-        dusea31lm(daemu31sl, dslemua31)
+            outputPath = '{}\\Output\\surfaceMask.png'.format(ProjFolderPath)
+        cv2imwrite(outputPath, sourceSurfaceMask)
         print('bLT_Info: Surface map export finished ', time.ctime())
     else:
         print('\nbLT_Info:No surface map data exported!!! Source surface mask path not defined in Data Sources panel.')
     
     
-def dslemu31a(du31almes,duseml31a,dem31lasu,dmleuas31,deulm31as,dmselau31,d31esamlu):
-    d31ulemas = bpy.data.scenes['Default_Location']
-    dlmuae31s = d31ulemas["da31mlues"]
-    dl31mseau = d31ulemas["ds31uamle"]
+def createOccupiedLocation(locationName,topLeftRow,topLeftColumn,bottomRightRow,bottomRightColumn,copyTopEdge,copyRightEdge):
+    worldInfo = bpy.data.scenes['Default_Location']
+    terrainResolution = worldInfo["TerrainResolution"]
+    cellSize = worldInfo["CellSize"]
     
-    dusae31ml = bpy.data.grease_pencil["OccupiedLocations"].layers.new(du31almes)
-    d31lauesm = dusae31ml.frames.new(0)
-    dealmu31s = d31lauesm.strokes.new('dealmu31s')
-    dealmu31s.colorname = 'Color'
-    dealmu31s.draw_mode = '2DSPACE'
+    occupiedLocationLayer = bpy.data.grease_pencil["OccupiedLocations"].layers.new(locationName)
+    newFrame = occupiedLocationLayer.frames.new(0)
+    newStroke = newFrame.strokes.new('newStroke')
+    newStroke.colorname = 'Color'
+    newStroke.draw_mode = '2DSPACE'
     
-    d31lsaeum = dlmuae31s * dl31mseau
+    mapSize = terrainResolution * cellSize
     
-    dsemu31la = (dem31lasu * dl31mseau) / d31lsaeum
-    duemsla31 = 1 if dmselau31 else 1 - ((duseml31a + 1) * dl31mseau / d31lsaeum)
-    dul31meas = 1 if d31esamlu else (deulm31as * dl31mseau) / d31lsaeum
-    dm31esalu = 1 - ((dmleuas31 + 1) * dl31mseau / d31lsaeum)
-    
-    
-    dealmu31s.points.add()
-    dealmu31s.points[0].co = Vector((dsemu31la,duemsla31,0))
-    dealmu31s.points.add()
-    dealmu31s.points[1].co = Vector((dsemu31la,dm31esalu,0))
-    dealmu31s.points.add()
-    dealmu31s.points[2].co = Vector((dul31meas,dm31esalu,0))
-    dealmu31s.points.add()
-    dealmu31s.points[3].co = Vector((dul31meas,duemsla31,0))
+    topLeftX = (topLeftColumn * cellSize) / mapSize
+    topLeftY = 1 if copyTopEdge else 1 - ((topLeftRow + 1) * cellSize / mapSize)
+    bottomRightX = 1 if copyRightEdge else (bottomRightColumn * cellSize) / mapSize
+    bottomRightY = 1 - ((bottomRightRow + 1) * cellSize / mapSize)
     
     
-def d31smleua(du31almes,dl31uemsa,delas31um,duseml31a,dem31lasu,dmleuas31,deulm31as,dmselau31,d31esamlu):
-    d31ulemas = bpy.data.scenes['Default_Location']
-    dlmuae31s = d31ulemas["da31mlues"]
-    dl31mseau = d31ulemas["ds31uamle"]
-    dumel31as = bpy.data.scenes['Default_Location'].d31emusal
-    dsluae31m = bpy.data.scenes["Default_Location"].demual31s
-    dmealsu31 = bpy.data.scenes["Default_Location"].dumlse31a
-    daue31msl = bpy.data.scenes["Default_Location"].daue31msl
+    newStroke.points.add()
+    newStroke.points[0].co = Vector((topLeftX,topLeftY,0))
+    newStroke.points.add()
+    newStroke.points[1].co = Vector((topLeftX,bottomRightY,0))
+    newStroke.points.add()
+    newStroke.points[2].co = Vector((bottomRightX,bottomRightY,0))
+    newStroke.points.add()
+    newStroke.points[3].co = Vector((bottomRightX,topLeftY,0))
+    
+    
+def createNewLocation(locationName,gridResX,gridResY,topLeftRow,topLeftColumn,bottomRightRow,bottomRightColumn,copyTopEdge,copyRightEdge):
+    worldInfo = bpy.data.scenes['Default_Location']
+    terrainResolution = worldInfo["TerrainResolution"]
+    cellSize = worldInfo["CellSize"]
+    elevationPath = bpy.data.scenes['Default_Location'].bLTElevationPath
+    terrainTexturePath = bpy.data.scenes["Default_Location"].ImportTerrainTexturePath
+    terrainSplatMaskPath = bpy.data.scenes["Default_Location"].ImportTerrainSplatMaskPath
+    ProjFolderPath = bpy.data.scenes["Default_Location"].ProjFolderPath
 
     bpy.context.window.screen.scene = bpy.data.scenes["Default_Location"]
     bpy.ops.scene.new(type='FULL_COPY')
-    bpy.context.scene.name = du31almes
-    bpy.context.scene['dlm31saue'] = True
+    bpy.context.scene.name = locationName
+    bpy.context.scene['isLocation'] = True
     
     
-    if bpy.data.meshes.get('TerrainMesh_{}'.format(du31almes)) is not None:
-        bpy.data.meshes.get('TerrainMesh_{}'.format(du31almes)).user_clear()
-        bpy.data.meshes.remove(bpy.data.meshes.get('TerrainMesh_{}'.format(du31almes)))
+    if bpy.data.meshes.get('TerrainMesh_{}'.format(locationName)) is not None:
+        bpy.data.meshes.get('TerrainMesh_{}'.format(locationName)).user_clear()
+        bpy.data.meshes.remove(bpy.data.meshes.get('TerrainMesh_{}'.format(locationName)))
 
-    dsuaml31e = bpy.data.meshes.new('TerrainMesh_{}'.format(du31almes))
-    dlmsa31ue = bpy.data.objects.new('Terrain_{}'.format(du31almes),dsuaml31e)
-    bpy.context.scene.objects.link(dlmsa31ue)
-    dlmsa31ue.select=True
-    bpy.context.scene.objects.active = dlmsa31ue
+    terrainMesh = bpy.data.meshes.new('TerrainMesh_{}'.format(locationName))
+    terrainObject = bpy.data.objects.new('Terrain_{}'.format(locationName),terrainMesh)
+    bpy.context.scene.objects.link(terrainObject)
+    terrainObject.select=True
+    bpy.context.scene.objects.active = terrainObject
     
     print('\nbLT_Info: Location creation started ', time.ctime())
     
-    if bpy.context.scene.du31lames:
-        dsamuel31 = d31ulemas["ImageryResolution"]
+    if bpy.context.scene.TerrainTextureFormatValid:
+        imageryResolution = worldInfo["ImageryResolution"]
         
-        dumea31ls = 1 / dsamuel31
-        dlsmue31a = 1 / dlmuae31s
-        print(' UVCellTexture: ', dumea31ls)
-        print(' UVCellTerrain: ', dlsmue31a)
+        textureUVcellsizeMap = 1 / imageryResolution
+        terrainUVcellsizeMap = 1 / terrainResolution
+        print(' UVCellTexture: ', textureUVcellsizeMap)
+        print(' UVCellTerrain: ', terrainUVcellsizeMap)
         
-        duseml31aChanged = duseml31a
-        dal31eusm = deulm31as
-        deslaum31 = dmleuas31
+        topLeftRowChanged = topLeftRow
+        bottomRightColumnChanged = bottomRightColumn
+        bottomRightRowChanged = bottomRightRow
         
-        if not dmselau31:
-            duseml31aChanged += 1
+        if not copyTopEdge:
+            topLeftRowChanged += 1
             
-        deslaum31 += 1     
+        bottomRightRowChanged += 1     
             
         
-        duase31ml = floor(dem31lasu * dlsmue31a / dumea31ls)
-        damsule31 = floor(round(duseml31aChanged * dlsmue31a / dumea31ls,6))
+        topLeftPixelX = floor(topLeftColumn * terrainUVcellsizeMap / textureUVcellsizeMap)
+        topLeftPixelY = floor(round(topLeftRowChanged * terrainUVcellsizeMap / textureUVcellsizeMap,6))
 
-        if d31esamlu:
-            dal31eusm += 1
+        if copyRightEdge:
+            bottomRightColumnChanged += 1
         
-        daem31usl = ceil(dal31eusm * dlsmue31a / dumea31ls) - 1
-        da31eusml = ceil(round(deslaum31 * dlsmue31a / dumea31ls,6)) - 1
+        bottomRightPixelX = ceil(bottomRightColumnChanged * terrainUVcellsizeMap / textureUVcellsizeMap) - 1
+        bottomRightPixelY = ceil(round(bottomRightRowChanged * terrainUVcellsizeMap / textureUVcellsizeMap,6)) - 1
         
-        dumse31al = daem31usl - duase31ml + 1
-        dsmlea31u = da31eusml - damsule31 + 1
+        locTextureResolutionX = bottomRightPixelX - topLeftPixelX + 1
+        locTextureResolutionY = bottomRightPixelY - topLeftPixelY + 1
          
-        print(' Texture starts at: ', duase31ml, damsule31)
-        print(' Texture ends at: ', daem31usl, da31eusml)
-        print(' Terrain texture resolution: ', dumse31al,dsmlea31u)
+        print(' Texture starts at: ', topLeftPixelX, topLeftPixelY)
+        print(' Texture ends at: ', bottomRightPixelX, bottomRightPixelY)
+        print(' Terrain texture resolution: ', locTextureResolutionX,locTextureResolutionY)
         
-        from cv2 import imread as dl31mueas, imwrite as dusea31lm, IMREAD_COLOR as dl31usame
+        from cv2 import imread as cv2imread, imwrite as cv2imwrite, IMREAD_COLOR as cv2IMREAD_COLOR
         print(' Location\'s terrain texture extraction started ', time.ctime())
-        dms31aeul = dl31mueas(dsluae31m, dl31usame)
-        dsuae31lm = dms31aeul[damsule31:da31eusml,duase31ml:daem31usl]
-        dusea31lm(r'{}ProjectData\Textures\TerrainImage_{}.png'.format(daue31msl,du31almes), dsuae31lm)
+        input_image_cv = cv2imread(terrainTexturePath, cv2IMREAD_COLOR)
+        locationTexture = input_image_cv[topLeftPixelY:bottomRightPixelY,topLeftPixelX:bottomRightPixelX]
+        cv2imwrite(r'{}ProjectData\Textures\TerrainImage_{}.png'.format(ProjFolderPath,locationName), locationTexture)
         print(' Location\'s terrain texture extraction finished ', time.ctime())
-        dsamu31el= bpy.data.textures.new('TerrainTexture_{}'.format(du31almes), type = 'IMAGE')
-        dsamu31el.image = bpy.data.images.load('{}ProjectData\\Textures\\TerrainImage_{}.png'.format(daue31msl,du31almes))
+        terrainTexture= bpy.data.textures.new('TerrainTexture_{}'.format(locationName), type = 'IMAGE')
+        terrainTexture.image = bpy.data.images.load('{}ProjectData\\Textures\\TerrainImage_{}.png'.format(ProjFolderPath,locationName))
         
-        if bpy.context.scene.dml31eaus:
+        if bpy.context.scene.SurfaceMaskFormatValid:
             print(' Location\'s surface mask extraction started ', time.ctime())
-            dms31aeul = dl31mueas(dmealsu31, dl31usame)
-            dleusma31 = dms31aeul[damsule31:da31eusml,duase31ml:daem31usl]
-            dusea31lm(r'{}ProjectData\Textures\TerrainMask_{}.png'.format(daue31msl,du31almes), dleusma31)
+            input_image_cv = cv2imread(terrainSplatMaskPath, cv2IMREAD_COLOR)
+            locationSurfaceMask = input_image_cv[topLeftPixelY:bottomRightPixelY,topLeftPixelX:bottomRightPixelX]
+            cv2imwrite(r'{}ProjectData\Textures\TerrainMask_{}.png'.format(ProjFolderPath,locationName), locationSurfaceMask)
             print(' Location\'s surface mask extraction finished ', time.ctime())
             
-            dema31usl= bpy.data.textures.new('TerrainMask_{}'.format(du31almes), type = 'IMAGE')
-            dema31usl.image = bpy.data.images.load('{}ProjectData\\Textures\\TerrainMask_{}.png'.format(daue31msl,du31almes))
+            terrainMask= bpy.data.textures.new('TerrainMask_{}'.format(locationName), type = 'IMAGE')
+            terrainMask.image = bpy.data.images.load('{}ProjectData\\Textures\\TerrainMask_{}.png'.format(ProjFolderPath,locationName))
         
     
         #-------------------------- Create new terrain material ----------------------------------------------
-        dalm31seu = bpy.data.materials.new('TerrainMaterial_{}'.format(du31almes))
-        dalm31seu.specular_intensity = 0
-        dalm31seu.texture_slots.add()
+        terrainMaterial = bpy.data.materials.new('TerrainMaterial_{}'.format(locationName))
+        terrainMaterial.specular_intensity = 0
+        terrainMaterial.texture_slots.add()
         
-        da31ulsme = dalm31seu.texture_slots[0]
-        da31ulsme.texture = dsamu31el
-        da31ulsme.texture_coords = 'UV'
+        textureSlot = terrainMaterial.texture_slots[0]
+        textureSlot.texture = terrainTexture
+        textureSlot.texture_coords = 'UV'
         
-        if bpy.context.scene.dml31eaus:
-            dalm31seu.texture_slots.add()
-            da31ulsme = dalm31seu.texture_slots[1]
-            da31ulsme.texture = dema31usl
-            da31ulsme.texture_coords = 'UV'
-            da31ulsme.diffuse_color_factor = .5
-            dalm31seu.use_textures[1] = False
-            dalm31seu.paint_active_slot = 1
+        if bpy.context.scene.SurfaceMaskFormatValid:
+            terrainMaterial.texture_slots.add()
+            textureSlot = terrainMaterial.texture_slots[1]
+            textureSlot.texture = terrainMask
+            textureSlot.texture_coords = 'UV'
+            textureSlot.diffuse_color_factor = .5
+            terrainMaterial.use_textures[1] = False
+            terrainMaterial.paint_active_slot = 1
         
         bpy.ops.object.material_slot_add()
-        bpy.data.objects['Terrain_{}'.format(du31almes)].material_slots[0].material = dalm31seu  
+        bpy.data.objects['Terrain_{}'.format(locationName)].material_slots[0].material = terrainMaterial  
     
     bm = bmesh.new() 
-    bm.from_mesh(dsuaml31e)
+    bm.from_mesh(terrainMesh)
     
-    if bpy.context.scene.du31lames:
-        dlasem31u = bm.faces.layers.tex.verify()
-        d31mluaes = bm.loops.layers.uv.verify()
+    if bpy.context.scene.TerrainTextureFormatValid:
+        tex_layer = bm.faces.layers.tex.verify()
+        uv_layer = bm.loops.layers.uv.verify()
         
-    d31aumlse = dsmu31lea(dumel31as,dlmuae31s,duseml31a,dem31lasu,dmleuas31,deulm31as,dmselau31,d31esamlu)
-    damuesl31 = dem31lasu * dl31mseau
-    if dmselau31:
-        daelums31 = dlmuae31s * dl31mseau
+    terrainZvalues = prepareHeightfield(elevationPath,terrainResolution,topLeftRow,topLeftColumn,bottomRightRow,bottomRightColumn,copyTopEdge,copyRightEdge)
+    terrainTopLeftStartX = topLeftColumn * cellSize
+    if copyTopEdge:
+        terrainDimensionY = terrainResolution * cellSize
     else:
-        daelums31 = (dlmuae31s - 1)  * dl31mseau
+        terrainDimensionY = (terrainResolution - 1)  * cellSize
     
     print(' Terrain mesh/UVs generation started ', time.ctime())
-    dle31usma = daelums31 - (duseml31a * dl31mseau)
-    for row in range(delas31um):
-        del31amus = d31aumlse[row]
-        for col in range(dl31uemsa):
-            bm.verts.new((damuesl31,dle31usma,del31amus[col]))
-            damuesl31 += dl31mseau
-        damuesl31 = dem31lasu * dl31mseau
-        dle31usma -= dl31mseau
+    terrainTopLeftStartY = terrainDimensionY - (topLeftRow * cellSize)
+    for row in range(gridResY):
+        heightArray = terrainZvalues[row]
+        for col in range(gridResX):
+            bm.verts.new((terrainTopLeftStartX,terrainTopLeftStartY,heightArray[col]))
+            terrainTopLeftStartX += cellSize
+        terrainTopLeftStartX = topLeftColumn * cellSize
+        terrainTopLeftStartY -= cellSize
     bm.verts.ensure_lookup_table()
     
-    if bpy.context.scene.du31lames:
-        dmlsuae31, dsul31ame, ds31umale, dml31eusa = duam31les(dumea31ls,dlsmue31a,dem31lasu,duseml31aChanged,duase31ml,damsule31,dumse31al,dsmlea31u)
-    daue31lms = 0
-    for desam31ul in range(0,dl31uemsa * (delas31um - 1), dl31uemsa):
-        for dasu31elm in range (0, dl31uemsa - 1):
-            d31asumle = desam31ul + dasu31elm
-            face = [bm.verts[d31asumle],bm.verts[d31asumle + dl31uemsa],bm.verts[d31asumle + dl31uemsa + 1],bm.verts[d31asumle + 1]]
-            d31selamu = bm.faces.new(face)
+    if bpy.context.scene.TerrainTextureFormatValid:
+        uvStartX, uvStartY, terrainUVcellsizeLocX, terrainUVcellsizeLocY = getUVmapInfo(textureUVcellsizeMap,terrainUVcellsizeMap,topLeftColumn,topLeftRowChanged,topLeftPixelX,topLeftPixelY,locTextureResolutionX,locTextureResolutionY)
+    uvShiftY = 0
+    for rowOfset in range(0,gridResX * (gridResY - 1), gridResX):
+        for cellID in range (0, gridResX - 1):
+            vertID = rowOfset + cellID
+            face = [bm.verts[vertID],bm.verts[vertID + gridResX],bm.verts[vertID + gridResX + 1],bm.verts[vertID + 1]]
+            currentFace = bm.faces.new(face)
             
-            if bpy.context.scene.du31lames:
-                d31selamu[dlasem31u].image = bpy.data.images['TerrainImage_{}.png'.format(du31almes)]
-                d31selamu.loops[0][d31mluaes].uv = [dmlsuae31 + dasu31elm * ds31umale, dsul31ame - daue31lms * dml31eusa]
-                d31selamu.loops[1][d31mluaes].uv = [dmlsuae31 + dasu31elm * ds31umale, dsul31ame - daue31lms * dml31eusa - dml31eusa]
-                d31selamu.loops[2][d31mluaes].uv = [dmlsuae31 + dasu31elm * ds31umale + ds31umale, dsul31ame - daue31lms * dml31eusa - dml31eusa]
-                d31selamu.loops[3][d31mluaes].uv = [dmlsuae31 + dasu31elm * ds31umale + ds31umale, dsul31ame - daue31lms * dml31eusa]
-        daue31lms += 1
+            if bpy.context.scene.TerrainTextureFormatValid:
+                currentFace[tex_layer].image = bpy.data.images['TerrainImage_{}.png'.format(locationName)]
+                currentFace.loops[0][uv_layer].uv = [uvStartX + cellID * terrainUVcellsizeLocX, uvStartY - uvShiftY * terrainUVcellsizeLocY]
+                currentFace.loops[1][uv_layer].uv = [uvStartX + cellID * terrainUVcellsizeLocX, uvStartY - uvShiftY * terrainUVcellsizeLocY - terrainUVcellsizeLocY]
+                currentFace.loops[2][uv_layer].uv = [uvStartX + cellID * terrainUVcellsizeLocX + terrainUVcellsizeLocX, uvStartY - uvShiftY * terrainUVcellsizeLocY - terrainUVcellsizeLocY]
+                currentFace.loops[3][uv_layer].uv = [uvStartX + cellID * terrainUVcellsizeLocX + terrainUVcellsizeLocX, uvStartY - uvShiftY * terrainUVcellsizeLocY]
+        uvShiftY += 1
         
     bmesh.ops.triangulate(bm, faces=bm.faces, quad_method=2)
-    bm.to_mesh(dsuaml31e)
+    bm.to_mesh(terrainMesh)
     bm.free()
     print(' Terrain mesh/UVs generation finished ', time.ctime())
     
     
-    dlmsa31ue["dsea31mlu"] = duseml31a
-    dlmsa31ue["dsme31lua"] = dem31lasu
-    dlmsa31ue["dalems31u"] = dl31uemsa
-    dlmsa31ue["dms31luea"] = delas31um
-    dlmsa31ue["dm31sleau"] = dmselau31
-    dlmsa31ue["dealsu31m"] = d31esamlu
-    if bpy.context.scene.dml31eaus:
-        dlmsa31ue["MergeTopLeftY"] = damsule31
-        dlmsa31ue["MergeTopLeftX"] = duase31ml
-        dlmsa31ue["MergeBottomRightY"] = da31eusml
-        dlmsa31ue["MergeBottomRightX"] = daem31usl
-    dlmsa31ue.lock_location = True,True,True
-    dlmsa31ue.lock_rotation = True,True,True
-    dlmsa31ue.lock_scale = True,True,True
+    terrainObject["MergeRow"] = topLeftRow
+    terrainObject["MergeCol"] = topLeftColumn
+    terrainObject["GridResX"] = gridResX
+    terrainObject["GridResY"] = gridResY
+    terrainObject["TopEdgeAdded"] = copyTopEdge
+    terrainObject["RightEdgeAdded"] = copyRightEdge
+    if bpy.context.scene.SurfaceMaskFormatValid:
+        terrainObject["MergeTopLeftY"] = topLeftPixelY
+        terrainObject["MergeTopLeftX"] = topLeftPixelX
+        terrainObject["MergeBottomRightY"] = bottomRightPixelY
+        terrainObject["MergeBottomRightX"] = bottomRightPixelX
+    terrainObject.lock_location = True,True,True
+    terrainObject.lock_rotation = True,True,True
+    terrainObject.lock_scale = True,True,True
     bpy.ops.object.origin_set(type='ORIGIN_GEOMETRY')
     
     print('bLT_Info: Location creation finished {}\n'.format(time.ctime()))
@@ -850,152 +850,152 @@ def d31smleua(du31almes,dl31uemsa,delas31um,duseml31a,dem31lasu,dmleuas31,deulm3
     
     bpy.ops.view3d.view_selected(override)
     
-    dalemsu31(du31almes, dsl31uame = True if bpy.context.scene.du31lames else False)
+    setupLocationAppearance(locationName, hasMaterial = True if bpy.context.scene.TerrainTextureFormatValid else False)
     
-    dlmsa31ue.select = False
-    dlmsa31ue.hide_select = True
+    terrainObject.select = False
+    terrainObject.hide_select = True
     
     
-def de31smlau(context):
-    daulm31es = context.active_object
-    d31ausmle = daulm31es.dupli_group['Dimension']
-    bpy.ops.mesh.primitive_plane_add(radius=d31ausmle / 2 + (d31ausmle * .1), location=daulm31es.location, rotation=(0.0,0.0,daulm31es.rotation_euler[2]))
+def assignMeshTerrainModifier(context):
+    activeObject = context.active_object
+    modifierSize = activeObject.dupli_group['Dimension']
+    bpy.ops.mesh.primitive_plane_add(radius=modifierSize / 2 + (modifierSize * .1), location=activeObject.location, rotation=(0.0,0.0,activeObject.rotation_euler[2]))
     
-    d31almseu = context.active_object
-    d31almseu.show_x_ray = True
-    d31almseu.draw_type = 'WIRE'
-    d31almseu.name = 'Flatter_{}'.format(daulm31es.name)
+    modifierObject = context.active_object
+    modifierObject.show_x_ray = True
+    modifierObject.draw_type = 'WIRE'
+    modifierObject.name = 'Flatter_{}'.format(activeObject.name)
     
-    daulm31es.select = True
-    bpy.context.scene.objects.active = daulm31es
+    activeObject.select = True
+    bpy.context.scene.objects.active = activeObject
     bpy.ops.object.parent_set(type='OBJECT')
     
-    dlmsa31ue = bpy.data.objects['Terrain_' + context.scene.name]
-    dmelus31a = dlmsa31ue.modifiers.new(d31almseu.name, 'SHRINKWRAP')
-    dmelus31a.target = d31almseu
-    dmelus31a.wrap_method = 'PROJECT'
-    dmelus31a.use_project_z = True
-    dmelus31a.use_negative_direction = True
+    terrainObject = bpy.data.objects['Terrain_' + context.scene.name]
+    flatterModifier = terrainObject.modifiers.new(modifierObject.name, 'SHRINKWRAP')
+    flatterModifier.target = modifierObject
+    flatterModifier.wrap_method = 'PROJECT'
+    flatterModifier.use_project_z = True
+    flatterModifier.use_negative_direction = True
     
-    daulm31es.select = False
-    bpy.context.scene.objects.active = d31almseu
+    activeObject.select = False
+    bpy.context.scene.objects.active = modifierObject
     
-def d31luaesm(context):
+def addMeshTerrainModifier(context):
     bpy.ops.object.select_all(action='DESELECT')
     Areas = bpy.context.screen.areas
     for Area in Areas:
         if Area.type == 'VIEW_3D':
-            deula31ms = Area.spaces.active.cursor_location
-    bpy.ops.object.empty_add(type='SINGLE_ARROW', radius=1.0, location=deula31ms)
-    daemlsu31 = context.active_object
-    daemlsu31.lock_scale = True,True,True
-    daemlsu31.show_x_ray = True
-    daemlsu31.empty_draw_size = 50
-    daemlsu31.name = "M_T_M"
+            cursorLocation = Area.spaces.active.cursor_location
+    bpy.ops.object.empty_add(type='SINGLE_ARROW', radius=1.0, location=cursorLocation)
+    emptyObject = context.active_object
+    emptyObject.lock_scale = True,True,True
+    emptyObject.show_x_ray = True
+    emptyObject.empty_draw_size = 50
+    emptyObject.name = "M_T_M"
     
-    bpy.ops.mesh.primitive_plane_add(radius=context.scene['ds31uamle'] * 1.5, location=deula31ms)
-    d31almseu = context.active_object
-    d31almseu.show_x_ray = True
-    d31almseu.draw_type = 'WIRE'
-    d31almseu.name = 'Flatter_{}'.format(daemlsu31.name)
+    bpy.ops.mesh.primitive_plane_add(radius=context.scene['CellSize'] * 1.5, location=cursorLocation)
+    modifierObject = context.active_object
+    modifierObject.show_x_ray = True
+    modifierObject.draw_type = 'WIRE'
+    modifierObject.name = 'Flatter_{}'.format(emptyObject.name)
     
-    daemlsu31.select = True
-    bpy.context.scene.objects.active = daemlsu31
+    emptyObject.select = True
+    bpy.context.scene.objects.active = emptyObject
     bpy.ops.object.parent_set(type='OBJECT')
     
-    dlmsa31ue = bpy.data.objects['Terrain_' + context.scene.name]
-    dmelus31a = dlmsa31ue.modifiers.new(d31almseu.name, 'SHRINKWRAP')
-    dmelus31a.target = d31almseu
-    dmelus31a.wrap_method = 'PROJECT'
-    dmelus31a.use_project_z = True
-    dmelus31a.use_negative_direction = True
+    terrainObject = bpy.data.objects['Terrain_' + context.scene.name]
+    flatterModifier = terrainObject.modifiers.new(modifierObject.name, 'SHRINKWRAP')
+    flatterModifier.target = modifierObject
+    flatterModifier.wrap_method = 'PROJECT'
+    flatterModifier.use_project_z = True
+    flatterModifier.use_negative_direction = True
     
-    daemlsu31.select = False
-    bpy.context.scene.objects.active = d31almseu
+    emptyObject.select = False
+    bpy.context.scene.objects.active = modifierObject
   
-def dl31uasme(context):
-    delm31usas = bpy.context.selected_objects
+def applyMeshTerrainModifier(context):
+    selectedObjects = bpy.context.selected_objects
     
-    dlmsa31ue = bpy.data.objects['Terrain_' + context.scene.name]
-    bpy.context.scene.objects.active = dlmsa31ue
+    terrainObject = bpy.data.objects['Terrain_' + context.scene.name]
+    bpy.context.scene.objects.active = terrainObject
     
-    for delm31usa in delm31usas:
-        bpy.ops.object.modifier_apply(modifier=delm31usa.children[0].name)
-        context.scene.objects.unlink(delm31usa.children[0])
-        delm31usa.children[0].user_clear()
-        bpy.data.objects.remove(delm31usa.children[0])
-        if delm31usa.dupli_group is None:
-            context.scene.objects.unlink(delm31usa)
-            delm31usa.user_clear()
-            bpy.data.objects.remove(delm31usa)        
+    for selectedObject in selectedObjects:
+        bpy.ops.object.modifier_apply(modifier=selectedObject.children[0].name)
+        context.scene.objects.unlink(selectedObject.children[0])
+        selectedObject.children[0].user_clear()
+        bpy.data.objects.remove(selectedObject.children[0])
+        if selectedObject.dupli_group is None:
+            context.scene.objects.unlink(selectedObject)
+            selectedObject.user_clear()
+            bpy.data.objects.remove(selectedObject)        
             
-def d31mlueas(context):
+def addSplineTerrainModifier(context):
     bpy.ops.object.select_all(action='DESELECT')
     Areas = bpy.context.screen.areas
     for Area in Areas:
         if Area.type == 'VIEW_3D':
-            deula31ms = Area.spaces.active.cursor_location
+            cursorLocation = Area.spaces.active.cursor_location
     
-    dma31usel = bpy.data.curves.new('TerrainModifierSpline',"CURVE")
-    dma31usel.splines.new("BEZIER")
-    dma31usel.dimensions = '3D'
-    dueamls31 = bpy.data.objects.new("S_T_M", dma31usel)
-    dueamls31.lock_scale = True,True,True
-    dueamls31.show_x_ray = True
-    dma31usel.splines[0].bezier_points[0].co.x = 0
-    dma31usel.splines[0].bezier_points[0].co.y = 0
-    dma31usel.splines[0].bezier_points[0].handle_right_type = 'ALIGNED'
-    dma31usel.splines[0].bezier_points[0].handle_left_type = 'ALIGNED'
-    dma31usel.splines[0].bezier_points[0].handle_left = 0,-20,0    
-    dma31usel.splines[0].bezier_points[0].handle_right = 0,20,0
-    dma31usel.splines[0].bezier_points.add(1)
-    dma31usel.splines[0].bezier_points[1].co.x = 0
-    dma31usel.splines[0].bezier_points[1].co.y = 80
-    dma31usel.splines[0].bezier_points[1].handle_right_type = 'ALIGNED'
-    dma31usel.splines[0].bezier_points[1].handle_left_type = 'ALIGNED'
-    dma31usel.splines[0].bezier_points[1].handle_left = 0,60,0
-    dma31usel.splines[0].bezier_points[1].handle_right = 0,100,0
-    dma31usel.splines[0].resolution_u = 20
-    dma31usel.twist_mode = 'Z_UP'
-    bpy.context.scene.objects.link(dueamls31)
-    dueamls31['dameslu31'] = context.scene['ds31uamle'] * 3
+    splineData = bpy.data.curves.new('TerrainModifierSpline',"CURVE")
+    splineData.splines.new("BEZIER")
+    splineData.dimensions = '3D'
+    splineTerrainModifier = bpy.data.objects.new("S_T_M", splineData)
+    splineTerrainModifier.lock_scale = True,True,True
+    splineTerrainModifier.show_x_ray = True
+    splineData.splines[0].bezier_points[0].co.x = 0
+    splineData.splines[0].bezier_points[0].co.y = 0
+    splineData.splines[0].bezier_points[0].handle_right_type = 'ALIGNED'
+    splineData.splines[0].bezier_points[0].handle_left_type = 'ALIGNED'
+    splineData.splines[0].bezier_points[0].handle_left = 0,-20,0    
+    splineData.splines[0].bezier_points[0].handle_right = 0,20,0
+    splineData.splines[0].bezier_points.add(1)
+    splineData.splines[0].bezier_points[1].co.x = 0
+    splineData.splines[0].bezier_points[1].co.y = 80
+    splineData.splines[0].bezier_points[1].handle_right_type = 'ALIGNED'
+    splineData.splines[0].bezier_points[1].handle_left_type = 'ALIGNED'
+    splineData.splines[0].bezier_points[1].handle_left = 0,60,0
+    splineData.splines[0].bezier_points[1].handle_right = 0,100,0
+    splineData.splines[0].resolution_u = 20
+    splineData.twist_mode = 'Z_UP'
+    bpy.context.scene.objects.link(splineTerrainModifier)
+    splineTerrainModifier['FlatterWidth'] = context.scene['CellSize'] * 3
     
     bpy.ops.mesh.primitive_plane_add(radius= .5, location=(.5,0,0))
-    d31almseu = context.active_object
+    modifierObject = context.active_object
         
-    d31almseu.scale.y = dueamls31['dameslu31']
-    d31almseu.name = 'Flatter_{}'.format(dueamls31.name)
-    d31almseu.draw_type = 'WIRE'
-    d31almseu.hide_select = True
+    modifierObject.scale.y = splineTerrainModifier['FlatterWidth']
+    modifierObject.name = 'Flatter_{}'.format(splineTerrainModifier.name)
+    modifierObject.draw_type = 'WIRE'
+    modifierObject.hide_select = True
     
-    dlse31mua = d31almseu.modifiers.new('Array', 'ARRAY')
-    dlse31mua.fit_type = 'FIT_CURVE'
-    dlse31mua.curve = dueamls31
+    arrayModifier = modifierObject.modifiers.new('Array', 'ARRAY')
+    arrayModifier.fit_type = 'FIT_CURVE'
+    arrayModifier.curve = splineTerrainModifier
     
-    dml31seau = d31almseu.modifiers.new('Curve', 'CURVE')
-    dml31seau.object = dueamls31
+    curveModifier = modifierObject.modifiers.new('Curve', 'CURVE')
+    curveModifier.object = splineTerrainModifier
     
-    dueamls31.select = True
-    bpy.context.scene.objects.active = dueamls31
+    splineTerrainModifier.select = True
+    bpy.context.scene.objects.active = splineTerrainModifier
     bpy.ops.object.parent_set(type='OBJECT')
-    dueamls31.location = deula31ms
+    splineTerrainModifier.location = cursorLocation
     
-    d31almseu.select = False
+    modifierObject.select = False
     
-    dlmsa31ue = bpy.data.objects['Terrain_' + context.scene.name]
-    dmelus31a = dlmsa31ue.modifiers.new(d31almseu.name, 'SHRINKWRAP')
-    dmelus31a.target = d31almseu
-    dmelus31a.wrap_method = 'PROJECT'
-    dmelus31a.use_project_z = True
-    dmelus31a.use_negative_direction = True
+    terrainObject = bpy.data.objects['Terrain_' + context.scene.name]
+    flatterModifier = terrainObject.modifiers.new(modifierObject.name, 'SHRINKWRAP')
+    flatterModifier.target = modifierObject
+    flatterModifier.wrap_method = 'PROJECT'
+    flatterModifier.use_project_z = True
+    flatterModifier.use_negative_direction = True
 
-def dlsu31eam(context):
-    delm31usas = bpy.context.selected_objects
+def applySplineTerrainModifier(context):
+    selectedObjects = bpy.context.selected_objects
     
-    dlmsa31ue = bpy.data.objects['Terrain_' + context.scene.name]
-    bpy.context.scene.objects.active = dlmsa31ue
+    terrainObject = bpy.data.objects['Terrain_' + context.scene.name]
+    bpy.context.scene.objects.active = terrainObject
    
-    for obj in delm31usas:
+    for obj in selectedObjects:
         bpy.ops.object.modifier_apply(modifier=obj.children[0].name)
         context.scene.objects.unlink(obj.children[0])
         context.scene.objects.unlink(obj)
@@ -1004,87 +1004,87 @@ def dlsu31eam(context):
         bpy.data.objects.remove(obj.children[0])
         bpy.data.objects.remove(obj)
 
-def dseamlu31(dl31mseau,desm31ula,dlseau31m):
-    dema31lus = bpy.context.user_preferences.addons["bLandscapeTools-master"].preferences.dema31lus
-    if dema31lus != '':
-        result = ones((desm31ula,desm31ula)) * dlseau31m
-        header = 'ncols         {}\nnrows         {}\ndmaseu31l     0\ndual31sem     0\ncellsize      {}\nNODATA_value  -9999'.format(desm31ula,desm31ula,dl31mseau) 
-        savetxt('{}\\elevation.asc'.format(dema31lus),result,fmt='%.2f',delimiter=' ',newline='\r\n',comments='',header=header)
-        print('Elevation file saved to {}\\elevation.asc'.format(dema31lus))
+def createFlatTerrain(cellSize,gridResolution,defaultElevation):
+    OutputPath = bpy.context.user_preferences.addons["bLandscapeTools-master"].preferences.OutputPath
+    if OutputPath != '':
+        result = ones((gridResolution,gridResolution)) * defaultElevation
+        header = 'ncols         {}\nnrows         {}\nxllcorner     0\nyllcorner     0\ncellsize      {}\nNODATA_value  -9999'.format(gridResolution,gridResolution,cellSize) 
+        savetxt('{}\\elevation.asc'.format(OutputPath),result,fmt='%.2f',delimiter=' ',newline='\r\n',comments='',header=header)
+        print('Elevation file saved to {}\\elevation.asc'.format(OutputPath))
     
-def d31usemla(dmulae31s,dumal31se):
-    dema31lus = bpy.context.user_preferences.addons["bLandscapeTools-master"].preferences.dema31lus
-    if dema31lus != '':
-        from cv2 import imwrite as dusea31lm
-        du31eamls = zeros((dmulae31s,dmulae31s,3), uint8)
-        du31eamls[:,:,0] = ones([dmulae31s,dmulae31s]) * dumal31se[2] * 255
-        du31eamls[:,:,1] = ones([dmulae31s,dmulae31s]) * dumal31se[1] * 255
-        du31eamls[:,:,2] = ones([dmulae31s,dmulae31s]) * dumal31se[0] * 255
-        dusea31lm('{}\\surface_mask.png'.format(dema31lus), du31eamls)
-        print('Surface mask file saved to {}\\surface_mask.png'.format(dema31lus))
+def createSurfaceMask(imageResolution,defaultColor):
+    OutputPath = bpy.context.user_preferences.addons["bLandscapeTools-master"].preferences.OutputPath
+    if OutputPath != '':
+        from cv2 import imwrite as cv2imwrite
+        blank_image = zeros((imageResolution,imageResolution,3), uint8)
+        blank_image[:,:,0] = ones([imageResolution,imageResolution]) * defaultColor[2] * 255
+        blank_image[:,:,1] = ones([imageResolution,imageResolution]) * defaultColor[1] * 255
+        blank_image[:,:,2] = ones([imageResolution,imageResolution]) * defaultColor[0] * 255
+        cv2imwrite('{}\\surface_mask.png'.format(OutputPath), blank_image)
+        print('Surface mask file saved to {}\\surface_mask.png'.format(OutputPath))
         
-def dmlas31eu(self, context):
-    dua31smle = context.scene.du31slemaPath
+def update_checksplatmaskpath(self, context):
+    SplatMaskPath = context.scene.checkSurfaceMaskPath
     
-    if dua31smle != '':
-        if dua31smle.split('.')[-1] in ['png','tif','tiff']:
-            context.scene.dl31ueasm = True
+    if SplatMaskPath != '':
+        if SplatMaskPath.split('.')[-1] in ['png','tif','tiff']:
+            context.scene.CheckSurfaceMaskFormatValid = True
         else:
-            context.scene.dl31ueasm = False
-            print('\nbLT_Info: {} is unsupported surface mask file format! Use PNG, TIF, TIFF instead.'.format(dua31smle.split('.')[-1]))
+            context.scene.CheckSurfaceMaskFormatValid = False
+            print('\nbLT_Info: {} is unsupported surface mask file format! Use PNG, TIF, TIFF instead.'.format(SplatMaskPath.split('.')[-1]))
     else:
-        context.scene.dl31ueasm = False
+        context.scene.CheckSurfaceMaskFormatValid = False
 
-def du31slema(context,dl31mseau,desm31ula,dslame31u,dmsauel31):
-    def dseluam31(dl31mseau,desm31ula,dslame31u,dmsauel31):
-        def dalmse31u( x ):
+def checkSurfaceMask(context,cellSize,gridResolution,tileSize,maskResolution):
+    def calculateOverlap(cellSize,gridResolution,tileSize,maskResolution):
+        def roundToInt( x ):
             return floor(x + 0.5)
 
-        def dasuel31m( x, i ):
+        def nearlyInt( x, i ):
             return (abs( x - i ) < 0.000001)
 
         def check( x ):
-            return dasuel31m(x, dalmse31u( x ))
+            return nearlyInt(x, roundToInt( x ))
 
-        dlas31emu = dl31mseau * desm31ula  
-        dalseum31 = 1
-        dalusm31e = 1000000
-        d31almsue = -1
+        terrainSize = cellSize * gridResolution  
+        multiplier = 1
+        bestDist = 1000000
+        bestMult = -1
         for i in range(0,8):
-            duas31elm = dalseum31 * dl31mseau
-            dist = abs(40.0 - duas31elm)
-            if dist < dalusm31e:
-                dalusm31e = dist
-                d31almsue = dalseum31
-            dalseum31 *= 2
+            landGrid = multiplier * cellSize
+            dist = abs(40.0 - landGrid)
+            if dist < bestDist:
+                bestDist = dist
+                bestMult = multiplier
+            multiplier *= 2
 
-        duesl31ma = d31almsue
-        m_duas31elm = duesl31ma * dl31mseau #land grid cell size or _duas31elm
-        dams31uel = floor( dlas31emu / m_duas31elm ) #land grid size or _landRange
-        duasme31l = duesl31ma * dams31uel #terrain grid size or _terrainRange
-        dl31saume = ds31maleu = duasme31l * dl31mseau #final terrain size
-        dmsalu31e = 16 # minimum overlap
-        dseau31lm = int(dslame31u) - dmsalu31e
-        dseau31lmMeters = dmsauel31 * dseau31lm
-        daeusl31m = floor( dseau31lmMeters / m_duas31elm )
-        daeusl31m -= daeusl31m % 4
-        ds31mlaeu = daeusl31m * m_duas31elm
-        dsmea31ul = ds31mlaeu / dmsauel31
-        de31lumas = int(dslame31u) - dsmea31ul
-        dame31sul = ceil( dl31saume / ds31mlaeu )
-        return de31lumas, dame31sul
+        subDiv = bestMult
+        m_landGrid = subDiv * cellSize #land grid cell size or _landGrid
+        totalLandGrids = floor( terrainSize / m_landGrid ) #land grid size or _landRange
+        m_gridSize = subDiv * totalLandGrids #terrain grid size or _terrainRange
+        m_width = m_height = m_gridSize * cellSize #final terrain size
+        defaultOverlap = 16 # minimum overlap
+        tileUsable = int(tileSize) - defaultOverlap
+        tileUsableMeters = maskResolution * tileUsable
+        segmentLGCs = floor( tileUsableMeters / m_landGrid )
+        segmentLGCs -= segmentLGCs % 4
+        segmentMeters = segmentLGCs * m_landGrid
+        segmentPixels = segmentMeters / maskResolution
+        actualOverlap = int(tileSize) - segmentPixels
+        tilesInRow = ceil( m_width / segmentMeters )
+        return actualOverlap, tilesInRow
     
-    from cv2 import imread as dl31mueas, imwrite as dusea31lm
+    from cv2 import imread as cv2imread, imwrite as cv2imwrite
     
-    d31slmuae = dl31mueas(context.scene.du31slemaPath,1)
+    surfaceMask = cv2imread(context.scene.checkSurfaceMaskPath,1)
 
     
-    dea31smlu = dlmsae31u = int((dl31mseau * desm31ula) / dmsauel31)
-    rgb = zeros((dea31smlu,dlmsae31u,3), uint8)
-    alpha = zeros((dea31smlu,dlmsae31u,1), uint8)
+    maskWidth = maskHeight = int((cellSize * gridResolution) / maskResolution)
+    rgb = zeros((maskWidth,maskHeight,3), uint8)
+    alpha = zeros((maskWidth,maskHeight,1), uint8)
 
-    de31lumas, dame31sul = dseluam31(dl31mseau,desm31ula,dslame31u,dmsauel31)
+    actualOverlap, tilesInRow = calculateOverlap(cellSize,gridResolution,tileSize,maskResolution)
     
     font = cv2.FONT_HERSHEY_DUPLEX
     
-    print(de31lumas, dame31sul)
+    print(actualOverlap, tilesInRow)

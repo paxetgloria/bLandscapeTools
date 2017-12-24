@@ -6,137 +6,137 @@ from bpy.props import StringProperty,FloatProperty,IntProperty,BoolProperty,Enum
 from bpy.types import Panel,Scene,AddonPreferences,UIList,PropertyGroup,WindowManager,Object
 from bl_ui.properties_paint_common import UnifiedPaintPanel, brush_texture_settings, brush_texpaint_common
 
-class d31lusmea(bpy.types.Operator):
-    bl_idname = "a.dlsa31meu"
+class OP_AP_InstallOpenCV(bpy.types.Operator):
+    bl_idname = "a.install_opencv"
     bl_label = "Install OpenCV"
     bl_description = 'Installs OpenCV'
 
     def execute(self, context):
-        dlsa31meu()
+        install_opencv()
         return {'FINISHED'}
 
-class dlumae31s(PropertyGroup):
-    dmusle31a = BoolProperty(name="",default=False)
+class LocationItems(PropertyGroup):
+    isVisibleLocItem = BoolProperty(name="",default=False)
     
-class daslme31u(PropertyGroup):
+class TexturePaintBrush(PropertyGroup):
     name = StringProperty(name="Brush Name")
             
-class dua31mesl(UIList):
+class UL_Locations_list(UIList):
     def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
         layout.prop(item, "name", text="", emboss=False)
         
-        icon = 'RESTRICT_VIEW_OFF' if item.dmusle31a else 'RESTRICT_VIEW_ON'
-        op = layout.operator("scene.dmalsu31e", text="", emboss=False, icon=icon)
-        op.dl31esaum = index
+        icon = 'RESTRICT_VIEW_OFF' if item.isVisibleLocItem else 'RESTRICT_VIEW_ON'
+        op = layout.operator("scene.switch_locations", text="", emboss=False, icon=icon)
+        op.group_idx = index
 
-class d31lseaum(bpy.types.Operator):
-    bl_idname = "scene.dsmle31ua"
+class OP_UI_RemoveLocation(bpy.types.Operator):
+    bl_idname = "scene.remove_location"
     bl_label = "Remove Location"
     bl_options = {'REGISTER'}
     bl_description = 'Removes current location(eye icon) without commiting any changes!!!'
 
     @classmethod
     def poll(cls, context):
-        return context.scene.dl31aesum == False and context.scene.dsem31alu == False
+        return context.scene.SculptModeSwitch == False and context.scene.PaintModeSwitch == False
     
     def execute(self, context):
         scene = bpy.data.scenes['Default_Location']
-        dmusa31el = scene.dmusa31el
+        locationgroups = scene.locationgroups
         
-        du31almes = context.scene.name
+        locationName = context.scene.name
         
-        for index, location in enumerate(dmusa31el):
-            if location.name == du31almes:
-                dl31esaum = index
+        for index, location in enumerate(locationgroups):
+            if location.name == locationName:
+                group_idx = index
         
-        scene.dmusa31el.remove(dl31esaum)
+        scene.locationgroups.remove(group_idx)
         bpy.ops.scene.delete()
         
         
-        bpy.data.objects.remove(bpy.data.objects['Terrain_{}'.format(du31almes)])
-        bpy.data.meshes.remove(bpy.data.meshes['TerrainMesh_{}'.format(du31almes)])
-        if bpy.data.materials.get('TerrainMaterial_{}'.format(du31almes)) is not None:
-            bpy.data.materials.remove(bpy.data.materials['TerrainMaterial_{}'.format(du31almes)])
-        if bpy.data.textures.get('TerrainTexture_{}'.format(du31almes)) is not None:
-            bpy.data.textures.remove(bpy.data.textures['TerrainTexture_{}'.format(du31almes)])
-        if bpy.data.textures.get('TerrainMask_{}'.format(du31almes)) is not None:
-            bpy.data.textures.remove(bpy.data.textures['TerrainMask_{}'.format(du31almes)])
-        if bpy.data.images.get('TerrainImage_{}.png'.format(du31almes)) is not None:
-            dm31luase = bpy.data.images['TerrainImage_{}.png'.format(du31almes)].filepath
-            bpy.data.images.remove(bpy.data.images['TerrainImage_{}.png'.format(du31almes)])    
-            if os.path.isfile(dm31luase):
-                os.remove(dm31luase)
+        bpy.data.objects.remove(bpy.data.objects['Terrain_{}'.format(locationName)])
+        bpy.data.meshes.remove(bpy.data.meshes['TerrainMesh_{}'.format(locationName)])
+        if bpy.data.materials.get('TerrainMaterial_{}'.format(locationName)) is not None:
+            bpy.data.materials.remove(bpy.data.materials['TerrainMaterial_{}'.format(locationName)])
+        if bpy.data.textures.get('TerrainTexture_{}'.format(locationName)) is not None:
+            bpy.data.textures.remove(bpy.data.textures['TerrainTexture_{}'.format(locationName)])
+        if bpy.data.textures.get('TerrainMask_{}'.format(locationName)) is not None:
+            bpy.data.textures.remove(bpy.data.textures['TerrainMask_{}'.format(locationName)])
+        if bpy.data.images.get('TerrainImage_{}.png'.format(locationName)) is not None:
+            imageFilePath = bpy.data.images['TerrainImage_{}.png'.format(locationName)].filepath
+            bpy.data.images.remove(bpy.data.images['TerrainImage_{}.png'.format(locationName)])    
+            if os.path.isfile(imageFilePath):
+                os.remove(imageFilePath)
             
-        if bpy.data.images.get('TerrainMask_{}.png'.format(du31almes)) is not None:
-            dm31luase = bpy.data.images['TerrainMask_{}.png'.format(du31almes)].filepath
-            bpy.data.images.remove(bpy.data.images['TerrainMask_{}.png'.format(du31almes)])
-            if os.path.isfile(dm31luase):
-                os.remove(dm31luase)
+        if bpy.data.images.get('TerrainMask_{}.png'.format(locationName)) is not None:
+            imageFilePath = bpy.data.images['TerrainMask_{}.png'.format(locationName)].filepath
+            bpy.data.images.remove(bpy.data.images['TerrainMask_{}.png'.format(locationName)])
+            if os.path.isfile(imageFilePath):
+                os.remove(imageFilePath)
  
-        bpy.data.grease_pencil["OccupiedLocations"].layers.remove(bpy.data.grease_pencil["OccupiedLocations"].layers[du31almes])
+        bpy.data.grease_pencil["OccupiedLocations"].layers.remove(bpy.data.grease_pencil["OccupiedLocations"].layers[locationName])
         
-        if len(dmusa31el) != 0:
-            dmusa31el[0].dmusle31a = True
-            context.window.screen.scene = bpy.data.scenes[dmusa31el[0].name]
+        if len(locationgroups) != 0:
+            locationgroups[0].isVisibleLocItem = True
+            context.window.screen.scene = bpy.data.scenes[locationgroups[0].name]
             
-            dlmsa31ue = bpy.data.objects['Terrain_{}'.format(dmusa31el[0].name)]
-            dlmsa31ue.hide_select = False
-            dlmsa31ue.select = True
-            context.scene.objects.active = dlmsa31ue
+            terrainObject = bpy.data.objects['Terrain_{}'.format(locationgroups[0].name)]
+            terrainObject.hide_select = False
+            terrainObject.select = True
+            context.scene.objects.active = terrainObject
             bpy.ops.view3d.view_selected()
-            dlmsa31ue.select = False
-            dlmsa31ue.hide_select = True
+            terrainObject.select = False
+            terrainObject.hide_select = True
         else:
             context.window.screen.scene = bpy.data.scenes['Default_Location']
-            context.scene.due31alms = False
-            context.scene.d31mlesau = True
+            context.scene.AppearanceSwitch = False
+            context.scene.DataSourceSwitch = True
             
-        daue31msl = context.scene.daue31msl
-        dsm31ueal = 'Project_{}'.format(daue31msl.split('\\')[-2])
-        bpy.ops.wm.save_as_mainfile(filepath='{}{}.blend'.format(daue31msl,dsm31ueal))
+        ProjFolderPath = context.scene.ProjFolderPath
+        ProjectName = 'Project_{}'.format(ProjFolderPath.split('\\')[-2])
+        bpy.ops.wm.save_as_mainfile(filepath='{}{}.blend'.format(ProjFolderPath,ProjectName))
         return {'FINISHED'}
         
     def invoke(self, context, event):
         return context.window_manager.invoke_confirm(self,event)
         
-class duesla31m(bpy.types.Operator):
-    bl_idname = "scene.dmalsu31e"
+class OP_UI_SwitchLocations(bpy.types.Operator):
+    bl_idname = "scene.switch_locations"
     bl_label = "Switch Locations"
     bl_description = 'Click on a closed eye to switch to selected location'
     
-    dl31esaum = IntProperty()
+    group_idx = IntProperty()
     
     def execute(self, context):
         scene = bpy.data.scenes['Default_Location']
-        dmusa31el = scene.dmusa31el
-        dl31esaum = self.dl31esaum
+        locationgroups = scene.locationgroups
+        group_idx = self.group_idx
         
-        for location in dmusa31el:
-            location.dmusle31a = False
-        dmusa31el[dl31esaum].dmusle31a = True
+        for location in locationgroups:
+            location.isVisibleLocItem = False
+        locationgroups[group_idx].isVisibleLocItem = True
         
-        bpy.context.window.screen.scene = bpy.data.scenes[dmusa31el[dl31esaum].name]
+        bpy.context.window.screen.scene = bpy.data.scenes[locationgroups[group_idx].name]
         context.scene.layers[0] = True
         
-        dlmsa31ue = bpy.data.objects['Terrain_{}'.format(dmusa31el[dl31esaum].name)]
-        dlmsa31ue.hide_select = False
-        dlmsa31ue.select = True
-        bpy.context.scene.objects.active = dlmsa31ue
+        terrainObject = bpy.data.objects['Terrain_{}'.format(locationgroups[group_idx].name)]
+        terrainObject.hide_select = False
+        terrainObject.select = True
+        bpy.context.scene.objects.active = terrainObject
         bpy.ops.view3d.view_selected()
-        dlmsa31ue.select = False
-        dlmsa31ue.hide_select = True
+        terrainObject.select = False
+        terrainObject.hide_select = True
         
-        daue31msl = context.scene.daue31msl
-        dsm31ueal = 'Project_{}'.format(daue31msl.split('\\')[-2])
-        bpy.ops.wm.save_as_mainfile(filepath='{}{}.blend'.format(daue31msl,dsm31ueal))
+        ProjFolderPath = context.scene.ProjFolderPath
+        ProjectName = 'Project_{}'.format(ProjFolderPath.split('\\')[-2])
+        bpy.ops.wm.save_as_mainfile(filepath='{}{}.blend'.format(ProjFolderPath,ProjectName))
         return {'FINISHED'}
         
-class d31amselu(bpy.types.Operator):
-    bl_idname = "scene.dslum31ae"
+class OP_CreateProject(bpy.types.Operator):
+    bl_idname = "scene.create_project"
     bl_label = "Create Project"
     
     def execute(self, context):
-        dlm31suea()
+        createProject()
         for window in bpy.context.window_manager.windows:
             screen = window.screen
             for area in screen.areas:
@@ -144,157 +144,157 @@ class d31amselu(bpy.types.Operator):
                     for region in area.regions:
                         if region.type == 'WINDOW':
                             override = {'window': window, 'screen': screen, 'area': area, 'region': region}
-        bpy.ops.view3d.dasmuel31(override,'INVOKE_DEFAULT')
+        bpy.ops.view3d.draw_splash(override,'INVOKE_DEFAULT')
         
-        context.scene.dlesamu31 = False
-        context.scene.d31mlesau = True
-        context.scene.dslaeum31 = True
+        context.scene.ProjectSettingsSwitch = False
+        context.scene.DataSourceSwitch = True
+        context.scene.LocationsManagerSwitch = True
         
-        daue31msl = context.scene.daue31msl
-        dsm31ueal = 'Project_{}'.format(daue31msl.split('\\')[-2])
-        bpy.ops.wm.save_as_mainfile(filepath='{}{}.blend'.format(daue31msl,dsm31ueal))
+        ProjFolderPath = context.scene.ProjFolderPath
+        ProjectName = 'Project_{}'.format(ProjFolderPath.split('\\')[-2])
+        bpy.ops.wm.save_as_mainfile(filepath='{}{}.blend'.format(ProjFolderPath,ProjectName))
         return {'FINISHED'}
         
-class daes31lum(bpy.types.Operator):
-    bl_idname = "scene.dea31ulsm"
+class OP_ImportLocation(bpy.types.Operator):
+    bl_idname = "scene.import_location"
     bl_label = "Import Location"
     bl_description = 'Imports a new location'
      
     @classmethod
     def poll(cls, context):
-        return (context.scene.dl31aesum == False 
-        and context.scene.dsem31alu == False 
-        and context.scene.deal31mus 
-        and (context.scene.demual31s == '' or context.scene.du31lames)
-        and (context.scene.dumlse31a == '' or context.scene.dml31eaus))
+        return (context.scene.SculptModeSwitch == False 
+        and context.scene.PaintModeSwitch == False 
+        and context.scene.HeightmapFormatValid 
+        and (context.scene.ImportTerrainTexturePath == '' or context.scene.TerrainTextureFormatValid)
+        and (context.scene.ImportTerrainSplatMaskPath == '' or context.scene.SurfaceMaskFormatValid))
 
     def execute(self, context):
-        demusla31()
+        setup2dMapPreview()
         return {'FINISHED'}
 
-class du31aseml(bpy.types.Operator):
-    bl_idname = "scene.delusma31"
+class OP_CreateLocation(bpy.types.Operator):
+    bl_idname = "scene.create_location"
     bl_label = "Create Location"
     
-    du31almes = StringProperty(name="Location name:")
+    locationName = StringProperty(name="Location name:")
     
     def execute(self, context):
         for location in bpy.data.scenes:
-            if location.name == self.du31almes:
+            if location.name == self.locationName:
                 self.report({'WARNING'}, "Location with this name already exists! Try a different name.")
-                bpy.ops.scene.dea31ulsm()
+                bpy.ops.scene.import_location()
                 return {'CANCELLED'}
         
-        if self.du31almes == '':
+        if self.locationName == '':
             self.report({'WARNING'}, "Location must have a name!")
-            bpy.ops.scene.dea31ulsm()
+            bpy.ops.scene.import_location()
             return {'CANCELLED'}
                 
-        global duseml31a,dem31lasu,dmleuas31,deulm31as,dmselau31,d31esamlu,dl31uemsa,delas31um
-        d31smleua(self.du31almes,dl31uemsa,delas31um,duseml31a,dem31lasu,dmleuas31,deulm31as,dmselau31,d31esamlu)
+        global topLeftRow,topLeftColumn,bottomRightRow,bottomRightColumn,copyTopEdge,copyRightEdge,gridResX,gridResY
+        createNewLocation(self.locationName,gridResX,gridResY,topLeftRow,topLeftColumn,bottomRightRow,bottomRightColumn,copyTopEdge,copyRightEdge)
         
         scene = bpy.data.scenes['Default_Location']
-        dmusa31el = scene.dmusa31el
-        dals31emu = len(dmusa31el)
+        locationgroups = scene.locationgroups
+        location_idx = len(locationgroups)
         
-        d31ualesm = dmusa31el.add()
-        d31ualesm.name = self.du31almes
-        for location in dmusa31el:
-            location.dmusle31a = False
-        d31ualesm.dmusle31a = True
-        scene.dlaumes31 = dals31emu
+        location_group = locationgroups.add()
+        location_group.name = self.locationName
+        for location in locationgroups:
+            location.isVisibleLocItem = False
+        location_group.isVisibleLocItem = True
+        scene.locationgroups_index = location_idx
 
-        context.scene.due31alms = True
-        context.scene.d31mlesau = False
-        context.scene.ds31mlaue = True
-        if context.scene.du31lames and context.scene.dml31eaus:
-            context.scene.dameuls31 = True
+        context.scene.AppearanceSwitch = True
+        context.scene.DataSourceSwitch = False
+        context.scene.TerrainEditingSwitch = True
+        if context.scene.TerrainTextureFormatValid and context.scene.SurfaceMaskFormatValid:
+            context.scene.SurfacePaintingSwitch = True
             
-        dslemu31a(self.du31almes,duseml31a,dem31lasu,dmleuas31,deulm31as,dmselau31,d31esamlu)
+        createOccupiedLocation(self.locationName,topLeftRow,topLeftColumn,bottomRightRow,bottomRightColumn,copyTopEdge,copyRightEdge)
         
         bpy.ops.wm.save_mainfile()
         return {'FINISHED'}
         
     def invoke(self, context, event):
-        self.du31almes = ''
+        self.locationName = ''
         return context.window_manager.invoke_props_dialog(self)
         
     def cancel(self, context):
         context.area.type = 'VIEW_3D'
         return {'CANCELLED'}
         
-class dm31easlu(bpy.types.Operator):
-    bl_idname = "scene.dume31sal"
+class OP_CommitLocation(bpy.types.Operator):
+    bl_idname = "scene.commit_location"
     bl_label = "Commit Location"
     bl_description = 'Commits terrain/surface mask changes from the current location'
     
-    dlsamue31 = BoolProperty(description="Checked: Data will be written to paths defined in Data Source panel\nUnchecked: Data will be written to the Output folder within the Project folder", name="Overwrite source data",default=False)
-    d31eamlus = BoolProperty(description="Commit elevation", name="Elevation",default=True)
-    dum31elas = BoolProperty(description="Commit surface mask", name="Surface mask",default=True)
+    overwriteSource = BoolProperty(description="Checked: Data will be written to paths defined in Data Source panel\nUnchecked: Data will be written to the Output folder within the Project folder", name="Overwrite source data",default=False)
+    commintElevation = BoolProperty(description="Commit elevation", name="Elevation",default=True)
+    commintSurfaceMask = BoolProperty(description="Commit surface mask", name="Surface mask",default=True)
     
     @classmethod
     def poll(cls, context):
-        return context.scene.dl31aesum == False and context.scene.dsem31alu == False
+        return context.scene.SculptModeSwitch == False and context.scene.PaintModeSwitch == False
     
     def execute(self, context):
-        if self.d31eamlus:
-            dauslm31e(self.dlsamue31)
-        if self.dum31elas:
-            dua31mles(self.dlsamue31)
+        if self.commintElevation:
+            exportTerrain(self.overwriteSource)
+        if self.commintSurfaceMask:
+            exportSurfaceMask(self.overwriteSource)
         return {'FINISHED'}
 
     def invoke(self, context, event):
         return context.window_manager.invoke_props_dialog(self)
      
-class dse31lmau(bpy.types.Operator):
-    bl_idname = "view2d.ds31meaul"
+class OP_PickLocation(bpy.types.Operator):
+    bl_idname = "view2d.pick_location"
     bl_label = "Pick Location"
 
     def modal(self, context, event):
-        global duseml31a,dem31lasu,dmleuas31,deulm31as,dmselau31,d31esamlu,dl31uemsa,delas31um
+        global topLeftRow,topLeftColumn,bottomRightRow,bottomRightColumn,copyTopEdge,copyRightEdge,gridResX,gridResY
         context.area.tag_redraw()
         
-        d31ulemas = bpy.data.scenes['Default_Location']
-        dlmuae31s = d31ulemas["da31mlues"]
-        dl31mseau = d31ulemas["ds31uamle"]
+        worldInfo = bpy.data.scenes['Default_Location']
+        terrainResolution = worldInfo["TerrainResolution"]
+        cellSize = worldInfo["CellSize"]
         
-        dualme31s = context.region.view2d.region_to_view(self.dalms31ue,self.de31amlus)
+        selectionRectangleCursorUV = context.region.view2d.region_to_view(self.mouseX,self.mouseY)
         
-        dua31smel,dmlsa31eu,dsmlu31ae,dual31ems = dulmse31a(list(dualme31s),list(self.desuam31l))
+        topSelectionEdge,leftSelectionEdge,bottomSelectionEdge,rightSelectionEdge = selectionCorrection(list(selectionRectangleCursorUV),list(self.selectionRectangleOriginUV))
         
-        duseml31a, dem31lasu, dmleuas31, deulm31as, dmselau31, d31esamlu, dl31uemsa, delas31um = dlu31maes(dl31mseau,dlmuae31s,dua31smel,dmlsa31eu,dsmlu31ae,dual31ems)
+        topLeftRow, topLeftColumn, bottomRightRow, bottomRightColumn, copyTopEdge, copyRightEdge, gridResX, gridResY = terrainImportInfo(cellSize,terrainResolution,topSelectionEdge,leftSelectionEdge,bottomSelectionEdge,rightSelectionEdge)
         
-        self.d31ulaems = 'TerrainVerts: {:,}({:,}x{:,})'.format(dl31uemsa * delas31um,dl31uemsa,delas31um)
-        dsau31eml = 0  if ((dl31uemsa - 1) * (delas31um - 1)) * 2 <= 0 else ((dl31uemsa - 1) * (delas31um - 1)) * 2
-        self.dsau31eml = 'TerrainTris: {:,}'.format(dsau31eml)
-        d31lsaeumX = 0 if (dl31uemsa - 1) * dl31mseau <= 0 else (dl31uemsa - 1) * dl31mseau
-        self.d31lsaeum = 'MapSize: {:.2f}x{:.2f} m'.format(d31lsaeumX, (delas31um - 1) * dl31mseau)
+        self.vertexCount = 'TerrainVerts: {:,}({:,}x{:,})'.format(gridResX * gridResY,gridResX,gridResY)
+        trianglesCount = 0  if ((gridResX - 1) * (gridResY - 1)) * 2 <= 0 else ((gridResX - 1) * (gridResY - 1)) * 2
+        self.trianglesCount = 'TerrainTris: {:,}'.format(trianglesCount)
+        mapSizeX = 0 if (gridResX - 1) * cellSize <= 0 else (gridResX - 1) * cellSize
+        self.mapSize = 'MapSize: {:.2f}x{:.2f} m'.format(mapSizeX, (gridResY - 1) * cellSize)
         
         if event.type == 'MOUSEMOVE':
-            self.dalms31ue, self.de31amlus = event.mouse_region_x,event.mouse_region_y
+            self.mouseX, self.mouseY = event.mouse_region_x,event.mouse_region_y
             
         elif event.type == 'LEFTMOUSE' and event.value == 'PRESS':
             self.switch = True
-            self.dseul31am += 1
-            if self.dseul31am == 2:
-                if ((dl31uemsa - 1) * (delas31um - 1)) * 2 <= 0:
+            self.clickCount += 1
+            if self.clickCount == 2:
+                if ((gridResX - 1) * (gridResY - 1)) * 2 <= 0:
                     self.report({'WARNING'}, "No vertices to create a triangle")
-                    self.dseul31am = 0
+                    self.clickCount = 0
                     self.switch = False
                 else:
-                    bpy.ops.scene.delusma31('INVOKE_DEFAULT')
+                    bpy.ops.scene.create_location('INVOKE_DEFAULT')
                     bpy.types.SpaceImageEditor.draw_handler_remove(self._handle, 'WINDOW')
                     return {'FINISHED'}
                 
-            self.desuam31l = context.region.view2d.region_to_view(event.mouse_region_x, event.mouse_region_y)
+            self.selectionRectangleOriginUV = context.region.view2d.region_to_view(event.mouse_region_x, event.mouse_region_y)
             
         elif event.type == 'BACK_SPACE':
             if bpy.data.images.get('previewSatTex.png') is not None and bpy.data.images.get('previewTerTex.tif') is not None:
                 for space in bpy.context.area.spaces:
                     if space.type == 'IMAGE_EDITOR':
-                        dme31uasl = space.image.name
+                        curPreview = space.image.name
 
-                if dme31uasl == 'previewSatTex.png':
+                if curPreview == 'previewSatTex.png':
                     for space in bpy.context.area.spaces:
                         if space.type == 'IMAGE_EDITOR':
                             space.image = bpy.data.images['previewTerTex.tif']
@@ -315,22 +315,22 @@ class dse31lmau(bpy.types.Operator):
         return {'RUNNING_MODAL'}
   
     def invoke(self, context, event):
-        self.dalms31ue,self.de31amlus = 0,0
-        self.dseul31am = 0
-        self.desuam31l = [0,0]
+        self.mouseX,self.mouseY = 0,0
+        self.clickCount = 0
+        self.selectionRectangleOriginUV = [0,0]
         self.switch = False
         
         if context.area.type == 'IMAGE_EDITOR':
             args = (self, context)
-            self._handle = bpy.types.SpaceImageEditor.draw_handler_add(daseu31lm, args, 'WINDOW', 'POST_PIXEL')
+            self._handle = bpy.types.SpaceImageEditor.draw_handler_add(drawLocationSelectionRectangle, args, 'WINDOW', 'POST_PIXEL')
             context.window_manager.modal_handler_add(self)
             return {'RUNNING_MODAL'}
         else:
             self.report({'WARNING'}, "Image Editor not found, cannot run operator")
             return {'CANCELLED'}
  
-class dsmaul31e(bpy.types.Operator):
-    bl_idname = "view3d.dasmuel31"
+class OP_DrawSplashScreen(bpy.types.Operator):
+    bl_idname = "view3d.draw_splash"
     bl_label = "Draw splash screen"
 
     def modal(self, context, event):
@@ -346,10 +346,10 @@ class dsmaul31e(bpy.types.Operator):
     def invoke(self, context, event):
         if context.area.type == 'VIEW_3D':
             args = (self, context)
-            self._handle = bpy.types.SpaceView3D.draw_handler_add(dsml31eau, args, 'WINDOW', 'POST_PIXEL')
-            dmseul31a = dusaem31l()[2]
+            self._handle = bpy.types.SpaceView3D.draw_handler_add(drawSplashScreen, args, 'WINDOW', 'POST_PIXEL')
+            dataFolder = getPaths()[2]
             if bpy.data.images.get('splash.png') is None:
-                bpy.data.images.load('{}\\splash.png'.format(dmseul31a))
+                bpy.data.images.load('{}\\splash.png'.format(dataFolder))
                 bpy.data.images['splash.png'].use_fake_user = True
             else:
                 bpy.data.images['splash.png'].reload()
@@ -361,8 +361,8 @@ class dsmaul31e(bpy.types.Operator):
             self.report({'WARNING'}, "View3D not found, cannot run operator")
             return {'CANCELLED'}
 
-class dmelsa31u(bpy.types.Operator):
-    bl_idname = "object.dlasume31"
+class OP_AssignMeshTerrainModifier(bpy.types.Operator):
+    bl_idname = "object.assign_mesh_terrain_modifier"
     bl_label = "Assign Mesh Terrain Modifier"
     bl_description = 'Assigns a mesh terrain modifier to selected object(only MESH type)'
     
@@ -377,102 +377,102 @@ class dmelsa31u(bpy.types.Operator):
         and context.active_object.type == 'EMPTY')
 
     def execute(self, context):
-        de31smlau(context)
+        assignMeshTerrainModifier(context)
         
-        daue31msl = context.scene.daue31msl
-        dsm31ueal = 'Project_{}'.format(daue31msl.split('\\')[-2])
-        bpy.ops.wm.save_as_mainfile(filepath='{}{}.blend'.format(daue31msl,dsm31ueal))
+        ProjFolderPath = context.scene.ProjFolderPath
+        ProjectName = 'Project_{}'.format(ProjFolderPath.split('\\')[-2])
+        bpy.ops.wm.save_as_mainfile(filepath='{}{}.blend'.format(ProjFolderPath,ProjectName))
         return {'FINISHED'}
         
-class dle31uams(bpy.types.Operator):
-    bl_idname = "object.dau31emsl"
+class OP_AddMeshTerrainModifier(bpy.types.Operator):
+    bl_idname = "object.add_mesh_terrain_modifier"
     bl_label = "Add Mesh Terrain Modifier"
     bl_description = 'Adds a mesh terrain modifier at 3D cursor position'
     
     @classmethod
     def poll(cls, context):
-        de31lsuam = True
+        validForPlacement = True
         if context.active_object is not None:
             if context.active_object.mode in {'SCULPT','EDIT','TEXTURE_PAINT'}:
-                de31lsuam = False  
-        return de31lsuam
+                validForPlacement = False  
+        return validForPlacement
 
     def execute(self, context):
-        d31luaesm(context)
-        daue31msl = context.scene.daue31msl
-        dsm31ueal = 'Project_{}'.format(daue31msl.split('\\')[-2])
-        bpy.ops.wm.save_as_mainfile(filepath='{}{}.blend'.format(daue31msl,dsm31ueal))
+        addMeshTerrainModifier(context)
+        ProjFolderPath = context.scene.ProjFolderPath
+        ProjectName = 'Project_{}'.format(ProjFolderPath.split('\\')[-2])
+        bpy.ops.wm.save_as_mainfile(filepath='{}{}.blend'.format(ProjFolderPath,ProjectName))
         return {'FINISHED'}
         
-class dlause31m(bpy.types.Operator):
-    bl_idname = "object.duaml31se"
+class OP_ApplyMeshTerrainModifier(bpy.types.Operator):
+    bl_idname = "object.apply_mesh_terrain_modifier"
     bl_label = "Apply Mesh Terrain Modifier(s)"
     bl_description = 'Applies terrain changes from all selected objects and removes terran modifier from the scene'
     
     @classmethod
     def poll(cls, context):
-        d31esumla = True
-        dm31lueas = True
+        isEmpty = True
+        flatterNotInSelection = True
 
         for ob in context.selected_objects:
             if len(ob.children) == 0:
-                dm31lueas = False
+                flatterNotInSelection = False
             if ob.type != 'EMPTY':
-                d31esumla = False
-        return (len(context.selected_objects) != 0 and d31esumla and dm31lueas)
+                isEmpty = False
+        return (len(context.selected_objects) != 0 and isEmpty and flatterNotInSelection)
 
     def execute(self, context):
-        dl31uasme(context)
-        daue31msl = context.scene.daue31msl
-        dsm31ueal = 'Project_{}'.format(daue31msl.split('\\')[-2])
-        bpy.ops.wm.save_as_mainfile(filepath='{}{}.blend'.format(daue31msl,dsm31ueal))
+        applyMeshTerrainModifier(context)
+        ProjFolderPath = context.scene.ProjFolderPath
+        ProjectName = 'Project_{}'.format(ProjFolderPath.split('\\')[-2])
+        bpy.ops.wm.save_as_mainfile(filepath='{}{}.blend'.format(ProjFolderPath,ProjectName))
         return {'FINISHED'}
         
-class damsul31e(bpy.types.Operator):
-    bl_idname = "object.dlsmaeu31"
+class OP_AddSplineTerrainModifier(bpy.types.Operator):
+    bl_idname = "object.add_spline_terrain_modifier"
     bl_label = "Add Spline Terrain Modifier"
     bl_description = 'Adds a spline terrain modifier at 3D cursor location'
     
     @classmethod
     def poll(cls, context):
-        de31lsuam = False
+        validForPlacement = False
         if context.active_object is None:
-            de31lsuam = True
+            validForPlacement = True
         else:
             if context.active_object.mode not in {'SCULPT','EDIT','TEXTURE_PAINT'}:
-                de31lsuam = True
-        return de31lsuam
+                validForPlacement = True
+        return validForPlacement
         
     def execute(self, context):
-        d31mlueas(context)
-        daue31msl = context.scene.daue31msl
-        dsm31ueal = 'Project_{}'.format(daue31msl.split('\\')[-2])
-        bpy.ops.wm.save_as_mainfile(filepath='{}{}.blend'.format(daue31msl,dsm31ueal))
+        addSplineTerrainModifier(context)
+        ProjFolderPath = context.scene.ProjFolderPath
+        ProjectName = 'Project_{}'.format(ProjFolderPath.split('\\')[-2])
+        bpy.ops.wm.save_as_mainfile(filepath='{}{}.blend'.format(ProjFolderPath,ProjectName))
         return {'FINISHED'}
         
-class deas31uml(bpy.types.Operator):
-    bl_idname = "object.dlsema31u"
+class OP_ApplySplineTerrainModifier(bpy.types.Operator):
+    bl_idname = "object.apply_spline_terrain_modifier"
     bl_label = "Apply Spline Terrain Modifier(s)"
     bl_description = 'Applies terrain changes and removes terran modifier from the scene'
     
     @classmethod
     def poll(cls, context):
-        dauesm31l = True
+        isSpline = True
         
         for ob in context.selected_objects:
             if ob.type != 'CURVE':
-                dauesm31l = False
-        return (len(context.selected_objects) != 0 and dauesm31l and context.active_object.mode not in 'EDIT')
+                isSpline = False
+        return (len(context.selected_objects) != 0 and isSpline and context.active_object.mode not in 'EDIT')
 
     def execute(self, context):
-        dlsu31eam(context)
-        daue31msl = context.scene.daue31msl
-        dsm31ueal = 'Project_{}'.format(daue31msl.split('\\')[-2])
-        bpy.ops.wm.save_as_mainfile(filepath='{}{}.blend'.format(daue31msl,dsm31ueal))
+        applySplineTerrainModifier(context)
+        ProjFolderPath = context.scene.ProjFolderPath
+        ProjectName = 'Project_{}'.format(ProjFolderPath.split('\\')[-2])
+        bpy.ops.wm.save_as_mainfile(filepath='{}{}.blend'.format(ProjFolderPath,ProjectName))
         return {'FINISHED'}
             
-class duame31ls(bpy.types.Operator):
-    bl_idname = "object.dmslae31u"
+class OP_AppearanceTexturedWire(bpy.types.Operator):
+    bl_idname = "object.appearance_textured_wire"
     bl_label = "Textured + Wire overlay"
 
     def execute(self, context):
@@ -481,16 +481,16 @@ class duame31ls(bpy.types.Operator):
             if Area.type == 'VIEW_3D':
                 Area.spaces.active.viewport_shade = 'TEXTURED'
         
-        dlmsa31ue = bpy.data.objects['Terrain_' + context.scene.name]
-        dlmsa31ue.show_wire = True
-        dlmsa31ue.show_all_edges = True
-        daue31msl = context.scene.daue31msl
-        dsm31ueal = 'Project_{}'.format(daue31msl.split('\\')[-2])
-        bpy.ops.wm.save_as_mainfile(filepath='{}{}.blend'.format(daue31msl,dsm31ueal))
+        terrainObject = bpy.data.objects['Terrain_' + context.scene.name]
+        terrainObject.show_wire = True
+        terrainObject.show_all_edges = True
+        ProjFolderPath = context.scene.ProjFolderPath
+        ProjectName = 'Project_{}'.format(ProjFolderPath.split('\\')[-2])
+        bpy.ops.wm.save_as_mainfile(filepath='{}{}.blend'.format(ProjFolderPath,ProjectName))
         return {'FINISHED'}
 
-class da31emslu(bpy.types.Operator):
-    bl_idname = "object.ds31ealmu"
+class OP_AppearanceTexturedNoWire(bpy.types.Operator):
+    bl_idname = "object.appearance_textured_nowire"
     bl_label = "Textured"
 
     def execute(self, context):
@@ -498,22 +498,22 @@ class da31emslu(bpy.types.Operator):
         for Area in Areas:
             if Area.type == 'VIEW_3D':
                 Area.spaces.active.viewport_shade = 'TEXTURED'
-        dlmsa31ue = bpy.data.objects['Terrain_' + context.scene.name]
-        dlmsa31ue.show_wire = False
-        dlmsa31ue.show_all_edges = False
-        daue31msl = context.scene.daue31msl
-        dsm31ueal = 'Project_{}'.format(daue31msl.split('\\')[-2])
-        bpy.ops.wm.save_as_mainfile(filepath='{}{}.blend'.format(daue31msl,dsm31ueal))
+        terrainObject = bpy.data.objects['Terrain_' + context.scene.name]
+        terrainObject.show_wire = False
+        terrainObject.show_all_edges = False
+        ProjFolderPath = context.scene.ProjFolderPath
+        ProjectName = 'Project_{}'.format(ProjFolderPath.split('\\')[-2])
+        bpy.ops.wm.save_as_mainfile(filepath='{}{}.blend'.format(ProjFolderPath,ProjectName))
         return {'FINISHED'}
         
-class dmasel31u(bpy.types.Operator):
-    bl_idname = "object.dms31laue"
+class OP_AppearanceSmooth(bpy.types.Operator):
+    bl_idname = "object.appearance_smooth"
     bl_label = "Smooth"
 
     
     @classmethod
     def poll(cls, context):
-        return not context.scene.dsem31alu
+        return not context.scene.PaintModeSwitch
     
     def execute(self, context):
         if context.active_object is not None and context.active_object.mode == 'SCULPT':
@@ -525,28 +525,28 @@ class dmasel31u(bpy.types.Operator):
             context.active_object.hide_select = True
             bpy.ops.object.mode_set(mode='SCULPT')
         else:
-            daulm31es = context.active_object if context.active_object is not None else None
+            activeObject = context.active_object if context.active_object is not None else None
             bpy.ops.object.select_all(action='DESELECT')
-            dlmsa31ue = bpy.data.objects['Terrain_' + context.scene.name]
-            dlmsa31ue.hide_select = False
-            dlmsa31ue.select = True
+            terrainObject = bpy.data.objects['Terrain_' + context.scene.name]
+            terrainObject.hide_select = False
+            terrainObject.select = True
             bpy.ops.object.shade_smooth()
-            dlmsa31ue.select = False
-            dlmsa31ue.hide_select = True
-            if daulm31es is not None:
-                daulm31es.select = True
-        daue31msl = context.scene.daue31msl
-        dsm31ueal = 'Project_{}'.format(daue31msl.split('\\')[-2])
-        bpy.ops.wm.save_as_mainfile(filepath='{}{}.blend'.format(daue31msl,dsm31ueal))
+            terrainObject.select = False
+            terrainObject.hide_select = True
+            if activeObject is not None:
+                activeObject.select = True
+        ProjFolderPath = context.scene.ProjFolderPath
+        ProjectName = 'Project_{}'.format(ProjFolderPath.split('\\')[-2])
+        bpy.ops.wm.save_as_mainfile(filepath='{}{}.blend'.format(ProjFolderPath,ProjectName))
         return {'FINISHED'}
         
-class dmeas31lu(bpy.types.Operator):
-    bl_idname = "object.da31umsle"
+class OP_AppearanceFlat(bpy.types.Operator):
+    bl_idname = "object.appearance_flat"
     bl_label = "Flat"
     
     @classmethod
     def poll(cls, context):
-        return not context.scene.dsem31alu
+        return not context.scene.PaintModeSwitch
     
     def execute(self, context):
         if context.active_object is not None and context.active_object.mode == 'SCULPT':
@@ -558,28 +558,28 @@ class dmeas31lu(bpy.types.Operator):
             context.active_object.hide_select = True
             bpy.ops.object.mode_set(mode='SCULPT')
         else:
-            daulm31es = context.active_object if context.active_object is not None else None
+            activeObject = context.active_object if context.active_object is not None else None
             bpy.ops.object.select_all(action='DESELECT')
-            dlmsa31ue = bpy.data.objects['Terrain_' + context.scene.name]
-            dlmsa31ue.hide_select = False
-            dlmsa31ue.select = True
+            terrainObject = bpy.data.objects['Terrain_' + context.scene.name]
+            terrainObject.hide_select = False
+            terrainObject.select = True
             bpy.ops.object.shade_flat()
-            dlmsa31ue.select = False
-            dlmsa31ue.hide_select = True
-            if daulm31es is not None:
-                daulm31es.select = True
-        daue31msl = context.scene.daue31msl
-        dsm31ueal = 'Project_{}'.format(daue31msl.split('\\')[-2])
-        bpy.ops.wm.save_as_mainfile(filepath='{}{}.blend'.format(daue31msl,dsm31ueal))
+            terrainObject.select = False
+            terrainObject.hide_select = True
+            if activeObject is not None:
+                activeObject.select = True
+        ProjFolderPath = context.scene.ProjFolderPath
+        ProjectName = 'Project_{}'.format(ProjFolderPath.split('\\')[-2])
+        bpy.ops.wm.save_as_mainfile(filepath='{}{}.blend'.format(ProjFolderPath,ProjectName))
         return {'FINISHED'}
 
-class dusem31la(bpy.types.Operator):
-    bl_idname = "scene.d31auemls"
+class OP_AppearanceMatCapNoWire(bpy.types.Operator):
+    bl_idname = "scene.appearance_matcap_nowire"
     bl_label = "MatCap"
 
     @classmethod
     def poll(cls, context):
-        return not context.scene.dsem31alu
+        return not context.scene.PaintModeSwitch
     
     def execute(self, context):
         Areas = context.screen.areas
@@ -587,21 +587,21 @@ class dusem31la(bpy.types.Operator):
             if Area.type == 'VIEW_3D':
                 Area.spaces.active.viewport_shade = 'SOLID'
                 Area.spaces.active.use_matcap = True
-        dlmsa31ue = bpy.data.objects['Terrain_' + context.scene.name]
-        dlmsa31ue.show_wire = False
-        dlmsa31ue.show_all_edges = False
-        daue31msl = context.scene.daue31msl
-        dsm31ueal = 'Project_{}'.format(daue31msl.split('\\')[-2])
-        bpy.ops.wm.save_as_mainfile(filepath='{}{}.blend'.format(daue31msl,dsm31ueal))
+        terrainObject = bpy.data.objects['Terrain_' + context.scene.name]
+        terrainObject.show_wire = False
+        terrainObject.show_all_edges = False
+        ProjFolderPath = context.scene.ProjFolderPath
+        ProjectName = 'Project_{}'.format(ProjFolderPath.split('\\')[-2])
+        bpy.ops.wm.save_as_mainfile(filepath='{}{}.blend'.format(ProjFolderPath,ProjectName))
         return {'FINISHED'}
 
-class dsaelmu31(bpy.types.Operator):
-    bl_idname = "scene.del31umas"
+class OP_AppearanceMatCapWire(bpy.types.Operator):
+    bl_idname = "scene.appearance_matcap_wire"
     bl_label = "MatCap + Wire overlay"
 
     @classmethod
     def poll(cls, context):
-        return not context.scene.dsem31alu
+        return not context.scene.PaintModeSwitch
     
     def execute(self, context):
         Areas = context.screen.areas
@@ -609,95 +609,95 @@ class dsaelmu31(bpy.types.Operator):
             if Area.type == 'VIEW_3D':
                 Area.spaces.active.viewport_shade = 'SOLID'
                 Area.spaces.active.use_matcap = True
-        dlmsa31ue = bpy.data.objects['Terrain_' + context.scene.name]
-        dlmsa31ue.show_wire = True
-        dlmsa31ue.show_all_edges = True
-        daue31msl = context.scene.daue31msl
-        dsm31ueal = 'Project_{}'.format(daue31msl.split('\\')[-2])
-        bpy.ops.wm.save_as_mainfile(filepath='{}{}.blend'.format(daue31msl,dsm31ueal))
+        terrainObject = bpy.data.objects['Terrain_' + context.scene.name]
+        terrainObject.show_wire = True
+        terrainObject.show_all_edges = True
+        ProjFolderPath = context.scene.ProjFolderPath
+        ProjectName = 'Project_{}'.format(ProjFolderPath.split('\\')[-2])
+        bpy.ops.wm.save_as_mainfile(filepath='{}{}.blend'.format(ProjFolderPath,ProjectName))
         return {'FINISHED'}
 
-class dulema31s(bpy.types.Operator):
-    bl_idname = "scene.dsl31aume"
+class OP_CreateFlatTerrain(bpy.types.Operator):
+    bl_idname = "scene.create_flatterrain"
     bl_label = "Generate flat terrain"
     bl_description = 'Generates a flat terrain asc file and writes it to\nthe Output folder defined in addon\'s preferences'
     
-    dl31mseau = FloatProperty(name="Cell size:",default=1.0,min=.0)
-    desm31ula = IntProperty(name="Grid resolution:",default=512,min=0)
-    dlseau31m = FloatProperty(name="Default elevation:",default=10.0)
+    cellSize = FloatProperty(name="Cell size:",default=1.0,min=.0)
+    gridResolution = IntProperty(name="Grid resolution:",default=512,min=0)
+    defaultElevation = FloatProperty(name="Default elevation:",default=10.0)
     
     def execute(self, context):
-        dseamlu31(self.dl31mseau,self.desm31ula,self.dlseau31m)
+        createFlatTerrain(self.cellSize,self.gridResolution,self.defaultElevation)
         return {'FINISHED'}
         
     def invoke(self, context, event):
         return context.window_manager.invoke_props_dialog(self)
         
-class dmelas31u(bpy.types.Operator):
+class OP_CreateSurfaceMask(bpy.types.Operator):
     bl_idname = "scene.create_surfacemask"
     bl_label = "Generate empty surface mask"
     bl_description = 'Generates a raster filled with a default color in png format and writes it to\nthe Output folder defined in addon\'s preferences'
     
-    dmulae31s = IntProperty(name="Image resolution(px):",default=5000,min=0)
-    dumal31se = FloatVectorProperty(name="Default color:",min=0.0,max=1.0,subtype='COLOR')
+    imageResolution = IntProperty(name="Image resolution(px):",default=5000,min=0)
+    defaultColor = FloatVectorProperty(name="Default color:",min=0.0,max=1.0,subtype='COLOR')
     
     def execute(self, context):
-        d31usemla(self.dmulae31s,self.dumal31se)
+        createSurfaceMask(self.imageResolution,self.defaultColor)
         return {'FINISHED'}
         
     def invoke(self, context, event):
         return context.window_manager.invoke_props_dialog(self)
         
-class demus31al(bpy.types.Operator):
-    bl_idname = "scene.dmules31a"
+class OP_CheckSurfaceMask(bpy.types.Operator):
+    bl_idname = "scene.check_surfacemask"
     bl_label = "Check surface mask"
     bl_description = 'Generates a raster with information about the count of surfaces per texture tile'
     
-    dl31mseau = FloatProperty(name="Cell size(m):",default=7.5,min=0.0)
-    desm31ula = IntProperty(name="Terrain grid resolution(px):",default=2048,min=0)
-    dmsauel31 = FloatProperty(name="Mask resolution(m/px):",default=1.0,min=0.1)
-    dslame31uList = [
+    cellSize = FloatProperty(name="Cell size(m):",default=7.5,min=0.0)
+    gridResolution = IntProperty(name="Terrain grid resolution(px):",default=2048,min=0)
+    maskResolution = FloatProperty(name="Mask resolution(m/px):",default=1.0,min=0.1)
+    tileSizeList = [
     ("512", "512", "", 1),
     ("1024", "1024", "", 2),
     ("2048", "2048", "", 3),
     ("4096", "4096", "", 4)]
-    dslame31u = EnumProperty(items=dslame31uList,name="Tile size(px):",default='512')
+    tileSize = EnumProperty(items=tileSizeList,name="Tile size(px):",default='512')
 
     @classmethod
     def poll(cls, context):
-        return context.scene.dl31ueasm or context.scene.dml31eaus
+        return context.scene.CheckSurfaceMaskFormatValid or context.scene.SurfaceMaskFormatValid
     
     def execute(self, context):
-        du31slema(context,self.dl31mseau,self.desm31ula,self.dslame31u,self.dmsauel31)
+        checkSurfaceMask(context,self.cellSize,self.gridResolution,self.tileSize,self.maskResolution)
         return {'FINISHED'}
         
     def invoke(self, context, event):
         return context.window_manager.invoke_props_dialog(self)
         
-class dmea31usl(Panel):
+class VIEW3D_ProjectSettings(Panel):
     bl_category = "bLandscape Tools"
     bl_label = "Project Settings"
     bl_space_type = "VIEW_3D"
     bl_region_type = "TOOLS"
     
-    Scene.desl31uma = BoolProperty(name="",
+    Scene.isProject = BoolProperty(name="",
         description="",
         default=False)
     
-    Scene.daue31msl = StringProperty(name="",
+    Scene.ProjFolderPath = StringProperty(name="",
         attr="projFolderPath",
         description="Path to project folder",
         maxlen= 1024,
         subtype='DIR_PATH',
         default='')
         
-    Scene.d31emusal = StringProperty(name="",
+    Scene.bLTElevationPath = StringProperty(name="",
         attr="terrainPath",
         description="Path to bLT internal elevation file",
         maxlen= 1024,
         subtype='FILE_PATH')
         
-    dea31muls = [
+    enginesList = [
     ("RVEngine", "RVEngine", "", 1),
     ("Unreal Engine 4", "Unreal Engine 4", "", 2),
     ("CryEngine", "CryEngine", "", 3),
@@ -705,13 +705,13 @@ class dmea31usl(Panel):
     ("Enfusion", "Enfusion", "", 5)
     ]
 
-    Scene.d31usmale = EnumProperty(items=dea31muls,name="Engine",default='RVEngine')
+    Scene.GameEngine = EnumProperty(items=enginesList,name="Engine",default='RVEngine')
     
-    Scene.dlesamu31 = BoolProperty(default=True)
+    Scene.ProjectSettingsSwitch = BoolProperty(default=True)
     
     @classmethod
     def poll(cls, context):
-        return context.scene.dlesamu31
+        return context.scene.ProjectSettingsSwitch
 
     def draw(self, context):
         scene = context.scene
@@ -720,68 +720,68 @@ class dmea31usl(Panel):
         box = layout.box()
         row = box.column()
         row.label(text="Project Folder")
-        row.prop(scene,'daue31msl')
+        row.prop(scene,'ProjFolderPath')
         row.separator()
-        row.prop(scene, 'd31usmale')
+        row.prop(scene, 'GameEngine')
 
         row3 = box.column()
         row3.separator()
-        row3.operator("scene.dslum31ae",text='Create Project')
+        row3.operator("scene.create_project",text='Create Project')
         
-        if scene.daue31msl is '':
+        if scene.ProjFolderPath is '':
             row3.enabled = False
         else:
             row3.enabled = True
                 
-class dseaml31u(Panel):
+class VIEW3D_DataSource(Panel):
     bl_category = "bLandscape Tools"
     bl_label = "Data Source"
     bl_space_type = "VIEW_3D"
     bl_region_type = "TOOLS"
     
-    Scene.d31mlesau = BoolProperty(default=False)
-    Scene.demual31s = StringProperty(name="Terrain Texture",
+    Scene.DataSourceSwitch = BoolProperty(default=False)
+    Scene.ImportTerrainTexturePath = StringProperty(name="Terrain Texture",
         description="Any imagery format supported by GDAL",
         maxlen= 1024,
         subtype='FILE_PATH',
-        update=dl31seamu)
+        update=update_importterraintexturepath)
 
-    Scene.dlsumea31 = StringProperty(name="Terrain Heightmap",
+    Scene.ImportTerrainHeightmapPath = StringProperty(name="Terrain Heightmap",
         description="Supports ARC/INFO ASCII GRID only",
         maxlen= 1024,
         subtype='FILE_PATH',
-        update=delmsa31u)
+        update=update_importterrainheightmappath)
         
-    Scene.dumlse31a = StringProperty(name="Terrain Splat Mask",
+    Scene.ImportTerrainSplatMaskPath = StringProperty(name="Terrain Splat Mask",
         description="",
         maxlen= 1024,
         subtype='FILE_PATH',
-        update=dulae31ms)
+        update=update_importterrainsplatmaskpath)
         
-    Scene.dl31uesma = StringProperty(name="Surfaces Definition",
+    Scene.ImportSurfacesDefinitionPath = StringProperty(name="Surfaces Definition",
         description="",
         maxlen= 1024,
         subtype='FILE_PATH',
-        update=dlmeuas31)
+        update=update_importsurfacedefinitionpath)
         
-    Scene.deal31mus = BoolProperty(default=False)
-    Scene.du31lames = BoolProperty(default=False)
-    Scene.dml31eaus = BoolProperty(default=False)
-    Scene.ds31aulem = BoolProperty(default=False)
+    Scene.HeightmapFormatValid = BoolProperty(default=False)
+    Scene.TerrainTextureFormatValid = BoolProperty(default=False)
+    Scene.SurfaceMaskFormatValid = BoolProperty(default=False)
+    Scene.DevDriveValid = BoolProperty(default=False)
     
     
-    dem31laus = [("", "", "", 0),("A:\\", "A:\\", "", 1),("B:\\", "B:\\", "", 2),("C:\\", "C:\\", "", 3),("D:\\", "D:\\", "", 4),
+    lettersList = [("", "", "", 0),("A:\\", "A:\\", "", 1),("B:\\", "B:\\", "", 2),("C:\\", "C:\\", "", 3),("D:\\", "D:\\", "", 4),
     ("E:\\", "E:\\", "", 5),("F:\\", "F:\\", "", 6),("G:\\", "G:\\", "", 7),("I:\\", "I:\\", "", 8),("J:\\", "J:\\", "", 9),("K:\\", "K:\\", "", 10),("L:\\", "L:\\", "", 11),("M:\\", "M:\\", "", 12),("N:\\", "N:\\", "", 13),("O:\\", "O:\\", "", 14),
     ("P:\\", "P:\\", "", 15),("Q:\\", "Q:\\", "", 16),("R:\\", "R:\\", "", 17),("S:\\", "S:\\", "", 18),("T:\\", "T:\\", "", 19),("U:\\", "U:\\", "", 20),("V:\\", "V:\\", "", 21),("W:\\", "W:\\", "", 22),("X:\\", "X:\\", "", 23),("Y:\\", "Y:\\", "", 24),
     ("Z:\\", "Z:\\", "", 25)
     ]
 
-    Scene.de31sulma = bpy.props.EnumProperty(items=dem31laus,name="Dev. Drive",description="Sets the letter of the developer's drive",default="",update=de31smlua)
+    Scene.DevDriveLetter = bpy.props.EnumProperty(items=lettersList,name="Dev. Drive",description="Sets the letter of the developer's drive",default="",update=update_devdriveletter)
 
     
     @classmethod
     def poll(cls, context):
-        return context.scene.d31mlesau
+        return context.scene.DataSourceSwitch
 
     def draw(self, context):
         scene = context.scene
@@ -789,37 +789,37 @@ class dseaml31u(Panel):
 
         box = layout.box()
         row1 = box.column()
-        row1.prop(scene, 'demual31s')
-        row1.prop(scene, 'dlsumea31')
+        row1.prop(scene, 'ImportTerrainTexturePath')
+        row1.prop(scene, 'ImportTerrainHeightmapPath')
         row2 = box.column()
-        row2.prop(scene, 'dumlse31a')
+        row2.prop(scene, 'ImportTerrainSplatMaskPath')
         row3 = box.column()
-        row3.prop(scene, 'dl31uesma')
+        row3.prop(scene, 'ImportSurfacesDefinitionPath')
         row4 = box.column()
-        row4.prop(scene, 'de31sulma')
+        row4.prop(scene, 'DevDriveLetter')
         
-        if not scene.du31lames:
+        if not scene.TerrainTextureFormatValid:
             row2.enabled = False
-        if not scene.dml31eaus:
+        if not scene.SurfaceMaskFormatValid:
             row4.enabled = False
-        if not scene.dml31eaus or not scene.ds31aulem:
+        if not scene.SurfaceMaskFormatValid or not scene.DevDriveValid:
             row3.enabled = False
         
-class delsmau31(Panel):
+class VIEW3D_LocationsManager(Panel):
     bl_category = "bLandscape Tools"
     bl_label = "Locations manager"
     bl_space_type = "VIEW_3D"
     bl_region_type = "TOOLS"
 
-    Scene.dlm31saue = BoolProperty(name="",
+    Scene.isLocation = BoolProperty(name="",
     description="",
     default=False)
     
-    Scene.dslaeum31 = BoolProperty(default=False)
+    Scene.LocationsManagerSwitch = BoolProperty(default=False)
     
     @classmethod
     def poll(cls, context):
-        return context.scene.dslaeum31
+        return context.scene.LocationsManagerSwitch
 
     def draw(self, context):
         scene = context.scene
@@ -827,32 +827,32 @@ class delsmau31(Panel):
         
         col = layout.column()
         
-        if context.scene['dlm31saue']:
+        if context.scene['isLocation']:
             if len(bpy.data.objects['Terrain_' + context.scene.name].modifiers) != 0:
                 col.label(text='Terrain has modifier(s) assigned, BE CAREFUL!',icon='ERROR')
         row = layout.row()
-        if scene.desl31uma:
-            row.template_list("dua31mesl", "", bpy.data.scenes['Default_Location'], "dmusa31el", bpy.data.scenes['Default_Location'], "dlaumes31")
+        if scene.isProject:
+            row.template_list("UL_Locations_list", "", bpy.data.scenes['Default_Location'], "locationgroups", bpy.data.scenes['Default_Location'], "locationgroups_index")
         col = row.column()
         row1 = col.row()
-        row1.operator("scene.dea31ulsm",icon='ZOOMIN',text="")
+        row1.operator("scene.import_location",icon='ZOOMIN',text="")
         if bpy.context.object is not None:
             if bpy.context.object.mode == 'EDIT':
                 row1.enabled = False
                     
         row2 = col.row()        
-        row2.operator("scene.dume31sal",icon='APPEND_BLEND',text="")
-        if not scene.dlm31saue:
+        row2.operator("scene.commit_location",icon='APPEND_BLEND',text="")
+        if not scene.isLocation:
             row2.enabled = False
         elif bpy.context.object is not None:
             if bpy.context.object.mode == 'EDIT':
                 row2.enabled = False    
         
         row3 = col.row()        
-        row3.operator("scene.dsmle31ua",icon='ZOOMOUT',text="")
-        if not scene.dlm31saue:
+        row3.operator("scene.remove_location",icon='ZOOMOUT',text="")
+        if not scene.isLocation:
             row3.enabled = False
-        elif len(bpy.data.scenes["Default_Location"].dmusa31el) == 0:
+        elif len(bpy.data.scenes["Default_Location"].locationgroups) == 0:
             row3.enabled = False  
         elif bpy.context.object is not None:
             if bpy.context.object.mode == 'EDIT':
@@ -866,25 +866,25 @@ class View3DPaintPanel(UnifiedPaintPanel):
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'TOOLS'
                 
-class dea31lsmu(Panel,View3DPaintPanel):
+class VIEW3D_TerrainEditing(Panel,View3DPaintPanel):
     bl_category = "bLandscape Tools"
     bl_label = "Terrain Editing"
     bl_space_type = "VIEW_3D"
     bl_region_type = "TOOLS"
     bl_options = {'DEFAULT_CLOSED'}
     
-    Scene.ds31mlaue = BoolProperty(default=False)
+    Scene.TerrainEditingSwitch = BoolProperty(default=False)
     
-    Scene.dl31aesum = BoolProperty(default=False,update=dmalseu31)
+    Scene.SculptModeSwitch = BoolProperty(default=False,update=update_switchsculptmode)
     
-    Scene.dusl31mea = BoolProperty(default=False)
-    Scene.dslmeua31 = BoolProperty(default=False)
-    Scene.d31uamles = BoolProperty(default=False)
-    Object.dameslu31 = FloatProperty(default=1,update=d31umlesa)
+    Scene.SculptTextureSettingsSwitch = BoolProperty(default=False)
+    Scene.SculptStrokeSwitch = BoolProperty(default=False)
+    Scene.BrushShapeCurveSwitch = BoolProperty(default=False)
+    Object.FlatterWidth = FloatProperty(default=1,update=update_flatterwidth)
     
     @classmethod
     def poll(cls, context):
-        return (context.scene.ds31mlaue or cls.paint_settings(context) or context.sculpt_object)
+        return (context.scene.TerrainEditingSwitch or cls.paint_settings(context) or context.sculpt_object)
 
     def draw(self, context):
         scene = context.scene
@@ -894,18 +894,18 @@ class dea31lsmu(Panel,View3DPaintPanel):
         col = layout.column()
         
         
-        if scene.dl31aesum:
+        if scene.SculptModeSwitch:
             text = 'Disable Terrain Sculpting'     
         else:
             text = 'Enable Terrain Sculpting'
-        col.prop(scene, "dl31aesum", text=text, icon="SCULPTMODE_HLT")
-        if scene.dsem31alu:
+        col.prop(scene, "SculptModeSwitch", text=text, icon="SCULPTMODE_HLT")
+        if scene.PaintModeSwitch or context.active_object.mode == 'EDIT':
             col.enabled = False
         
         if len(bpy.data.objects['Terrain_' + context.scene.name].modifiers) != 0:
             col.label(text='Terrain has modifier(s) assigned, BE CAREFUL!',icon='ERROR')
 
-        if scene.dl31aesum:
+        if scene.SculptModeSwitch:
             toolsettings = context.tool_settings
             settings = self.paint_settings(context)
             brush = settings.brush
@@ -1011,9 +1011,9 @@ class dea31lsmu(Panel,View3DPaintPanel):
             
             box = layout.box()            
             col = box.column()
-            col.prop(scene, "dusl31mea", text='Sculpt Texture Settings', icon="TEXTURE")
+            col.prop(scene, "SculptTextureSettingsSwitch", text='Sculpt Texture Settings', icon="TEXTURE")
             
-            if scene.dusl31mea:
+            if scene.SculptTextureSettingsSwitch:
                 col.template_ID_preview(brush, "texture", new="texture.new", rows=3, cols=8)
                 brush_texture_settings(col, brush, context.sculpt_object)
                 
@@ -1023,9 +1023,9 @@ class dea31lsmu(Panel,View3DPaintPanel):
 
             box = layout.box()            
             col = box.column()
-            col.prop(scene, "dslmeua31", text='Stroke Settings', icon="BRUSH_DATA")
+            col.prop(scene, "SculptStrokeSwitch", text='Stroke Settings', icon="BRUSH_DATA")
             
-            if scene.dslmeua31:
+            if scene.SculptStrokeSwitch:
                 col.label(text="Stroke Method:")
                 col.prop(brush, "stroke_method", text="")
                 
@@ -1102,9 +1102,9 @@ class dea31lsmu(Panel,View3DPaintPanel):
             
             box = layout.box()            
             col = box.column()
-            col.prop(scene, "d31uamles", text='Brush Shape Curve', icon="SMOOTHCURVE")
+            col.prop(scene, "BrushShapeCurveSwitch", text='Brush Shape Curve', icon="SMOOTHCURVE")
             
-            if scene.d31uamles:
+            if scene.BrushShapeCurveSwitch:
                 col.template_curve_mapping(brush, "curve", brush=True)
                 col = box.column()
                 row = col.row(align=True)
@@ -1115,21 +1115,21 @@ class dea31lsmu(Panel,View3DPaintPanel):
                 row.operator("brush.curve_preset", icon='LINCURVE', text="").shape = 'LINE'
                 row.operator("brush.curve_preset", icon='NOCURVE', text="").shape = 'MAX'
                 
-        if not scene.dl31aesum:
+        if not scene.SculptModeSwitch:
             col.separator()
             col.separator()
             box = layout.box()            
             col = box.column()
             col.label(text='Mesh Based Terrain Editing:')
-            col.operator("object.dlasume31", icon='OUTLINER_OB_LATTICE')
-            col.operator("object.dau31emsl", icon='OUTLINER_OB_LATTICE')
-            col.operator("object.duaml31se", icon='FILE_TICK')
+            col.operator("object.assign_mesh_terrain_modifier", icon='OUTLINER_OB_LATTICE')
+            col.operator("object.add_mesh_terrain_modifier", icon='OUTLINER_OB_LATTICE')
+            col.operator("object.apply_mesh_terrain_modifier", icon='FILE_TICK')
             col.separator()
             col.label(text='Spline Based Terrain Editing:')
-            col.operator("object.dlsmaeu31", icon='IPO_BEZIER')
-            col.operator("object.dlsema31u", icon='FILE_TICK')
+            col.operator("object.add_spline_terrain_modifier", icon='IPO_BEZIER')
+            col.operator("object.apply_spline_terrain_modifier", icon='FILE_TICK')
             if context.active_object is not None and context.active_object.type == 'CURVE':
-                col.prop(object,'dameslu31',text='Modifier Width')
+                col.prop(object,'FlatterWidth',text='Modifier Width')
                 
             if context.active_object is not None and context.active_object.type == 'CURVE' and context.active_object.mode == 'EDIT':
                 for point in bpy.context.active_object.data.splines.active.bezier_points:
@@ -1138,22 +1138,21 @@ class dea31lsmu(Panel,View3DPaintPanel):
                         col.prop(point,'tilt')
                         break
         
-class dsma31lue(Panel,View3DPaintPanel):
+class VIEW3D_SurfacePainting(Panel,View3DPaintPanel):
     bl_category = "bLandscape Tools"
     bl_label = "Surface Painting"
     bl_space_type = "VIEW_3D"
     bl_region_type = "TOOLS"
     bl_options = {'DEFAULT_CLOSED'}
     
-    Scene.dameuls31 = BoolProperty(default=False)
+    Scene.SurfacePaintingSwitch = BoolProperty(default=False)
     
-    Scene.dsem31alu = BoolProperty(default=False,update=d31ausmel)
-    Scene.dumae31sl = BoolProperty(default=False)
+    Scene.PaintModeSwitch = BoolProperty(default=False,update=update_switchpaintmode)
+    Scene.PaintStrokeSwitch = BoolProperty(default=False)
     
     @classmethod
     def poll(cls, context):
-        #settings = cls.paint_settings(context)
-        return context.scene.dameuls31
+        return context.scene.SurfacePaintingSwitch
 
     def draw(self, context):
         scene = context.scene
@@ -1162,16 +1161,16 @@ class dsma31lue(Panel,View3DPaintPanel):
         
         col = layout.column()
         
-        if scene.dsem31alu:
+        if scene.PaintModeSwitch:
             text = 'Disable Surface Painting'
             
         else:
             text = 'Enable Surface Painting'
-        col.prop(scene, "dsem31alu", text=text, icon="TPAINT_HLT")
-        if scene.dl31aesum:
+        col.prop(scene, "PaintModeSwitch", text=text, icon="TPAINT_HLT")
+        if scene.SculptModeSwitch or context.active_object.mode == 'EDIT':
             col.enabled = False
             
-        if scene.dsem31alu:
+        if scene.PaintModeSwitch:
             toolsettings = context.tool_settings
             settings = self.paint_settings(context)
             brush = settings.brush
@@ -1198,9 +1197,9 @@ class dsma31lue(Panel,View3DPaintPanel):
             
             box = layout.box()            
             col = box.column()
-            col.prop(scene, "dumae31sl", text='Stroke Settings', icon="BRUSH_DATA")
+            col.prop(scene, "PaintStrokeSwitch", text='Stroke Settings', icon="BRUSH_DATA")
             
-            if scene.dumae31sl:
+            if scene.PaintStrokeSwitch:
                 col.label(text="Stroke Method:")
 
                 col.prop(brush, "stroke_method", text="")
@@ -1249,18 +1248,18 @@ class dsma31lue(Panel,View3DPaintPanel):
                     sub.prop(brush, "smooth_stroke_factor", text="Factor", slider=True)
                 col.prop(settings, "input_samples")
                    
-class d31emuasl(Panel):
+class VIEW3D_Appearance(Panel):
     bl_category = "bLandscape Tools"
     bl_label = "Location/Object(s) Appearance"
     bl_space_type = "VIEW_3D"
     bl_region_type = "TOOLS"
     bl_options = {'DEFAULT_CLOSED'}
     
-    Scene.due31alms = BoolProperty(default=False)
+    Scene.AppearanceSwitch = BoolProperty(default=False)
     
     @classmethod
     def poll(cls, context):
-        return context.scene.due31alms
+        return context.scene.AppearanceSwitch
 
     def draw(self, context):
         scene = context.scene
@@ -1270,23 +1269,23 @@ class d31emuasl(Panel):
         userPreferences = context.user_preferences
         systemTab = userPreferences.system
         
-        dsluae31m = bpy.data.scenes["Default_Location"].demual31s
+        terrainTexturePath = bpy.data.scenes["Default_Location"].ImportTerrainTexturePath
         
         row = layout.row(align=True)
-        row.operator("object.ds31ealmu",icon='TEXTURE')
-        row.operator("object.dmslae31u",icon='ASSET_MANAGER')
-        if not scene.du31lames:
+        row.operator("object.appearance_textured_nowire",icon='TEXTURE')
+        row.operator("object.appearance_textured_wire",icon='ASSET_MANAGER')
+        if not scene.TerrainTextureFormatValid:
             row.enabled = False
             
         row2 = layout.row(align=True)
-        row2.operator("object.dms31laue", text="Smooth",icon='MOD_SMOOTH')
-        row2.operator("object.da31umsle", text="Flat",icon='MOD_DISPLACE')
+        row2.operator("object.appearance_smooth", text="Smooth",icon='MOD_SMOOTH')
+        row2.operator("object.appearance_flat", text="Flat",icon='MOD_DISPLACE')
         
         
         
         row1 = layout.row(align=True)
-        row1.operator("scene.d31auemls",icon='MATCAP_13')
-        row1.operator("scene.del31umas",icon='MOD_TRIANGULATE')
+        row1.operator("scene.appearance_matcap_nowire",icon='MATCAP_13')
+        row1.operator("scene.appearance_matcap_wire",icon='MOD_TRIANGULATE')
         
         Areas = context.screen.areas
         for Area in Areas:
@@ -1308,33 +1307,33 @@ class d31emuasl(Panel):
         col = layout.column()
         col.separator()
         
-        if scene.dml31eaus:
-            d31slmuaeTexture = bpy.data.objects['Terrain_' + context.scene.name].material_slots[0].material.texture_slots[1]
+        if scene.SurfaceMaskFormatValid:
+            surfaceMaskTexture = bpy.data.objects['Terrain_' + context.scene.name].material_slots[0].material.texture_slots[1]
             row3 = layout.row(align=True)
-            row3.prop(d31slmuaeTexture,"diffuse_color_factor",text='Surface mask opacity')
-            row3.prop(d31slmuaeTexture,"blend_type")
-            if not scene.dsem31alu:
+            row3.prop(surfaceMaskTexture,"diffuse_color_factor",text='Surface mask opacity')
+            row3.prop(surfaceMaskTexture,"blend_type")
+            if not scene.PaintModeSwitch:
                 row3.enabled = False
         
         colMipMap = layout.column()
         colMipMap.prop(systemTab, "use_mipmaps",text='Textures mipmaps')
-        if not scene.du31lames:
+        if not scene.TerrainTextureFormatValid:
             colMipMap.enabled = False
 
-class d31lusaem(Panel):
+class VIEW3D_QualityAssurance(Panel):
     bl_category = "bLandscape Tools"
     bl_label = "Quality Assurance"
     bl_space_type = "VIEW_3D"
     bl_region_type = "TOOLS"
     bl_options = {'DEFAULT_CLOSED'}
     
-    Scene.du31slemaPath = StringProperty(name="Surface mask path",
+    Scene.checkSurfaceMaskPath = StringProperty(name="Surface mask path",
         description="Path to surface mask",
         maxlen= 1024,
         subtype='FILE_PATH',
-        update=dmlas31eu)
+        update=update_checksplatmaskpath)
         
-    Scene.dl31ueasm = BoolProperty(default=False)
+    Scene.CheckSurfaceMaskFormatValid = BoolProperty(default=False)
     
     def draw(self, context):
         scene = context.scene
@@ -1342,11 +1341,11 @@ class d31lusaem(Panel):
 
         col = layout.column(align=True)
         row = col.row(align=True)
-        row.operator("scene.dmules31a",icon='IMAGE_RGB')
-        row.prop(scene,'du31slemaPath',text="")
+        row.operator("scene.check_surfacemask",icon='IMAGE_RGB')
+        row.prop(scene,'checkSurfaceMaskPath',text="")
         row.enabled = False
                  
-class dau31mles(Panel):
+class VIEW3D_bLTilities(Panel):
     bl_category = "bLandscape Tools"
     bl_label = "bLTilities"
     bl_space_type = "VIEW_3D"
@@ -1358,5 +1357,5 @@ class dau31mles(Panel):
         layout = self.layout
 
         col = layout.column(align=True)
-        col.operator("scene.dsl31aume",icon='MESH_GRID')
+        col.operator("scene.create_flatterrain",icon='MESH_GRID')
         col.operator("scene.create_surfacemask",icon='COLORSET_03_VEC')
