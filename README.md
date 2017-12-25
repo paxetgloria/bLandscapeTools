@@ -9,6 +9,7 @@ bLandscapeTools
 - get the external tool called GDAL from www.gisinternals.com/release.php, choose 32/64 bit version, download "gdal-xxx-1800-x64-core.msi"(xxx = whatever latest version there is) and install it
 
 **Addon installation:**
+
 *Note: if you unzipped Blender into a location which requires Administrator's rights to write, make sure to 'Run as administrator' when launching Blender, this is necessary only once when addon(more precisely OpenCV) is being installed for the first time*
 - run Blender and go to File -> User Preferences(or Ctrl+Alt+U)
 - at the bottom of the window press "Install from File.." and locate and confirm downloaded zip file(addon will show up in the list of avalaible addons)
