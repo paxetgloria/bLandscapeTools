@@ -5,7 +5,7 @@ bLandscapeTools
 
 Installation instruction:
 
-Grab Blender from https://download.blender.org/release/Blender2.79/
+Grab Blender from https://builder.blender.org/download/(Currently only Windows is supported)
 
 Addon installation
 - download zip
