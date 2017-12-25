@@ -5,8 +5,8 @@ bLandscapeTools
 
 **Prerequisites:**
 - download **'bLandscapeTools-master.zip'** addon
-- grab Blender from https://builder.blender.org/download/ (currently only Windows is supported)and unzipped it wherever you want.
-- get the external tool called GDAL from www.gisinternals.com/release.php, choose 32/64 bit version, download "gdal-xxx-1800-x64-core.msi"(xxx = whatever latest version there is) and install it
+- grab Blender from https://builder.blender.org/download/ (currently only Windows is supported) and unzipped it wherever you want
+- get the external tool called GDAL from www.gisinternals.com/release.php, choose 32/64 bit version, download "gdal-xxx-1800-x64-core.msi"(xxx = whatever latest version there is) and install it(by default installed to c:\Program Files\GDAL
 
 
 **Addon installation:**
