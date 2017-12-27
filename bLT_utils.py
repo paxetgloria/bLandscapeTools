@@ -346,7 +346,7 @@ def createProject():
     bpy.context.scene['isLocation'] = False
 
     if not os.path.exists(bpy.context.scene.ProjFolderPath + 'ProjectData'):
-	    os.makedirs(bpy.context.scene.ProjFolderPath + 'ProjectData')
+	    os.makedirs(bpy.context.scene.ProjFolderPath + 'ProjectData\\Textures')
     else:
         rmtree(bpy.context.scene.ProjFolderPath + 'ProjectData')
         os.makedirs(bpy.context.scene.ProjFolderPath + 'ProjectData\\Textures')

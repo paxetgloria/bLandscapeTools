@@ -17,7 +17,7 @@ bLandscapeTools
 - check empty rectangle right next to the addon's name to enable it -> addon is installed!!!
 - now, open addon's properties by clicking on the arrow right next to addon's name and in the **Preferences** set the **GDAL path**(by default installed to c:\Program Files\GDAL)
 - before the last step I recommend to open system console, either go to **Window -> Toggle System Console** or  press **Space** and type **Toggle System Console** and hit **Enter**
-- now get back to the addon's preferences and hit **Install OpenCV button**, in the console you should see the progress of downloading and installing OpenCV library
+- now get back to the addon's preferences and hit **Install OpenCV button**, in the console you should see the progress of downloading and installing OpenCV library, once installed you should see either 'bLT_Info: OpenCV installed successfully' or 'bLT_Info: OpenCV installation problem!!!'
 - once done please don't forget to press "Save User Settings" at the bottom of the window 
 
 Viola, tool is ready to use!!!
