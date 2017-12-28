@@ -1,7 +1,7 @@
 bl_info= {
     "name": "bLandscape Tools",
     "author": "Miroslav Horvath",
-    "version": (0, 1),
+    "version": (0, 2),
     "blender": (2, 7, 9),
     "location": "View3D > Properties > bLandscape Tools",
     "description": "Tools for virtual landscaping",
