@@ -166,7 +166,7 @@ class OP_ImportLocation(bpy.types.Operator):
         and context.scene.PaintModeSwitch == False 
         and context.scene.HeightmapFormatValid 
         and (context.scene.ImportTerrainTexturePath == '' or context.scene.TerrainTextureFormatValid)
-        and (context.scene.ImportTerrainSplatMaskPath == '' or context.scene.SurfaceMaskFormatValid))
+        and (context.scene.ImportTerrainSurfaceMaskPath == '' or context.scene.SurfaceMaskFormatValid))
 
     def execute(self, context):
         setup2dMapPreview()
@@ -752,17 +752,17 @@ class VIEW3D_DataSource(Panel):
         subtype='FILE_PATH',
         update=update_importterrainheightmappath)
         
-    Scene.ImportTerrainSplatMaskPath = StringProperty(name="Terrain Splat Mask",
+    Scene.ImportTerrainSurfaceMaskPath = StringProperty(name="Terrain Surface Mask",
         description="",
         maxlen= 1024,
         subtype='FILE_PATH',
-        update=update_importterrainsplatmaskpath)
+        update=update_importterrainsurfacemaskpath)
         
     Scene.ImportSurfacesDefinitionPath = StringProperty(name="Surfaces Definition",
         description="",
         maxlen= 1024,
         subtype='FILE_PATH',
-        update=update_importsurfacedefinitionpath)
+        update=update_importsurfacesdefinitionpath)
         
     Scene.HeightmapFormatValid = BoolProperty(default=False)
     Scene.TerrainTextureFormatValid = BoolProperty(default=False)
@@ -792,7 +792,7 @@ class VIEW3D_DataSource(Panel):
         row1.prop(scene, 'ImportTerrainTexturePath')
         row1.prop(scene, 'ImportTerrainHeightmapPath')
         row2 = box.column()
-        row2.prop(scene, 'ImportTerrainSplatMaskPath')
+        row2.prop(scene, 'ImportTerrainSurfaceMaskPath')
         row3 = box.column()
         row3.prop(scene, 'ImportSurfacesDefinitionPath')
         row4 = box.column()
@@ -899,7 +899,7 @@ class VIEW3D_TerrainEditing(Panel,View3DPaintPanel):
         else:
             text = 'Enable Terrain Sculpting'
         col.prop(scene, "SculptModeSwitch", text=text, icon="SCULPTMODE_HLT")
-        if scene.PaintModeSwitch or context.active_object.mode == 'EDIT':
+        if scene.PaintModeSwitch or (context.active_object is not None and context.active_object.mode == 'EDIT'):
             col.enabled = False
         
         if len(bpy.data.objects['Terrain_' + context.scene.name].modifiers) != 0:
@@ -1167,7 +1167,7 @@ class VIEW3D_SurfacePainting(Panel,View3DPaintPanel):
         else:
             text = 'Enable Surface Painting'
         col.prop(scene, "PaintModeSwitch", text=text, icon="TPAINT_HLT")
-        if scene.SculptModeSwitch or context.active_object.mode == 'EDIT':
+        if scene.SculptModeSwitch or (context.active_object is not None and context.active_object.mode == 'EDIT'):
             col.enabled = False
             
         if scene.PaintModeSwitch:
@@ -1331,7 +1331,7 @@ class VIEW3D_QualityAssurance(Panel):
         description="Path to surface mask",
         maxlen= 1024,
         subtype='FILE_PATH',
-        update=update_checksplatmaskpath)
+        update=update_checksurfacemaskpath)
         
     Scene.CheckSurfaceMaskFormatValid = BoolProperty(default=False)
     

@@ -69,18 +69,18 @@ def update_importterraintexturepath(self, context):
     else:
         context.scene.TerrainTextureFormatValid = False
         
-def update_importterrainsplatmaskpath(self, context):
-    terrainSplatMaskPath = context.scene.ImportTerrainSplatMaskPath
+def update_importterrainsurfacemaskpath(self, context):
+    terrainSurfaceMaskPath = context.scene.ImportTerrainSurfaceMaskPath
     ProjFolderPath = context.scene.ProjFolderPath
     ProjectName = 'Project_{}'.format(ProjFolderPath.split('\\')[-2])
     
-    if terrainSplatMaskPath != '':
-        if terrainSplatMaskPath.split('.')[-1] in ['png','tif','tiff']:
+    if terrainSurfaceMaskPath != '':
+        if terrainSurfaceMaskPath.split('.')[-1] in ['png','tif','tiff']:
             context.scene.SurfaceMaskFormatValid = True
             bpy.ops.wm.save_as_mainfile(filepath='{}{}.blend'.format(ProjFolderPath,ProjectName))
         else:
             context.scene.SurfaceMaskFormatValid = False
-            print('\nbLT_Info: {} is unsupported surface mask file format! Use PNG, TIF, TIFF instead.'.format(terrainSplatMaskPath.split('.')[-1]))
+            print('\nbLT_Info: {} is unsupported surface mask file format! Use PNG, TIF, TIFF instead.'.format(terrainSurfaceMaskPath.split('.')[-1]))
     else:
         context.scene.SurfaceMaskFormatValid = False
     
@@ -119,13 +119,13 @@ def update_importterrainheightmappath(self, context):
     else:
         context.scene.HeightmapFormatValid = False
 
-def update_importsurfacedefinitionpath(self, context):
-    surfaceDefinitionPath = context.scene.ImportSurfacesDefinitionPath
+def update_importsurfacesdefinitionpath(self, context):
+    surfacesDefinitionPath = context.scene.ImportSurfacesDefinitionPath
     ProjFolderPath = bpy.data.scenes["Default_Location"].ProjFolderPath
     ProjectName = 'Project_{}'.format(ProjFolderPath.split('\\')[-2])
     
-    if surfaceDefinitionPath != '':
-        if surfaceDefinitionPath.split('.')[-1] == 'cfg':
+    if surfacesDefinitionPath != '':
+        if surfacesDefinitionPath.split('.')[-1] == 'cfg':
             if len(context.scene.TexturePaintBrushNames) != 0:
                 for textureBrushName in context.scene.TexturePaintBrushNames:
                     bpy.data.brushes.remove(bpy.data.brushes[textureBrushName.name])
@@ -133,7 +133,7 @@ def update_importsurfacedefinitionpath(self, context):
                     context.scene.TexturePaintBrushNames.remove(0)
                     
             
-            surfaceDefinitionFile = open(surfaceDefinitionPath,encoding="utf8")
+            surfaceDefinitionFile = open(surfacesDefinitionPath,encoding="utf8")
             DevDriveLetter = context.scene.DevDriveLetter
             ProjFolderPath = bpy.data.scenes["Default_Location"].ProjFolderPath
             
@@ -195,7 +195,7 @@ def update_importsurfacedefinitionpath(self, context):
             print('bLT_Info: Surface brushes and previews creation finished {}'.format(time.ctime()))
                 
         else:
-            print('\nbLT_Info: {} is unsupported config file format! Use CFG instead.'.format(surfaceDefinitionPath.split('.')[-1]))
+            print('\nbLT_Info: {} is unsupported config file format! Use CFG instead.'.format(surfacesDefinitionPath.split('.')[-1]))
             
 def update_devdriveletter(self, context):
     if not os.path.exists(context.scene.DevDriveLetter):
@@ -357,9 +357,7 @@ def createProject():
         os.makedirs(bpy.context.scene.ProjFolderPath + 'Output\\bLTilities')
         
 def setup2dMapPreview():
-    
     bpy.context.area.type = 'IMAGE_EDITOR'
-    
     for space in bpy.context.area.spaces:
         if space.type == 'IMAGE_EDITOR':
             space.image = bpy.data.images['previewTerTex.tif']
@@ -623,18 +621,18 @@ def exportTerrain(overwriteSource):
     print('bLT_Info: Heightmap export finished ', time.ctime())
     
 def exportSurfaceMask(overwriteSource):
-    terrainSplatMaskPath = bpy.data.scenes["Default_Location"].ImportTerrainSplatMaskPath
+    terrainSurfaceMaskPath = bpy.data.scenes["Default_Location"].ImportTerrainSurfaceMaskPath
     if bpy.context.scene.SurfaceMaskFormatValid:
         print('\nbLT_Info: Surface map export started ', time.ctime())
         from cv2 import imread as cv2imread, imwrite as cv2imwrite, IMREAD_COLOR as cv2IMREAD_COLOR
         ProjFolderPath = bpy.data.scenes["Default_Location"].ProjFolderPath
         locationName = bpy.context.scene.name
-        sourceSurfaceMask = cv2imread(bpy.data.scenes["Default_Location"].ImportTerrainSplatMaskPath, cv2IMREAD_COLOR)
+        sourceSurfaceMask = cv2imread(bpy.data.scenes["Default_Location"].ImportTerrainSurfaceMaskPath, cv2IMREAD_COLOR)
         locationSurfaceMask = cv2imread(r'{}ProjectData\Textures\TerrainMask_{}.png'.format(ProjFolderPath,locationName), cv2IMREAD_COLOR)
         terrainObject = bpy.data.objects.get('Terrain_{}'.format(locationName))
         sourceSurfaceMask[terrainObject['MergeTopLeftY']:terrainObject["MergeBottomRightY"],terrainObject["MergeTopLeftX"]:terrainObject["MergeBottomRightX"]] = locationSurfaceMask
         if overwriteSource:
-            outputPath = terrainSplatMaskPath
+            outputPath = terrainSurfaceMaskPath
         else:
             outputPath = '{}\\Output\\surfaceMask.png'.format(ProjFolderPath)
         cv2imwrite(outputPath, sourceSurfaceMask)
@@ -678,7 +676,7 @@ def createNewLocation(locationName,gridResX,gridResY,topLeftRow,topLeftColumn,bo
     cellSize = worldInfo["CellSize"]
     elevationPath = bpy.data.scenes['Default_Location'].bLTElevationPath
     terrainTexturePath = bpy.data.scenes["Default_Location"].ImportTerrainTexturePath
-    terrainSplatMaskPath = bpy.data.scenes["Default_Location"].ImportTerrainSplatMaskPath
+    terrainSurfaceMaskPath = bpy.data.scenes["Default_Location"].ImportTerrainSurfaceMaskPath
     ProjFolderPath = bpy.data.scenes["Default_Location"].ProjFolderPath
 
     bpy.context.window.screen.scene = bpy.data.scenes["Default_Location"]
@@ -744,7 +742,7 @@ def createNewLocation(locationName,gridResX,gridResY,topLeftRow,topLeftColumn,bo
         
         if bpy.context.scene.SurfaceMaskFormatValid:
             print(' Location\'s surface mask extraction started ', time.ctime())
-            input_image_cv = cv2imread(terrainSplatMaskPath, cv2IMREAD_COLOR)
+            input_image_cv = cv2imread(terrainSurfaceMaskPath, cv2IMREAD_COLOR)
             locationSurfaceMask = input_image_cv[topLeftPixelY:bottomRightPixelY,topLeftPixelX:bottomRightPixelX]
             cv2imwrite(r'{}ProjectData\Textures\TerrainMask_{}.png'.format(ProjFolderPath,locationName), locationSurfaceMask)
             print(' Location\'s surface mask extraction finished ', time.ctime())
@@ -1023,15 +1021,15 @@ def createSurfaceMask(imageResolution,defaultColor):
         cv2imwrite('{}\\surface_mask.png'.format(OutputPath), blank_image)
         print('Surface mask file saved to {}\\surface_mask.png'.format(OutputPath))
         
-def update_checksplatmaskpath(self, context):
-    SplatMaskPath = context.scene.checkSurfaceMaskPath
+def update_checksurfacemaskpath(self, context):
+    SurfaceMaskPath = context.scene.checkSurfaceMaskPath
     
-    if SplatMaskPath != '':
-        if SplatMaskPath.split('.')[-1] in ['png','tif','tiff']:
+    if SurfaceMaskPath != '':
+        if SurfaceMaskPath.split('.')[-1] in ['png','tif','tiff']:
             context.scene.CheckSurfaceMaskFormatValid = True
         else:
             context.scene.CheckSurfaceMaskFormatValid = False
-            print('\nbLT_Info: {} is unsupported surface mask file format! Use PNG, TIF, TIFF instead.'.format(SplatMaskPath.split('.')[-1]))
+            print('\nbLT_Info: {} is unsupported surface mask file format! Use PNG, TIF, TIFF instead.'.format(SurfaceMaskPath.split('.')[-1]))
     else:
         context.scene.CheckSurfaceMaskFormatValid = False
 
