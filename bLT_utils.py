@@ -5,7 +5,6 @@ from math import floor, isnan, ceil
 from numpy import genfromtxt,vstack,hstack,array,savetxt,delete,ones,zeros,flipud,empty,fromfile,float16,float32,reshape,uint8
 from mathutils import Vector, Matrix
 
-
 def install_opencv():
     libFolder = '{}\lib'.format(getPaths()[1])
     sys.path.append(libFolder)
@@ -160,7 +159,7 @@ def update_importsurfacesdefinitionpath(self, context):
             
             print('\nbLT_Info: Surface brushes and previews creation started {}'.format(time.ctime()))
             for surfaceName, materialPath in materials.items():
-                f = open('{}\\{}'.format(DevDriveLetter,materialPath))
+                f = open('{}{}'.format(DevDriveLetter,materialPath))
                 textures = []
                 for line in f.readlines():
                     line = (line.lstrip()).rstrip('\n')

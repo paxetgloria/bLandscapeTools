@@ -51,7 +51,8 @@ class AddonPref_bLT(AddonPreferences):
         box = layout.box()
         box.prop(self, "GDALPath")
         box.prop(self, "OutputPath")
-        box.operator("a.install_opencv",icon='TEXTURE')
+        box.operator("addon.install_opencv",icon='TEXTURE')     
+    
         
 classes = (
     bLT_main.OP_AP_InstallOpenCV,
@@ -65,7 +66,7 @@ classes = (
     bLT_main.VIEW3D_LocationsManager,
     bLT_main.VIEW3D_TerrainEditing,
     bLT_main.VIEW3D_SurfacePainting,
-    bLT_main.VIEW3D_Appearance,
+    bLT_main.VIEW3D_ViewportSettings,
     bLT_main.VIEW3D_QualityAssurance,
     bLT_main.VIEW3D_bLTilities,
     bLT_main.OP_CreateProject,
@@ -88,12 +89,15 @@ classes = (
     bLT_main.OP_CreateFlatTerrain,
     bLT_main.OP_CreateSurfaceMask,
     bLT_main.OP_CheckSurfaceMask,
-    AddonPref_bLT  
+    AddonPref_bLT
 )
+
+
 
 def register():
     for cls in classes:
         bpy.utils.register_class(cls)
+    
         
     os.environ['PATH'] = ''.join(('{}\lib;'.format(bLT_utils.getPaths()[1]),os.environ['PATH']))
     
@@ -122,7 +126,7 @@ def register():
 def unregister():
     for cls in classes:
         bpy.utils.unregister_class(cls)
-        
+
     del bpy.types.Scene.locationgroups
     del bpy.types.Scene.locationgroups_index
     del bpy.types.Scene.TexturePaintBrushNames

@@ -7,7 +7,7 @@ from bpy.types import Panel,Scene,AddonPreferences,UIList,PropertyGroup,WindowMa
 from bl_ui.properties_paint_common import UnifiedPaintPanel, brush_texture_settings, brush_texpaint_common
 
 class OP_AP_InstallOpenCV(bpy.types.Operator):
-    bl_idname = "a.install_opencv"
+    bl_idname = "addon.install_opencv"
     bl_label = "Install OpenCV"
     bl_description = 'Installs OpenCV'
 
@@ -88,7 +88,7 @@ class OP_UI_RemoveLocation(bpy.types.Operator):
             terrainObject.hide_select = True
         else:
             context.window.screen.scene = bpy.data.scenes['Default_Location']
-            context.scene.AppearanceSwitch = False
+            context.scene.ViewportSettingsSwitch = False
             context.scene.DataSourceSwitch = True
             
         ProjFolderPath = context.scene.ProjFolderPath
@@ -204,7 +204,7 @@ class OP_CreateLocation(bpy.types.Operator):
         location_group.isVisibleLocItem = True
         scene.locationgroups_index = location_idx
 
-        context.scene.AppearanceSwitch = True
+        context.scene.ViewportSettingsSwitch = True
         context.scene.DataSourceSwitch = False
         context.scene.TerrainEditingSwitch = True
         if context.scene.TerrainTextureFormatValid and context.scene.SurfaceMaskFormatValid:
@@ -1248,18 +1248,18 @@ class VIEW3D_SurfacePainting(Panel,View3DPaintPanel):
                     sub.prop(brush, "smooth_stroke_factor", text="Factor", slider=True)
                 col.prop(settings, "input_samples")
                    
-class VIEW3D_Appearance(Panel):
+class VIEW3D_ViewportSettings(Panel):
     bl_category = "bLandscape Tools"
-    bl_label = "Location/Object(s) Appearance"
+    bl_label = "Viewport Settings"
     bl_space_type = "VIEW_3D"
     bl_region_type = "TOOLS"
     bl_options = {'DEFAULT_CLOSED'}
     
-    Scene.AppearanceSwitch = BoolProperty(default=False)
+    Scene.ViewportSettingsSwitch = BoolProperty(default=False)
     
     @classmethod
     def poll(cls, context):
-        return context.scene.AppearanceSwitch
+        return context.scene.ViewportSettingsSwitch
 
     def draw(self, context):
         scene = context.scene
@@ -1319,6 +1319,11 @@ class VIEW3D_Appearance(Panel):
         colMipMap.prop(systemTab, "use_mipmaps",text='Textures mipmaps')
         if not scene.TerrainTextureFormatValid:
             colMipMap.enabled = False
+            
+        colNearFar = layout.column(align=True)
+        colNearFar.label(text="Clip Near/Far Plane(m):")
+        colNearFar.prop(view, "clip_start", text="Start")
+        colNearFar.prop(view, "clip_end", text="End")
 
 class VIEW3D_QualityAssurance(Panel):
     bl_category = "bLandscape Tools"
