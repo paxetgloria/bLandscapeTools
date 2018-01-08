@@ -5,6 +5,7 @@ from math import floor, isnan, ceil
 from numpy import genfromtxt,vstack,hstack,array,savetxt,delete,ones,zeros,flipud,empty,fromfile,float16,float32,reshape,uint8
 from mathutils import Vector, Matrix
 
+
 def install_opencv():
     libFolder = '{}\lib'.format(getPaths()[1])
     sys.path.append(libFolder)
@@ -143,16 +144,15 @@ def update_importsurfacesdefinitionpath(self, context):
             for line in surfaceDefinitionFile.readlines():
                 line = (line.lstrip()).rstrip('\n')
                 if line.split(' ')[0] == 'class' and line.split(' ')[1] not in ['Layers','Legend','Colors']:
-                    surfaceName = line.split(' ')[1].strip().lower()
+                    surfaceName = line.split(' ')[1].strip()
                     if '\t' in line.split(' ')[1].strip():
-                        surfaceName = line.split(' ')[1].strip().split('\t')[0].lower()
+                        surfaceName = line.split(' ')[1].strip().split('\t')[0]
                     surfaces.append(surfaceName)
                 if line.split('=')[0].rstrip() == 'material':
                     materials[surfaces[-1]] = line.split('=')[1].split(';')[0].strip()[1:-1]
-                if (line.split('=')[0].strip()).rstrip('[]') in surfaces:
-                    RGBvalues = list(map(int, line.split('=')[1].strip().split(';')[0].lstrip('{{').rstrip('}}').split(',')))
-                    colors[(line.split('=')[0].strip()).rstrip('[]')] = RGBvalues
-                    
+                if line.split('[]')[0] in surfaces:
+                    RGBvalues = list(map(int, line.split('{{')[1].split('}}')[0].split(',')))
+                    colors[line.split('[]')[0]] = RGBvalues
             surfaceDefinitionFile.close()
             
             from cv2 import imread as cv2imread, imwrite as cv2imwrite, resize as cv2resize, IMREAD_COLOR as cv2IMREAD_COLOR
@@ -160,20 +160,26 @@ def update_importsurfacesdefinitionpath(self, context):
             print('\nbLT_Info: Surface brushes and previews creation started {}'.format(time.ctime()))
             for surfaceName, materialPath in materials.items():
                 f = open('{}{}'.format(DevDriveLetter,materialPath))
-                textures = []
+                texturePath = None
                 for line in f.readlines():
                     line = (line.lstrip()).rstrip('\n')
-                    if line.split('=')[0] == 'texture':
-                        textures.append(line.split('=')[1][1:-2])
+                    if line.split('=')[0].rstrip(' ') == 'texture':
+                        if line.split('_')[-1].split('.')[0] == 'co':
+                            if line.split(';')[0].split('.')[1][0:-1] == 'png':
+                                texturePath = (line.split('"')[1])
                 f.close()
                 
-                input_image_cv = cv2imread('{}{}'.format(DevDriveLetter,textures[1]), cv2IMREAD_COLOR)
-                resizedImage = cv2resize(input_image_cv, (128, 128))
-                cv2imwrite(r'{}ProjectData\Textures\previewIcon_{}.png'.format(ProjFolderPath,surfaceName), resizedImage)
+                if texturePath != None:
+                    input_image_cv = cv2imread('{}{}'.format(DevDriveLetter,texturePath), cv2IMREAD_COLOR)
+                    resizedImage = cv2resize(input_image_cv, (128, 128))
+                    cv2imwrite(r'{}ProjectData\Textures\previewIcon_{}.png'.format(ProjFolderPath,surfaceName), resizedImage)
+                else:
+                    print('\tbLT_Info: Surface has no valid texture(must be png), preview icon won\'t be created!')
 
                 currentBrush = bpy.data.brushes.new(surfaceName)
-                currentBrush.use_custom_icon = True
-                currentBrush.icon_filepath = '{}ProjectData\Textures\previewIcon_{}.png'.format(ProjFolderPath,surfaceName)
+                if texturePath != None:
+                    currentBrush.use_custom_icon = True
+                    currentBrush.icon_filepath = '{}ProjectData\Textures\previewIcon_{}.png'.format(ProjFolderPath,surfaceName)
                 currentBrush.strength = 1.0
                 bpy.context.scene.tool_settings.image_paint.use_normal_falloff = False
                 bpy.context.scene.tool_settings.image_paint.seam_bleed = 0

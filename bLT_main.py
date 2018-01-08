@@ -7,7 +7,7 @@ from bpy.types import Panel,Scene,AddonPreferences,UIList,PropertyGroup,WindowMa
 from bl_ui.properties_paint_common import UnifiedPaintPanel, brush_texture_settings, brush_texpaint_common
 
 class OP_AP_InstallOpenCV(bpy.types.Operator):
-    bl_idname = "addon.install_opencv"
+    bl_idname = "a.install_opencv"
     bl_label = "Install OpenCV"
     bl_description = 'Installs OpenCV'
 
@@ -1268,8 +1268,6 @@ class VIEW3D_ViewportSettings(Panel):
         fx_settings = view.fx_settings
         userPreferences = context.user_preferences
         systemTab = userPreferences.system
-        
-        terrainTexturePath = bpy.data.scenes["Default_Location"].ImportTerrainTexturePath
         
         row = layout.row(align=True)
         row.operator("object.appearance_textured_nowire",icon='TEXTURE')
