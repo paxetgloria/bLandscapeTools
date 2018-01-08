@@ -155,7 +155,7 @@ def update_importsurfacesdefinitionpath(self, context):
                     colors[line.split('[]')[0]] = RGBvalues
             surfaceDefinitionFile.close()
             
-            from cv2 import imread as cv2imread, imwrite as cv2imwrite, resize as cv2resize, IMREAD_COLOR as cv2IMREAD_COLOR
+            from cv2 import imread, imwrite, resize, IMREAD_COLOR
             
             print('\nbLT_Info: Surface brushes and previews creation started {}'.format(time.ctime()))
             for surfaceName, materialPath in materials.items():
@@ -170,16 +170,18 @@ def update_importsurfacesdefinitionpath(self, context):
                 f.close()
                 
                 if texturePath != None:
-                    input_image_cv = cv2imread('{}{}'.format(DevDriveLetter,texturePath), cv2IMREAD_COLOR)
-                    resizedImage = cv2resize(input_image_cv, (128, 128))
-                    cv2imwrite(r'{}ProjectData\Textures\previewIcon_{}.png'.format(ProjFolderPath,surfaceName), resizedImage)
+                    input_image_cv = imread('{}{}'.format(DevDriveLetter,texturePath), IMREAD_COLOR)
+                    resizedImage = resize(input_image_cv, (128, 128))
+                    imwrite(r'{}ProjectData\Textures\previewIcon_{}.png'.format(ProjFolderPath,surfaceName), resizedImage)
                 else:
-                    print('\tbLT_Info: Surface has no valid texture(must be png), preview icon won\'t be created!')
+                    rgb = ones((128,128,3), uint8)
+                    rgb[:,:,2], rgb[:,:,1], rgb[:,:,0] = colors[surfaceName][0], colors[surfaceName][1], colors[surfaceName][2]
+                    imwrite(r'{}ProjectData\Textures\previewIcon_{}.png'.format(ProjFolderPath,surfaceName), rgb)
+                    print('\tbLT_Info: Surface \'{}\' has no valid texture(must be png), a color assigned to this surface will be used for the preview icon instead!'.format(surfaceName))
 
                 currentBrush = bpy.data.brushes.new(surfaceName)
-                if texturePath != None:
-                    currentBrush.use_custom_icon = True
-                    currentBrush.icon_filepath = '{}ProjectData\Textures\previewIcon_{}.png'.format(ProjFolderPath,surfaceName)
+                currentBrush.use_custom_icon = True
+                currentBrush.icon_filepath = '{}ProjectData\Textures\previewIcon_{}.png'.format(ProjFolderPath,surfaceName)
                 currentBrush.strength = 1.0
                 bpy.context.scene.tool_settings.image_paint.use_normal_falloff = False
                 bpy.context.scene.tool_settings.image_paint.seam_bleed = 0
