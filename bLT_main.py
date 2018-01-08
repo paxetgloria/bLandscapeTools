@@ -830,6 +830,12 @@ class VIEW3D_LocationsManager(Panel):
         if context.scene['isLocation']:
             if len(bpy.data.objects['Terrain_' + context.scene.name].modifiers) != 0:
                 col.label(text='Terrain has modifier(s) assigned, BE CAREFUL!',icon='ERROR')
+            if scene.SculptModeSwitch:
+                col.label(text='Terrain Sculpting mode is ON!',icon='ERROR')
+                col.label(text='Turn it OFF before any action with the current location!',icon='OUTLINER_OB_LAMP')
+            if scene.PaintModeSwitch:
+                col.label(text='Surface Painting mode is ON!',icon='ERROR')
+                col.label(text='Turn it OFF before any action with the current location!',icon='OUTLINER_OB_LAMP')
         row = layout.row()
         if scene.isProject:
             row.template_list("UL_Locations_list", "", bpy.data.scenes['Default_Location'], "locationgroups", bpy.data.scenes['Default_Location'], "locationgroups_index")

@@ -172,6 +172,9 @@ def update_importsurfacesdefinitionpath(self, context):
                 if texturePath != None:
                     input_image_cv = imread('{}{}'.format(DevDriveLetter,texturePath), IMREAD_COLOR)
                     resizedImage = resize(input_image_cv, (128, 128))
+                    rgb = ones((28,128,3), uint8)
+                    rgb[:,:,2], rgb[:,:,1], rgb[:,:,0] = colors[surfaceName][0], colors[surfaceName][1], colors[surfaceName][2]
+                    resizedImage[0:28,:] = rgb
                     imwrite(r'{}ProjectData\Textures\previewIcon_{}.png'.format(ProjFolderPath,surfaceName), resizedImage)
                 else:
                     rgb = ones((128,128,3), uint8)
