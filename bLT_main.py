@@ -648,14 +648,13 @@ class OP_CreateSurfaceMask(bpy.types.Operator):
     def invoke(self, context, event):
         return context.window_manager.invoke_props_dialog(self)
         
-class OP_CheckSurfaceMask(bpy.types.Operator):
-    bl_idname = "scene.check_surfacemask"
+class OP_CheckSurfaceMaskFull(bpy.types.Operator):
+    bl_idname = "scene.check_surfacemaskfull"
     bl_label = "Check surface mask"
-    bl_description = 'Generates a raster with information about the count of surfaces per texture tile'
+    bl_description = 'Generates a raster with information about the count of surfaces per surface tile'
     
     cellSize = FloatProperty(name="Cell size(m):",default=7.5,min=0.0)
     gridResolution = IntProperty(name="Terrain grid resolution(px):",default=2048,min=0)
-    maskResolution = FloatProperty(name="Mask resolution(m/px):",default=1.0,min=0.1)
     tileSizeList = [
     ("512", "512", "", 1),
     ("1024", "1024", "", 2),
@@ -665,10 +664,10 @@ class OP_CheckSurfaceMask(bpy.types.Operator):
 
     @classmethod
     def poll(cls, context):
-        return context.scene.CheckSurfaceMaskFormatValid or context.scene.SurfaceMaskFormatValid
+        return context.scene.CheckSurfaceMaskFormatValid
     
     def execute(self, context):
-        checkSurfaceMask(context,self.cellSize,self.gridResolution,self.tileSize,self.maskResolution)
+        checkSurfaceMask(context,self.cellSize,self.gridResolution,int(self.tileSize))
         return {'FINISHED'}
         
     def invoke(self, context, event):
@@ -1166,6 +1165,7 @@ class VIEW3D_SurfacePainting(Panel,View3DPaintPanel):
         layout = self.layout
         
         col = layout.column()
+        col.operator("scene.check_surfacemask",icon='IMAGE_RGB')
         
         if scene.PaintModeSwitch:
             text = 'Disable Surface Painting'
@@ -1329,9 +1329,13 @@ class VIEW3D_ViewportSettings(Panel):
         colNearFar.prop(view, "clip_start", text="Start")
         colNearFar.prop(view, "clip_end", text="End")
 
-class VIEW3D_QualityAssurance(Panel):
+    
+    
+    
+                 
+class VIEW3D_bLTilities(Panel):
     bl_category = "bLandscape Tools"
-    bl_label = "Quality Assurance"
+    bl_label = "bLTilities"
     bl_space_type = "VIEW_3D"
     bl_region_type = "TOOLS"
     bl_options = {'DEFAULT_CLOSED'}
@@ -1349,22 +1353,8 @@ class VIEW3D_QualityAssurance(Panel):
         layout = self.layout
 
         col = layout.column(align=True)
-        row = col.row(align=True)
-        row.operator("scene.check_surfacemask",icon='IMAGE_RGB')
-        row.prop(scene,'checkSurfaceMaskPath',text="")
-        row.enabled = False
-                 
-class VIEW3D_bLTilities(Panel):
-    bl_category = "bLandscape Tools"
-    bl_label = "bLTilities"
-    bl_space_type = "VIEW_3D"
-    bl_region_type = "TOOLS"
-    bl_options = {'DEFAULT_CLOSED'}
-    
-    def draw(self, context):
-        scene = context.scene
-        layout = self.layout
-
-        col = layout.column(align=True)
         col.operator("scene.create_flatterrain",icon='MESH_GRID')
         col.operator("scene.create_surfacemask",icon='COLORSET_03_VEC')
+        row = col.row(align=True)
+        row.operator("scene.check_surfacemaskfull",icon='IMAGE_RGB')
+        row.prop(scene,'checkSurfaceMaskPath',text="")

@@ -25,9 +25,9 @@ def update_importterraintexturepath(self, context):
     terrainTexturePath = context.scene.ImportTerrainTexturePath
     
     if terrainTexturePath != '':
-        if terrainTexturePath.split('.')[-1] in ['png','tif','tiff','jpg','jpeg']:
+        if terrainTexturePath.split('.')[-1] in ['png','tif','tiff','jpg','jpeg','PNG','TIF','TIFF','JPG','JPEG']:
             context.scene.TerrainTextureFormatValid = True
-            from cv2 import imread as cv2imread, imwrite as cv2imwrite, resize as cv2resize, IMREAD_COLOR as cv2IMREAD_COLOR
+            from cv2 import imread, imwrite, resize , IMREAD_COLOR
             
             GDALPath = context.user_preferences.addons["bLandscapeTools-master"].preferences.GDALPath
             ProjFolderPath = context.scene.ProjFolderPath
@@ -45,9 +45,9 @@ def update_importterraintexturepath(self, context):
                 os.rename('{}ProjectData\\Textures\\{}'.format(ProjFolderPath,oldName),'{}ProjectData\\Textures\\previewSatTex.png'.format(ProjFolderPath))
             else:
                 print(' Input imagery size > 5000x5000 px, needs to be downscaled.')
-                input_image_cv = cv2imread(terrainTexturePath, cv2IMREAD_COLOR)
-                resizedImage = cv2resize(input_image_cv, (5000, 5000))
-                cv2imwrite(r'{}ProjectData\Textures\previewSatTex.png'.format(ProjFolderPath), resizedImage)
+                input_image_cv = imread(terrainTexturePath, IMREAD_COLOR)
+                resizedImage = resize(input_image_cv, (5000, 5000))
+                imwrite(r'{}ProjectData\Textures\previewSatTex.png'.format(ProjFolderPath), resizedImage)
             
                 
             if bpy.data.images.get('previewSatTex.png') is None:
@@ -75,7 +75,7 @@ def update_importterrainsurfacemaskpath(self, context):
     ProjectName = 'Project_{}'.format(ProjFolderPath.split('\\')[-2])
     
     if terrainSurfaceMaskPath != '':
-        if terrainSurfaceMaskPath.split('.')[-1] in ['png','tif','tiff']:
+        if terrainSurfaceMaskPath.split('.')[-1] in ['png','tif','tiff','PNG','TIF','TIFF']:
             context.scene.SurfaceMaskFormatValid = True
             bpy.ops.wm.save_as_mainfile(filepath='{}{}.blend'.format(ProjFolderPath,ProjectName))
         else:
@@ -279,11 +279,11 @@ def getPaths():
      
 def getImagerySize(GDALPath,terrainTexturePath):
     ext = terrainTexturePath.split('.')[-1]
-    if ext == 'png':
+    if ext in  ['png','PNG']:
         worldFile = 'pgw'
-    if ext == 'tif' or ext == 'tiff':
+    if ext in ['tif', 'tiff', 'TIF', 'TIFF']:
         worldFile = 'tfw'
-    if ext == 'jpg' or ext == 'jpeg':
+    if ext in ['jpg', 'jpeg', 'JPG', 'JPEG']:
         worldFile = 'jgw'
         
     cmd = '{}gdalinfo.exe "{}"'.format(GDALPath,terrainTexturePath)
@@ -634,18 +634,18 @@ def exportSurfaceMask(overwriteSource):
     terrainSurfaceMaskPath = bpy.data.scenes["Default_Location"].ImportTerrainSurfaceMaskPath
     if bpy.context.scene.SurfaceMaskFormatValid:
         print('\nbLT_Info: Surface map export started ', time.ctime())
-        from cv2 import imread as cv2imread, imwrite as cv2imwrite, IMREAD_COLOR as cv2IMREAD_COLOR
+        from cv2 import imread, imwrite, IMREAD_COLOR
         ProjFolderPath = bpy.data.scenes["Default_Location"].ProjFolderPath
         locationName = bpy.context.scene.name
-        sourceSurfaceMask = cv2imread(bpy.data.scenes["Default_Location"].ImportTerrainSurfaceMaskPath, cv2IMREAD_COLOR)
-        locationSurfaceMask = cv2imread(r'{}ProjectData\Textures\TerrainMask_{}.png'.format(ProjFolderPath,locationName), cv2IMREAD_COLOR)
+        sourceSurfaceMask = imread(bpy.data.scenes["Default_Location"].ImportTerrainSurfaceMaskPath, IMREAD_COLOR)
+        locationSurfaceMask = imread(r'{}ProjectData\Textures\TerrainMask_{}.png'.format(ProjFolderPath,locationName), IMREAD_COLOR)
         terrainObject = bpy.data.objects.get('Terrain_{}'.format(locationName))
         sourceSurfaceMask[terrainObject['MergeTopLeftY']:terrainObject["MergeBottomRightY"],terrainObject["MergeTopLeftX"]:terrainObject["MergeBottomRightX"]] = locationSurfaceMask
         if overwriteSource:
             outputPath = terrainSurfaceMaskPath
         else:
             outputPath = '{}\\Output\\surfaceMask.png'.format(ProjFolderPath)
-        cv2imwrite(outputPath, sourceSurfaceMask)
+        imwrite(outputPath, sourceSurfaceMask)
         print('bLT_Info: Surface map export finished ', time.ctime())
     else:
         print('\nbLT_Info:No surface map data exported!!! Source surface mask path not defined in Data Sources panel.')
@@ -741,20 +741,20 @@ def createNewLocation(locationName,gridResX,gridResY,topLeftRow,topLeftColumn,bo
         print(' Texture ends at: ', bottomRightPixelX, bottomRightPixelY)
         print(' Terrain texture resolution: ', locTextureResolutionX,locTextureResolutionY)
         
-        from cv2 import imread as cv2imread, imwrite as cv2imwrite, IMREAD_COLOR as cv2IMREAD_COLOR
+        from cv2 import imread, imwrite, IMREAD_COLOR
         print(' Location\'s terrain texture extraction started ', time.ctime())
-        input_image_cv = cv2imread(terrainTexturePath, cv2IMREAD_COLOR)
+        input_image_cv = imread(terrainTexturePath, IMREAD_COLOR)
         locationTexture = input_image_cv[topLeftPixelY:bottomRightPixelY,topLeftPixelX:bottomRightPixelX]
-        cv2imwrite(r'{}ProjectData\Textures\TerrainImage_{}.png'.format(ProjFolderPath,locationName), locationTexture)
+        imwrite(r'{}ProjectData\Textures\TerrainImage_{}.png'.format(ProjFolderPath,locationName), locationTexture)
         print(' Location\'s terrain texture extraction finished ', time.ctime())
         terrainTexture= bpy.data.textures.new('TerrainTexture_{}'.format(locationName), type = 'IMAGE')
         terrainTexture.image = bpy.data.images.load('{}ProjectData\\Textures\\TerrainImage_{}.png'.format(ProjFolderPath,locationName))
         
         if bpy.context.scene.SurfaceMaskFormatValid:
             print(' Location\'s surface mask extraction started ', time.ctime())
-            input_image_cv = cv2imread(terrainSurfaceMaskPath, cv2IMREAD_COLOR)
+            input_image_cv = imread(terrainSurfaceMaskPath, IMREAD_COLOR)
             locationSurfaceMask = input_image_cv[topLeftPixelY:bottomRightPixelY,topLeftPixelX:bottomRightPixelX]
-            cv2imwrite(r'{}ProjectData\Textures\TerrainMask_{}.png'.format(ProjFolderPath,locationName), locationSurfaceMask)
+            imwrite(r'{}ProjectData\Textures\TerrainMask_{}.png'.format(ProjFolderPath,locationName), locationSurfaceMask)
             print(' Location\'s surface mask extraction finished ', time.ctime())
             
             terrainMask= bpy.data.textures.new('TerrainMask_{}'.format(locationName), type = 'IMAGE')
@@ -1023,19 +1023,19 @@ def createFlatTerrain(cellSize,gridResolution,defaultElevation):
 def createSurfaceMask(imageResolution,defaultColor):
     OutputPath = bpy.context.user_preferences.addons["bLandscapeTools-master"].preferences.OutputPath
     if OutputPath != '':
-        from cv2 import imwrite as cv2imwrite
+        from cv2 import imwrite
         blank_image = zeros((imageResolution,imageResolution,3), uint8)
         blank_image[:,:,0] = ones([imageResolution,imageResolution]) * defaultColor[2] * 255
         blank_image[:,:,1] = ones([imageResolution,imageResolution]) * defaultColor[1] * 255
         blank_image[:,:,2] = ones([imageResolution,imageResolution]) * defaultColor[0] * 255
-        cv2imwrite('{}\\surface_mask.png'.format(OutputPath), blank_image)
+        imwrite('{}\\surface_mask.png'.format(OutputPath), blank_image)
         print('Surface mask file saved to {}\\surface_mask.png'.format(OutputPath))
         
 def update_checksurfacemaskpath(self, context):
     SurfaceMaskPath = context.scene.checkSurfaceMaskPath
     
     if SurfaceMaskPath != '':
-        if SurfaceMaskPath.split('.')[-1] in ['png','tif','tiff']:
+        if SurfaceMaskPath.split('.')[-1] in ['png','tif','tiff','PNG','TIF','TIFF']:
             context.scene.CheckSurfaceMaskFormatValid = True
         else:
             context.scene.CheckSurfaceMaskFormatValid = False
@@ -1043,56 +1043,98 @@ def update_checksurfacemaskpath(self, context):
     else:
         context.scene.CheckSurfaceMaskFormatValid = False
 
-def checkSurfaceMask(context,cellSize,gridResolution,tileSize,maskResolution):
+def checkSurfaceMask(context,cellSize,gridResolution,tileSize):
+
+
+
+
     def calculateOverlap(cellSize,gridResolution,tileSize,maskResolution):
-        def roundToInt( x ):
+        def m1( x ):
             return floor(x + 0.5)
 
-        def nearlyInt( x, i ):
+        def m2( x, i ):
             return (abs( x - i ) < 0.000001)
 
-        def check( x ):
-            return nearlyInt(x, roundToInt( x ))
-
-        terrainSize = cellSize * gridResolution  
-        multiplier = 1
-        bestDist = 1000000
-        bestMult = -1
+        m3 = cellSize * gridResolution  
+        m4 = 1
+        m5 = 1000000
+        m6 = -1
         for i in range(0,8):
-            landGrid = multiplier * cellSize
-            dist = abs(40.0 - landGrid)
-            if dist < bestDist:
-                bestDist = dist
-                bestMult = multiplier
-            multiplier *= 2
+            m7 = m4 * cellSize
+            m8 = abs(40.0 - m7)
+            if m8 < m5:
+                m5 = m8
+                m6 = m4
+            m4 *= 2
 
-        subDiv = bestMult
-        m_landGrid = subDiv * cellSize #land grid cell size or _landGrid
-        totalLandGrids = floor( terrainSize / m_landGrid ) #land grid size or _landRange
-        m_gridSize = subDiv * totalLandGrids #terrain grid size or _terrainRange
-        m_width = m_height = m_gridSize * cellSize #final terrain size
-        defaultOverlap = 16 # minimum overlap
-        tileUsable = int(tileSize) - defaultOverlap
-        tileUsableMeters = maskResolution * tileUsable
-        segmentLGCs = floor( tileUsableMeters / m_landGrid )
-        segmentLGCs -= segmentLGCs % 4
-        segmentMeters = segmentLGCs * m_landGrid
-        segmentPixels = segmentMeters / maskResolution
-        actualOverlap = int(tileSize) - segmentPixels
-        tilesInRow = ceil( m_width / segmentMeters )
-        return actualOverlap, tilesInRow
+        m9 = m6
+        #land grid cell size or _landGrid
+        m10 = m9 * cellSize
+        #land grid size or _landRange
+        m11 = floor( m3 / m10 )
+        #terrain grid size or _terrainRange
+        m12 = m9 * m11
+        #final terrain size
+        m13 = m14 = m12 * cellSize
+        m15 = 16
+        m16 = tileSize - m15
+        m17 = maskResolution * m16
+        m18 = floor( m17 / m10 )
+        m18 -= m18 % 4
+        m19 = m18 * m10
+        m20 = m19 / maskResolution
+        m21 = tileSize - m20
+        m22 = ceil( m13 / m19 )
+        return m21, m22
     
-    from cv2 import imread as cv2imread, imwrite as cv2imwrite
+    from cv2 import imread, imwrite, merge, rectangle, putText, line, FONT_HERSHEY_DUPLEX
     
-    surfaceMask = cv2imread(context.scene.checkSurfaceMaskPath,1)
-
+    surfaceMask = imread(context.scene.checkSurfaceMaskPath,1)
+    maskResolution = (cellSize * gridResolution) / surfaceMask.shape[0]
     
     maskWidth = maskHeight = int((cellSize * gridResolution) / maskResolution)
     rgb = zeros((maskWidth,maskHeight,3), uint8)
     alpha = zeros((maskWidth,maskHeight,1), uint8)
 
-    actualOverlap, tilesInRow = calculateOverlap(cellSize,gridResolution,tileSize,maskResolution)
+    tileOverlap, tilesInRow = calculateOverlap(cellSize,gridResolution,tileSize,maskResolution)
+    actualTileSize = int(tileSize - tileOverlap)
+    font = FONT_HERSHEY_DUPLEX
     
-    font = cv2.FONT_HERSHEY_DUPLEX
-    
-    print(actualOverlap, tilesInRow)
+    for i in range(0,tilesInRow):
+        for j in range(0,tilesInRow):
+            print(i,j)
+            #extract tile
+            tile = surfaceMask[j * actualTileSize: (j * actualTileSize) + actualTileSize,i * actualTileSize: (i * actualTileSize) + actualTileSize]
+            tileColorList = {}
+            for k in range(0,actualTileSize):
+                for l in range(0,actualTileSize):
+                    b = tile.item(k,l,0)
+                    g = tile.item(k,l,1)
+                    r = tile.item(k,l,2)
+
+                    if (r,g,b) not in tileColorList:
+                        tileColorList[(r,g,b)] = 1
+                    else:
+                        tileColorList[(r,g,b)] += 1
+            #Render colors count and total colors count
+            multiplier = 1
+            for key, value in tileColorList.items():
+                rectangle(rgb,((i * actualTileSize) + 20, (j * actualTileSize) + (20 * multiplier)),((i * actualTileSize) + 50, (j * actualTileSize) + (20 * multiplier) + 20),(key[::-1]),-1)
+                rectangle(alpha,((i * actualTileSize) + 20, (j * actualTileSize) + (20 * multiplier)),((i * actualTileSize) + 50, (j * actualTileSize) + (20 * multiplier) + 20),(255),-1)
+                putText(rgb, ' - {}'.format(value), ((i * actualTileSize) + 50, (j * actualTileSize) + (18 + (multiplier * 20))), font, .7, (255,255,255), 2)
+                putText(alpha, ' - {}'.format(value), ((i * actualTileSize) + 50, (j * actualTileSize) + (18 + (multiplier * 20))), font, .7, (255), 2)
+                multiplier += 1
+                
+            putText(rgb, str(len(tileColorList)), (int((i * actualTileSize) + actualTileSize / 2), int((j * actualTileSize) + actualTileSize / 2 )), font, 3, (255,255,255), 5)
+            putText(alpha, str(len(tileColorList)), (int((i * actualTileSize) + actualTileSize / 2), int((j * actualTileSize) + actualTileSize / 2)), font, 3, (255), 5)
+
+    #Render grid
+    for i in range(0,tilesInRow):
+        line(rgb,(i * actualTileSize,0),(i * actualTileSize,surfaceMask.shape[0]),(255,0,0),1)
+        line(rgb,(0,i * actualTileSize),(surfaceMask.shape[0],i * actualTileSize),(255,0,0),1)
+        line(alpha,(i * actualTileSize,0),(i * actualTileSize,surfaceMask.shape[0]),(255),1)
+        line(alpha,(0,i * actualTileSize),(surfaceMask.shape[0],i * actualTileSize),(255),1)
+
+    rgba = merge((rgb[:,:,0],rgb[:,:,1],rgb[:,:,2],alpha))
+    OutputPath = bpy.context.user_preferences.addons["bLandscapeTools-master"].preferences.OutputPath
+    imwrite('{}\surfacemask_check.png'.format(OutputPath),rgba)

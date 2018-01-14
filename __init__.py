@@ -66,7 +66,6 @@ classes = (
     bLT_main.VIEW3D_TerrainEditing,
     bLT_main.VIEW3D_SurfacePainting,
     bLT_main.VIEW3D_ViewportSettings,
-    bLT_main.VIEW3D_QualityAssurance,
     bLT_main.VIEW3D_bLTilities,
     bLT_main.OP_CreateProject,
     bLT_main.OP_ImportLocation,
@@ -87,7 +86,7 @@ classes = (
     bLT_main.OP_AppearanceMatCapWire,
     bLT_main.OP_CreateFlatTerrain,
     bLT_main.OP_CreateSurfaceMask,
-    bLT_main.OP_CheckSurfaceMask,
+    bLT_main.OP_CheckSurfaceMaskFull,
     AddonPref_bLT  
 )
 
