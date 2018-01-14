@@ -13,8 +13,10 @@ def install_opencv():
     pip.main(['install', 'opencv-python', '--no-deps'])
     try:
         import cv2
+        bpy.context.user_preferences.addons["bLandscapeTools-master"].preferences.OpenCVInstalled = True
         print('\nbLT_Info: OpenCV installed successfully')
     except:
+        bpy.context.user_preferences.addons["bLandscapeTools-master"].preferences.OpenCVInstalled = False
         print('\nbLT_Info: OpenCV installation problem!!!')
     
 

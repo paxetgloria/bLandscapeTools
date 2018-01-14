@@ -46,12 +46,18 @@ class AddonPref_bLT(AddonPreferences):
         subtype='DIR_PATH',
         default='{}\\Documents\\'.format(os.environ['USERPROFILE']))
     
+    OpenCVInstalled = BoolProperty(default=False)
+    
     def draw(self, context):
         layout = self.layout   
         box = layout.box()
         box.prop(self, "GDALPath")
         box.prop(self, "OutputPath")
         box.operator("a.install_opencv",icon='TEXTURE')
+        if self.OpenCVInstalled:
+            box.label('OpenCV installed!',icon='FILE_TICK')
+        else:
+            box.label('OpenCV has not been installed yet!',icon='ERROR')
         
 classes = (
     bLT_main.OP_AP_InstallOpenCV,
@@ -95,6 +101,13 @@ def register():
         bpy.utils.register_class(cls)
         
     os.environ['PATH'] = ''.join(('{}\lib;'.format(bLT_utils.getPaths()[1]),os.environ['PATH']))
+    
+    try:
+        import cv2
+        bpy.context.user_preferences.addons["bLandscapeTools-master"].preferences.OpenCVInstalled = True
+    except:
+        bpy.context.user_preferences.addons["bLandscapeTools-master"].preferences.OpenCVInstalled = False
+    
     
     bpy.types.Scene.locationgroups = CollectionProperty(type=bLT_main.LocationItems)
     bpy.types.Scene.locationgroups_index = IntProperty(default=-1)
