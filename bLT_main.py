@@ -757,7 +757,7 @@ class VIEW3D_DataSource(Panel):
         subtype='FILE_PATH',
         update=update_importterrainsurfacemaskpath)
         
-    Scene.ImportSurfacesDefinitionPath = StringProperty(name="Surfaces Definition",
+    Scene.ImportSurfacesDefinitionPath = StringProperty(name="Layers.cfg",
         description="",
         maxlen= 1024,
         subtype='FILE_PATH',
@@ -1165,7 +1165,6 @@ class VIEW3D_SurfacePainting(Panel,View3DPaintPanel):
         layout = self.layout
         
         col = layout.column()
-        col.operator("scene.check_surfacemask",icon='IMAGE_RGB')
         
         if scene.PaintModeSwitch:
             text = 'Disable Surface Painting'
