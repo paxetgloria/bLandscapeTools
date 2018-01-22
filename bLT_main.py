@@ -792,10 +792,11 @@ class VIEW3D_DataSource(Panel):
         row1.prop(scene, 'ImportTerrainHeightmapPath')
         row2 = box.column()
         row2.prop(scene, 'ImportTerrainSurfaceMaskPath')
-        row3 = box.column()
-        row3.prop(scene, 'ImportSurfacesDefinitionPath')
         row4 = box.column()
         row4.prop(scene, 'DevDriveLetter')
+        row3 = box.column()
+        row3.prop(scene, 'ImportSurfacesDefinitionPath')
+        
         
         if not scene.TerrainTextureFormatValid:
             row2.enabled = False

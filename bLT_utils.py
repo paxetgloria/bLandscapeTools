@@ -1093,6 +1093,7 @@ def checkSurfaceMask(context,cellSize,gridResolution,tileSize):
     
     surfaceMask = imread(context.scene.checkSurfaceMaskPath,1)
     maskResolution = (cellSize * gridResolution) / surfaceMask.shape[0]
+    font = FONT_HERSHEY_DUPLEX
     
     maskWidth = maskHeight = int((cellSize * gridResolution) / maskResolution)
     rgb = zeros((maskWidth,maskHeight,3), uint8)
@@ -1100,16 +1101,24 @@ def checkSurfaceMask(context,cellSize,gridResolution,tileSize):
 
     tileOverlap, tilesInRow = calculateOverlap(cellSize,gridResolution,tileSize,maskResolution)
     actualTileSize = int(tileSize - tileOverlap)
-    font = FONT_HERSHEY_DUPLEX
-    
-    for i in range(0,tilesInRow):
-        for j in range(0,tilesInRow):
-            print(i,j)
-            #extract tile
-            tile = surfaceMask[j * actualTileSize: (j * actualTileSize) + actualTileSize,i * actualTileSize: (i * actualTileSize) + actualTileSize]
+    lastTileMatches = False if maskWidth != actualTileSize * tilesInRow else True
+    print(actualTileSize,tilesInRow,lastTileMatches)
+    for tileX in range(0,tilesInRow):
+        for tileY in range(0,tilesInRow):
+            print(tileX,tileY)
+            if tileX == tilesInRow - 1:
+                tileTexRangeX = actualTileSize if lastTileMatches else actualTileSize - (actualTileSize * tilesInRow - maskWidth)
+            else:
+                tileTexRangeX = actualTileSize
+            if tileY == tilesInRow - 1:
+                tileTexRangeY = actualTileSize if lastTileMatches else actualTileSize - (actualTileSize * tilesInRow - maskWidth)
+            else:
+                tileTexRangeY = actualTileSize
+            #extract tile [y:y+offset,x,x+offset]
+            tile = surfaceMask[tileY * actualTileSize: (tileY * actualTileSize) + tileTexRangeY,tileX * actualTileSize: (tileX * actualTileSize) + tileTexRangeX]
             tileColorList = {}
-            for k in range(0,actualTileSize):
-                for l in range(0,actualTileSize):
+            for k in range(0,tileTexRangeY):
+                for l in range(0,tileTexRangeX):
                     b = tile.item(k,l,0)
                     g = tile.item(k,l,1)
                     r = tile.item(k,l,2)
@@ -1121,14 +1130,14 @@ def checkSurfaceMask(context,cellSize,gridResolution,tileSize):
             #Render colors count and total colors count
             multiplier = 1
             for key, value in tileColorList.items():
-                rectangle(rgb,((i * actualTileSize) + 20, (j * actualTileSize) + (20 * multiplier)),((i * actualTileSize) + 50, (j * actualTileSize) + (20 * multiplier) + 20),(key[::-1]),-1)
-                rectangle(alpha,((i * actualTileSize) + 20, (j * actualTileSize) + (20 * multiplier)),((i * actualTileSize) + 50, (j * actualTileSize) + (20 * multiplier) + 20),(255),-1)
-                putText(rgb, ' - {}'.format(value), ((i * actualTileSize) + 50, (j * actualTileSize) + (18 + (multiplier * 20))), font, .7, (255,255,255), 2)
-                putText(alpha, ' - {}'.format(value), ((i * actualTileSize) + 50, (j * actualTileSize) + (18 + (multiplier * 20))), font, .7, (255), 2)
+                rectangle(rgb,((tileX * actualTileSize) + 20, (tileY * actualTileSize) + (20 * multiplier)),((tileX * actualTileSize) + 50, (tileY * actualTileSize) + (20 * multiplier) + 20),(key[::-1]),-1)
+                rectangle(alpha,((tileX * actualTileSize) + 20, (tileY * actualTileSize) + (20 * multiplier)),((tileX * actualTileSize) + 50, (tileY * actualTileSize) + (20 * multiplier) + 20),(255),-1)
+                putText(rgb, ' - {}'.format(value), ((tileX * actualTileSize) + 50, (tileY * actualTileSize) + (18 + (multiplier * 20))), font, .7, (255,255,255), 2)
+                putText(alpha, ' - {}'.format(value), ((tileX * actualTileSize) + 50, (tileY * actualTileSize) + (18 + (multiplier * 20))), font, .7, (255), 2)
                 multiplier += 1
                 
-            putText(rgb, str(len(tileColorList)), (int((i * actualTileSize) + actualTileSize / 2), int((j * actualTileSize) + actualTileSize / 2 )), font, 3, (255,255,255), 5)
-            putText(alpha, str(len(tileColorList)), (int((i * actualTileSize) + actualTileSize / 2), int((j * actualTileSize) + actualTileSize / 2)), font, 3, (255), 5)
+            putText(rgb, str(len(tileColorList)), (int((tileX * actualTileSize) + actualTileSize / 2), int((tileY * actualTileSize) + actualTileSize / 2 )), font, 3, (255,255,255), 5)
+            putText(alpha, str(len(tileColorList)), (int((tileX * actualTileSize) + actualTileSize / 2), int((tileY * actualTileSize) + actualTileSize / 2)), font, 3, (255), 5)
 
     #Render grid
     for i in range(0,tilesInRow):
