@@ -1050,19 +1050,19 @@ def checkSurfaceMask(context,cellSize,gridResolution,tileSize):
 
 
 
-    def calculateOverlap(cellSize,gridResolution,tileSize,maskResolution):
+    def calculateOverlap(m23,m24,m25,m26):
         def m1( x ):
             return floor(x + 0.5)
 
         def m2( x, i ):
             return (abs( x - i ) < 0.000001)
 
-        m3 = cellSize * gridResolution  
+        m3 = m23 * m24  
         m4 = 1
         m5 = 1000000
         m6 = -1
         for i in range(0,8):
-            m7 = m4 * cellSize
+            m7 = m4 * m23
             m8 = abs(40.0 - m7)
             if m8 < m5:
                 m5 = m8
@@ -1071,37 +1071,61 @@ def checkSurfaceMask(context,cellSize,gridResolution,tileSize):
 
         m9 = m6
         #land grid cell size or _landGrid
-        m10 = m9 * cellSize
+        m10 = m9 * m23
         #land grid size or _landRange
         m11 = floor( m3 / m10 )
         #terrain grid size or _terrainRange
         m12 = m9 * m11
         #final terrain size
-        m13 = m14 = m12 * cellSize
+        m13 = m14 = m12 * m23
         m15 = 16
-        m16 = tileSize - m15
-        m17 = maskResolution * m16
+        m16 = m25 - m15
+        m17 = m26 * m16
         m18 = floor( m17 / m10 )
         m18 -= m18 % 4
         m19 = m18 * m10
-        m20 = m19 / maskResolution
-        m21 = tileSize - m20
+        m20 = m19 / m26
+        m21 = m25 - m20
         m22 = ceil( m13 / m19 )
         return m21, m22
     
+    def genColoredGrid(maskWidth,actualTileSize):
+        rgb = zeros((maskWidth,maskWidth,3), uint8)
+        white = ones((actualTileSize,actualTileSize,1), uint8) * 255
+        switch = False
+        for i in range(0,maskWidth,actualTileSize):
+            for j in range(0,maskWidth,actualTileSize):
+                if switch:
+                    if rgb[i:i + actualTileSize,j:j + actualTileSize,0].shape == white[:,:,0].shape:
+                        rgb[i:i + actualTileSize,j:j + actualTileSize,0]  = white[:,:,0]
+                    else:
+                        shape = rgb[i:i + actualTileSize,j:j + actualTileSize,0].shape
+                        rgb[i:i + actualTileSize,j:j + actualTileSize,0]  = white[0:shape[0],0:shape[1],0]
+                else:
+                    if rgb[i:i + actualTileSize,j:j + actualTileSize,1].shape == white[:,:,0].shape:
+                        rgb[i:i + actualTileSize,j:j + actualTileSize,1]  = white[:,:,0]
+                    else:
+                        shape = rgb[i:i + actualTileSize,j:j + actualTileSize,1].shape
+                        rgb[i:i + actualTileSize,j:j + actualTileSize,1]  = white[0:shape[0],0:shape[1],0]
+                switch = not switch
+            switch = not switch if (maskWidth / actualTileSize) % 2 == 0 else switch
+        return rgb
+        
     from cv2 import imread, imwrite, merge, rectangle, putText, line, FONT_HERSHEY_DUPLEX
     
     surfaceMask = imread(context.scene.checkSurfaceMaskPath,1)
     maskResolution = (cellSize * gridResolution) / surfaceMask.shape[0]
-    font = FONT_HERSHEY_DUPLEX
     
-    maskWidth = maskHeight = int((cellSize * gridResolution) / maskResolution)
-    rgb = zeros((maskWidth,maskHeight,3), uint8)
-    alpha = zeros((maskWidth,maskHeight,1), uint8)
-
     tileOverlap, tilesInRow = calculateOverlap(cellSize,gridResolution,tileSize,maskResolution)
+    maskWidth = int((cellSize * gridResolution) / maskResolution)
+    
     actualTileSize = int(tileSize - tileOverlap)
     lastTileMatches = False if maskWidth != actualTileSize * tilesInRow else True
+    
+    
+    alpha = zeros((maskWidth,maskWidth,1), uint8)
+    colorGrid = genColoredGrid(maskWidth,actualTileSize)
+    
     print(actualTileSize,tilesInRow,lastTileMatches)
     for tileX in range(0,tilesInRow):
         for tileY in range(0,tilesInRow):
@@ -1114,7 +1138,6 @@ def checkSurfaceMask(context,cellSize,gridResolution,tileSize):
                 tileTexRangeY = actualTileSize if lastTileMatches else actualTileSize - (actualTileSize * tilesInRow - maskWidth)
             else:
                 tileTexRangeY = actualTileSize
-            #extract tile [y:y+offset,x,x+offset]
             tile = surfaceMask[tileY * actualTileSize: (tileY * actualTileSize) + tileTexRangeY,tileX * actualTileSize: (tileX * actualTileSize) + tileTexRangeX]
             tileColorList = {}
             for k in range(0,tileTexRangeY):
@@ -1127,25 +1150,23 @@ def checkSurfaceMask(context,cellSize,gridResolution,tileSize):
                         tileColorList[(r,g,b)] = 1
                     else:
                         tileColorList[(r,g,b)] += 1
-            #Render colors count and total colors count
             multiplier = 1
             for key, value in tileColorList.items():
-                rectangle(rgb,((tileX * actualTileSize) + 20, (tileY * actualTileSize) + (20 * multiplier)),((tileX * actualTileSize) + 50, (tileY * actualTileSize) + (20 * multiplier) + 20),(key[::-1]),-1)
+                rectangle(colorGrid,((tileX * actualTileSize) + 20, (tileY * actualTileSize) + (20 * multiplier)),((tileX * actualTileSize) + 50, (tileY * actualTileSize) + (20 * multiplier) + 20),(key[::-1]),-1)
                 rectangle(alpha,((tileX * actualTileSize) + 20, (tileY * actualTileSize) + (20 * multiplier)),((tileX * actualTileSize) + 50, (tileY * actualTileSize) + (20 * multiplier) + 20),(255),-1)
-                putText(rgb, ' - {}'.format(value), ((tileX * actualTileSize) + 50, (tileY * actualTileSize) + (18 + (multiplier * 20))), font, .7, (255,255,255), 2)
-                putText(alpha, ' - {}'.format(value), ((tileX * actualTileSize) + 50, (tileY * actualTileSize) + (18 + (multiplier * 20))), font, .7, (255), 2)
+                putText(colorGrid, ' - {}'.format(value), ((tileX * actualTileSize) + 50, (tileY * actualTileSize) + (18 + (multiplier * 20))), FONT_HERSHEY_DUPLEX, .7, (255,255,255), 2)
+                putText(alpha, ' - {}'.format(value), ((tileX * actualTileSize) + 50, (tileY * actualTileSize) + (18 + (multiplier * 20))), FONT_HERSHEY_DUPLEX, .7, (255), 2)
                 multiplier += 1
                 
-            putText(rgb, str(len(tileColorList)), (int((tileX * actualTileSize) + actualTileSize / 2), int((tileY * actualTileSize) + actualTileSize / 2 )), font, 3, (255,255,255), 5)
-            putText(alpha, str(len(tileColorList)), (int((tileX * actualTileSize) + actualTileSize / 2), int((tileY * actualTileSize) + actualTileSize / 2)), font, 3, (255), 5)
+            putText(colorGrid, str(len(tileColorList)), (int((tileX * actualTileSize) + actualTileSize / 2), int((tileY * actualTileSize) + actualTileSize / 2 )), FONT_HERSHEY_DUPLEX, 3, (255,255,255), 5)
+            putText(alpha, str(len(tileColorList)), (int((tileX * actualTileSize) + actualTileSize / 2), int((tileY * actualTileSize) + actualTileSize / 2)), FONT_HERSHEY_DUPLEX, 3, (255), 5)
 
-    #Render grid
     for i in range(0,tilesInRow):
-        line(rgb,(i * actualTileSize,0),(i * actualTileSize,surfaceMask.shape[0]),(255,0,0),1)
-        line(rgb,(0,i * actualTileSize),(surfaceMask.shape[0],i * actualTileSize),(255,0,0),1)
         line(alpha,(i * actualTileSize,0),(i * actualTileSize,surfaceMask.shape[0]),(255),1)
+        line(alpha,(i * actualTileSize + actualTileSize - 1,0),(i * actualTileSize + actualTileSize - 1,surfaceMask.shape[0]),(255),1)
         line(alpha,(0,i * actualTileSize),(surfaceMask.shape[0],i * actualTileSize),(255),1)
+        line(alpha,(0,i * actualTileSize + actualTileSize - 1),(surfaceMask.shape[0],i * actualTileSize + actualTileSize - 1),(255),1)
 
-    rgba = merge((rgb[:,:,0],rgb[:,:,1],rgb[:,:,2],alpha))
+    rgba = merge((colorGrid[:,:,0],colorGrid[:,:,1],colorGrid[:,:,2],alpha))
     OutputPath = bpy.context.user_preferences.addons["bLandscapeTools-master"].preferences.OutputPath
     imwrite('{}\surfacemask_check.png'.format(OutputPath),rgba)
