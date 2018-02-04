@@ -664,7 +664,7 @@ class OP_CheckSurfaceMaskFull(bpy.types.Operator):
 
     @classmethod
     def poll(cls, context):
-        return context.scene.CheckSurfaceMaskFormatValid
+        return context.scene.CheckSurfaceMaskFormatValid and context.scene.CheckSurfacesDefinitionFormatValid
     
     def execute(self, context):
         checkSurfaceMask(context,self.cellSize,self.gridResolution,int(self.tileSize))
@@ -1340,13 +1340,23 @@ class VIEW3D_bLTilities(Panel):
     bl_region_type = "TOOLS"
     bl_options = {'DEFAULT_CLOSED'}
     
-    Scene.checkSurfaceMaskPath = StringProperty(name="Surface mask path",
+    Scene.CheckSurfaceMaskPath = StringProperty(name="Surface mask path",
         description="Path to surface mask",
+        default='Surface Mask',
         maxlen= 1024,
         subtype='FILE_PATH',
         update=update_checksurfacemaskpath)
         
     Scene.CheckSurfaceMaskFormatValid = BoolProperty(default=False)
+    
+    Scene.CheckSurfacesDefinitionPath = StringProperty(name="Layers.cfg",
+        description="",
+        default='Layers cfg',
+        maxlen= 1024,
+        subtype='FILE_PATH',
+        update=update_checksurfacesdefinitionpath)
+        
+    Scene.CheckSurfacesDefinitionFormatValid = BoolProperty(default=False)
     
     def draw(self, context):
         scene = context.scene
@@ -1355,6 +1365,9 @@ class VIEW3D_bLTilities(Panel):
         col = layout.column(align=True)
         col.operator("scene.create_flatterrain",icon='MESH_GRID')
         col.operator("scene.create_surfacemask",icon='COLORSET_03_VEC')
-        row = col.row(align=True)
-        row.operator("scene.check_surfacemaskfull",icon='IMAGE_RGB')
-        row.prop(scene,'checkSurfaceMaskPath',text="")
+        
+        col1 = layout.column(align=True)
+        col1.operator("scene.check_surfacemaskfull",icon='IMAGE_RGB')
+        row = col1.row(align=False)
+        row.prop(scene,'CheckSurfaceMaskPath',text="")
+        row.prop(scene,'CheckSurfacesDefinitionPath',text="")

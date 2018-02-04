@@ -121,6 +121,29 @@ def update_importterrainheightmappath(self, context):
     else:
         context.scene.HeightmapFormatValid = False
 
+def parseLayersCfg(path):
+    surfaceDefinitionFile = open(path,encoding="utf8")
+    surfaces = []
+    materials = {}
+    validRGBValues = []
+    colors = {}
+    
+    for line in surfaceDefinitionFile.readlines():
+        line = (line.lstrip()).rstrip('\n')
+        if line.split(' ')[0] == 'class' and line.split(' ')[1] not in ['Layers','Legend','Colors']:
+            surfaceName = line.split(' ')[1].strip()
+            if '\t' in line.split(' ')[1].strip():
+                surfaceName = line.split(' ')[1].strip().split('\t')[0]
+            surfaces.append(surfaceName)
+        if line.split('=')[0].rstrip() == 'material':
+            materials[surfaces[-1]] = line.split('=')[1].split(';')[0].strip()[1:-1]
+        if line.split('[]')[0] in surfaces:
+            RGBvalues = list(map(int, line.split('{{')[1].split('}}')[0].split(',')))
+            validRGBValues.append(RGBvalues)
+            colors[line.split('[]')[0]] = RGBvalues
+    surfaceDefinitionFile.close()
+    return materials, colors, validRGBValues
+    
 def update_importsurfacesdefinitionpath(self, context):
     surfacesDefinitionPath = context.scene.ImportSurfacesDefinitionPath
     ProjFolderPath = bpy.data.scenes["Default_Location"].ProjFolderPath
@@ -135,27 +158,10 @@ def update_importsurfacesdefinitionpath(self, context):
                     context.scene.TexturePaintBrushNames.remove(0)
                     
             
-            surfaceDefinitionFile = open(surfacesDefinitionPath,encoding="utf8")
             DevDriveLetter = context.scene.DevDriveLetter
             ProjFolderPath = bpy.data.scenes["Default_Location"].ProjFolderPath
             
-            surfaces = []
-            materials = {}
-            colors = {}
-            
-            for line in surfaceDefinitionFile.readlines():
-                line = (line.lstrip()).rstrip('\n')
-                if line.split(' ')[0] == 'class' and line.split(' ')[1] not in ['Layers','Legend','Colors']:
-                    surfaceName = line.split(' ')[1].strip()
-                    if '\t' in line.split(' ')[1].strip():
-                        surfaceName = line.split(' ')[1].strip().split('\t')[0]
-                    surfaces.append(surfaceName)
-                if line.split('=')[0].rstrip() == 'material':
-                    materials[surfaces[-1]] = line.split('=')[1].split(';')[0].strip()[1:-1]
-                if line.split('[]')[0] in surfaces:
-                    RGBvalues = list(map(int, line.split('{{')[1].split('}}')[0].split(',')))
-                    colors[line.split('[]')[0]] = RGBvalues
-            surfaceDefinitionFile.close()
+            materials, colors = parseLayersCfg(surfacesDefinitionPath)[0:2]
             
             from cv2 import imread, imwrite, resize, IMREAD_COLOR
             
@@ -1034,7 +1040,7 @@ def createSurfaceMask(imageResolution,defaultColor):
         print('Surface mask file saved to {}\\surface_mask.png'.format(OutputPath))
         
 def update_checksurfacemaskpath(self, context):
-    SurfaceMaskPath = context.scene.checkSurfaceMaskPath
+    SurfaceMaskPath = context.scene.CheckSurfaceMaskPath
     
     if SurfaceMaskPath != '':
         if SurfaceMaskPath.split('.')[-1] in ['png','tif','tiff','PNG','TIF','TIFF']:
@@ -1044,6 +1050,17 @@ def update_checksurfacemaskpath(self, context):
             print('\nbLT_Info: {} is unsupported surface mask file format! Use PNG, TIF, TIFF instead.'.format(SurfaceMaskPath.split('.')[-1]))
     else:
         context.scene.CheckSurfaceMaskFormatValid = False
+        
+def update_checksurfacesdefinitionpath(self, context):
+    surfacesDefinitionPath = context.scene.CheckSurfacesDefinitionPath
+    
+    if surfacesDefinitionPath != '':
+        if surfacesDefinitionPath.split('.')[-1] == 'cfg':
+            context.scene.CheckSurfacesDefinitionFormatValid = True
+        else:
+            context.scene.CheckSurfacesDefinitionFormatValid = False
+    else:
+        context.scene.CheckSurfacesDefinitionFormatValid = False
 
 def checkSurfaceMask(context,cellSize,gridResolution,tileSize):
 
@@ -1113,7 +1130,8 @@ def checkSurfaceMask(context,cellSize,gridResolution,tileSize):
         
     from cv2 import imread, imwrite, merge, rectangle, putText, line, FONT_HERSHEY_DUPLEX
     
-    surfaceMask = imread(context.scene.checkSurfaceMaskPath,1)
+    surfaceMask = imread(context.scene.CheckSurfaceMaskPath,1)
+    validRGBValues = parseLayersCfg(context.scene.CheckSurfacesDefinitionPath)[-1]
     maskResolution = (cellSize * gridResolution) / surfaceMask.shape[0]
     
     tileOverlap, tilesInRow = calculateOverlap(cellSize,gridResolution,tileSize,maskResolution)
@@ -1125,6 +1143,7 @@ def checkSurfaceMask(context,cellSize,gridResolution,tileSize):
     
     alpha = zeros((maskWidth,maskWidth,1), uint8)
     colorGrid = genColoredGrid(maskWidth,actualTileSize)
+    invalidRGBMask = zeros((maskWidth,maskWidth,1), uint8)
     
     print(actualTileSize,tilesInRow,lastTileMatches)
     for tileX in range(0,tilesInRow):
@@ -1140,26 +1159,38 @@ def checkSurfaceMask(context,cellSize,gridResolution,tileSize):
                 tileTexRangeY = actualTileSize
             tile = surfaceMask[tileY * actualTileSize: (tileY * actualTileSize) + tileTexRangeY,tileX * actualTileSize: (tileX * actualTileSize) + tileTexRangeX]
             tileColorList = {}
+            invalidRGBs = 0
+            invalidRGBsGlobal = 0
             for k in range(0,tileTexRangeY):
                 for l in range(0,tileTexRangeX):
                     b = tile.item(k,l,0)
                     g = tile.item(k,l,1)
                     r = tile.item(k,l,2)
 
-                    if (r,g,b) not in tileColorList:
-                        tileColorList[(r,g,b)] = 1
+                    if [r,g,b] in validRGBValues:
+                        if (r,g,b) not in tileColorList:
+                            tileColorList[(r,g,b)] = 1
+                        else:
+                            tileColorList[(r,g,b)] += 1
                     else:
-                        tileColorList[(r,g,b)] += 1
+                        invalidRGBs += 1
+                        invalidRGBsGlobal += invalidRGBs
+                        invalidRGBMask[tileX * actualTileSize + k,tileY * actualTileSize + l] = 255
             multiplier = 1
             for key, value in tileColorList.items():
-                rectangle(colorGrid,((tileX * actualTileSize) + 20, (tileY * actualTileSize) + (20 * multiplier)),((tileX * actualTileSize) + 50, (tileY * actualTileSize) + (20 * multiplier) + 20),(key[::-1]),-1)
-                rectangle(alpha,((tileX * actualTileSize) + 20, (tileY * actualTileSize) + (20 * multiplier)),((tileX * actualTileSize) + 50, (tileY * actualTileSize) + (20 * multiplier) + 20),(255),-1)
-                putText(colorGrid, ' - {}'.format(value), ((tileX * actualTileSize) + 50, (tileY * actualTileSize) + (18 + (multiplier * 20))), FONT_HERSHEY_DUPLEX, .7, (255,255,255), 2)
-                putText(alpha, ' - {}'.format(value), ((tileX * actualTileSize) + 50, (tileY * actualTileSize) + (18 + (multiplier * 20))), FONT_HERSHEY_DUPLEX, .7, (255), 2)
+                rectangle(colorGrid,((tileX * actualTileSize) + 20, (tileY * actualTileSize) + (20 * multiplier + 100)),((tileX * actualTileSize) + 50, (tileY * actualTileSize) + (20 * multiplier) + 120),(key[::-1]),-1)
+                rectangle(alpha,((tileX * actualTileSize) + 20, (tileY * actualTileSize) + (20 * multiplier + 100)),((tileX * actualTileSize) + 50, (tileY * actualTileSize) + (20 * multiplier) + 120),(255),-1)
+                putText(colorGrid, ' - {}'.format(value), ((tileX * actualTileSize) + 50, (tileY * actualTileSize) + (118 + (multiplier * 20))), FONT_HERSHEY_DUPLEX, .7, (255,255,255), 2)
+                putText(alpha, ' - {}'.format(value), ((tileX * actualTileSize) + 50, (tileY * actualTileSize) + (118 + (multiplier * 20))), FONT_HERSHEY_DUPLEX, .7, (255), 2)
                 multiplier += 1
-                
-            putText(colorGrid, str(len(tileColorList)), (int((tileX * actualTileSize) + actualTileSize / 2), int((tileY * actualTileSize) + actualTileSize / 2 )), FONT_HERSHEY_DUPLEX, 3, (255,255,255), 5)
-            putText(alpha, str(len(tileColorList)), (int((tileX * actualTileSize) + actualTileSize / 2), int((tileY * actualTileSize) + actualTileSize / 2)), FONT_HERSHEY_DUPLEX, 3, (255), 5)
+            
+            validRGBTextColor = (0,255,0) if len(tileColorList) < 7 else (0,0,255)
+            putText(colorGrid, str(len(tileColorList)), (int((tileX * actualTileSize) + 2), int((tileY * actualTileSize) + 80)), FONT_HERSHEY_DUPLEX, 3, validRGBTextColor, 5)
+            putText(alpha, str(len(tileColorList)), (int((tileX * actualTileSize) + 2), int((tileY * actualTileSize) + 80)), FONT_HERSHEY_DUPLEX, 3, (255), 5)
+            
+            invalidRGBTextColor = (0,255,0) if invalidRGBs == 0 else (0,0,255)
+            putText(colorGrid, str(invalidRGBs), (int((tileX * actualTileSize) + 150), int((tileY * actualTileSize) + 80)), FONT_HERSHEY_DUPLEX, 3, invalidRGBTextColor, 5)
+            putText(alpha, str(invalidRGBs), (int((tileX * actualTileSize) + 150), int((tileY * actualTileSize) + 80)), FONT_HERSHEY_DUPLEX, 3, (255), 5)
 
     for i in range(0,tilesInRow):
         line(alpha,(i * actualTileSize,0),(i * actualTileSize,surfaceMask.shape[0]),(255),1)
@@ -1170,3 +1201,5 @@ def checkSurfaceMask(context,cellSize,gridResolution,tileSize):
     rgba = merge((colorGrid[:,:,0],colorGrid[:,:,1],colorGrid[:,:,2],alpha))
     OutputPath = bpy.context.user_preferences.addons["bLandscapeTools-master"].preferences.OutputPath
     imwrite('{}\surfacemask_check.png'.format(OutputPath),rgba)
+    if invalidRGBsGlobal != 0:
+        imwrite('{}\invalidRGBMask.png'.format(OutputPath),invalidRGBMask)
