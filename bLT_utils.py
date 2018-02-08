@@ -1,10 +1,23 @@
 import bpy,bgl,blf,bmesh
-import subprocess,os,time, struct,sys
+import subprocess,os,time, struct,sys, datetime
 from shutil import copy,rmtree
 from math import floor, isnan, ceil
 from numpy import genfromtxt,vstack,hstack,array,savetxt,delete,ones,zeros,flipud,empty,fromfile,float16,float32,reshape,uint8
 from mathutils import Vector, Matrix
 
+
+def bLTLogger(messageType,body):
+    if bpy.data.texts.get("bLTlog") == None:
+        bpy.data.texts.new('bLTlog')
+    else:
+        if messageType == 'Err':
+            bpy.data.texts["bLTlog"].write('{} - {} @ERROR\n'.format(datetime.datetime.strptime(time.ctime(), "%a %b %d %H:%M:%S %Y"),body))
+        elif messageType == 'Scs':
+            bpy.data.texts["bLTlog"].write('{} - {} #SUCCESS\n'.format(datetime.datetime.strptime(time.ctime(), "%a %b %d %H:%M:%S %Y"),body))
+        elif messageType == 'Inf':
+            bpy.data.texts["bLTlog"].write('{} - {}\n'.format(datetime.datetime.strptime(time.ctime(), "%a %b %d %H:%M:%S %Y"),body))
+        elif messageType == 'Wrn':
+            bpy.data.texts["bLTlog"].write('{} - {}\n "WARNING"\n'.format(datetime.datetime.strptime(time.ctime(), "%a %b %d %H:%M:%S %Y"),body))
 
 def install_opencv():
     libFolder = '{}\lib'.format(getPaths()[1])
@@ -38,14 +51,16 @@ def update_importterraintexturepath(self, context):
             
             if os.path.exists('{}ProjectData\\Textures\\previewSatTex.png'.format(ProjFolderPath)):
                 os.remove('{}ProjectData\\Textures\\previewSatTex.png'.format(ProjFolderPath))
-
+            
             print('\nbLT_Info: Terrain texture preview creation started {}'.format(time.ctime()))
             if imagerySize < 5000:
+                bLTLogger('Inf','Terrain texture size <= 5000x5000 px, no resizing necessary.')
                 print(' Input imagery size <= 5000x5000 px, no resizing necessary.')
                 copy(context.scene.ImportTerrainTexturePath,'{}ProjectData\\Textures\\'.format(ProjFolderPath))
                 oldName = context.scene.ImportTerrainTexturePath.split('\\')[-1]
                 os.rename('{}ProjectData\\Textures\\{}'.format(ProjFolderPath,oldName),'{}ProjectData\\Textures\\previewSatTex.png'.format(ProjFolderPath))
             else:
+                bLTLogger('Inf','Terrain texture size > 5000x5000 px, needs to be downscaled.')
                 print(' Input imagery size > 5000x5000 px, needs to be downscaled.')
                 input_image_cv = imread(terrainTexturePath, IMREAD_COLOR)
                 resizedImage = resize(input_image_cv, (5000, 5000))
@@ -65,9 +80,12 @@ def update_importterraintexturepath(self, context):
             
             print(' Terrain texture preview image created successfully.')
             print('bLT_Info: Terrain texture preview creation finished {}'.format(time.ctime()))    
+            bpy.ops.wm.save_mainfile()
+            bLTLogger('Scs','Terrain texture preview image(used in 2D view) created successfully.')
         else:
             context.scene.TerrainTextureFormatValid = False
-            print('\nbLT_Info: {} is unsupported imagery file format! Use PNG, TIF, TIFF, JPG, JPEG instead.'.format(terrainTexturePath.split('.')[-1]))
+            print('\nbLT_Info: {} is not supported imagery file format! Use PNG, TIF, TIFF, JPG, JPEG instead.'.format(terrainTexturePath.split('.')[-1]))
+            bLTLogger('Err','{} is not supported terrain texture file format! Use PNG, TIF, TIFF, JPG, JPEG instead.'.format(terrainTexturePath.split('.')[-1]))
     else:
         context.scene.TerrainTextureFormatValid = False
         
@@ -80,9 +98,11 @@ def update_importterrainsurfacemaskpath(self, context):
         if terrainSurfaceMaskPath.split('.')[-1] in ['png','tif','tiff','PNG','TIF','TIFF']:
             context.scene.SurfaceMaskFormatValid = True
             bpy.ops.wm.save_as_mainfile(filepath='{}{}.blend'.format(ProjFolderPath,ProjectName))
+            bLTLogger('Scs','Surface mask loaded successfully.')
         else:
             context.scene.SurfaceMaskFormatValid = False
             print('\nbLT_Info: {} is unsupported surface mask file format! Use PNG, TIF, TIFF instead.'.format(terrainSurfaceMaskPath.split('.')[-1]))
+            bLTLogger('Err','{} is unsupported surface mask file format! Use PNG, TIF, TIFF instead.'.format(terrainSurfaceMaskPath.split('.')[-1]))
     else:
         context.scene.SurfaceMaskFormatValid = False
     
@@ -101,10 +121,12 @@ def update_importterrainheightmappath(self, context):
             ascElevation = genfromtxt(terrainHeightmapPath, delimiter=' ', skip_header=6)
             binElevFilePath = '{}ProjectData\\Textures\\elevation.bLTe'.format(ProjFolderPath)
             ascElevation.astype('float32').tofile(binElevFilePath)
+            bLTLogger('Scs','ASC elevation converted to bLTe format successfully.')
             print('bLT_Info: ASC elevation to bLTe format conversion finished {}'.format(time.ctime()))
             
             print('\nbLT_Info: Shaded terrain preview creation started {}'.format(time.ctime()))
             updateterrainpreview(terrainHeightmapPath)
+            bLTLogger('Scs','Shaded terrain preview image(used in 2D view) created successfully.')
             print('bLT_Info: Shaded terrain preview creation finished {}'.format(time.ctime()))
             
             defaultLocationScene = bpy.data.scenes['Default_Location']
@@ -117,32 +139,38 @@ def update_importterrainheightmappath(self, context):
             bpy.ops.wm.save_as_mainfile(filepath='{}{}.blend'.format(ProjFolderPath,ProjectName))
         else:
             context.scene.HeightmapFormatValid = False
+            bLTLogger('Err','{} is unsupported elevation file format! Use ASC or ASCII instead.'.format(terrainHeightmapPath.split('.')[-1]))
             print('bLT_Info: {} is unsupported elevation file format! Use ASC or ASCII instead.'.format(terrainHeightmapPath.split('.')[-1]))
     else:
         context.scene.HeightmapFormatValid = False
 
 def parseLayersCfg(path):
-    surfaceDefinitionFile = open(path,encoding="utf8")
-    surfaces = []
-    materials = {}
-    validRGBValues = []
-    colors = {}
-    
-    for line in surfaceDefinitionFile.readlines():
-        line = (line.lstrip()).rstrip('\n')
-        if line.split(' ')[0] == 'class' and line.split(' ')[1] not in ['Layers','Legend','Colors']:
-            surfaceName = line.split(' ')[1].strip()
-            if '\t' in line.split(' ')[1].strip():
-                surfaceName = line.split(' ')[1].strip().split('\t')[0]
-            surfaces.append(surfaceName)
-        if line.split('=')[0].rstrip() == 'material':
-            materials[surfaces[-1]] = line.split('=')[1].split(';')[0].strip()[1:-1]
-        if line.split('[]')[0] in surfaces:
-            RGBvalues = list(map(int, line.split('{{')[1].split('}}')[0].split(',')))
-            validRGBValues.append(RGBvalues)
-            colors[line.split('[]')[0]] = RGBvalues
-    surfaceDefinitionFile.close()
-    return materials, colors, validRGBValues
+    bLTLogger('Inf','Parsing layers.cfg file.')
+    try:
+        surfaceDefinitionFile = open(path,encoding="utf8")
+        surfaces = []
+        materials = {}
+        validRGBValues = []
+        colors = {}
+        
+        for line in surfaceDefinitionFile.readlines():
+            line = (line.lstrip()).rstrip('\n')
+            if line.split(' ')[0] == 'class' and line.split(' ')[1] not in ['Layers','Legend','Colors']:
+                surfaceName = line.split(' ')[1].strip()
+                if '\t' in line.split(' ')[1].strip():
+                    surfaceName = line.split(' ')[1].strip().split('\t')[0]
+                surfaces.append(surfaceName)
+            if line.split('=')[0].rstrip() == 'material':
+                materials[surfaces[-1]] = line.split('=')[1].split(';')[0].strip()[1:-1]
+            if line.split('[]')[0] in surfaces:
+                RGBvalues = list(map(int, line.split('{{')[1].split('}}')[0].split(',')))
+                validRGBValues.append(RGBvalues)
+                colors[line.split('[]')[0]] = RGBvalues
+        surfaceDefinitionFile.close()
+        bLTLogger('Scs','layers.cfg parsed successfully.')
+        return materials, colors, validRGBValues
+    except:
+        bLTLogger('Err','Problem while parsing layers.cfg.')
     
 def update_importsurfacesdefinitionpath(self, context):
     surfacesDefinitionPath = context.scene.ImportSurfacesDefinitionPath
@@ -184,10 +212,12 @@ def update_importsurfacesdefinitionpath(self, context):
                     rgb[:,:,2], rgb[:,:,1], rgb[:,:,0] = colors[surfaceName][0], colors[surfaceName][1], colors[surfaceName][2]
                     resizedImage[0:28,:] = rgb
                     imwrite(r'{}ProjectData\Textures\previewIcon_{}.png'.format(ProjFolderPath,surfaceName), resizedImage)
+                    bLTLogger('Scs','Surface \'{}\' preview icon created successfully.'.format(surfaceName))
                 else:
                     rgb = ones((128,128,3), uint8)
                     rgb[:,:,2], rgb[:,:,1], rgb[:,:,0] = colors[surfaceName][0], colors[surfaceName][1], colors[surfaceName][2]
                     imwrite(r'{}ProjectData\Textures\previewIcon_{}.png'.format(ProjFolderPath,surfaceName), rgb)
+                    bLTLogger('Wrn','Surface \'{}\' has no valid texture(must be png), a color assigned to this surface will be used for the preview icon instead!'.format(surfaceName))
                     print('\tbLT_Info: Surface \'{}\' has no valid texture(must be png), a color assigned to this surface will be used for the preview icon instead!'.format(surfaceName))
 
                 currentBrush = bpy.data.brushes.new(surfaceName)
@@ -208,16 +238,19 @@ def update_importsurfacesdefinitionpath(self, context):
                 currentBrush.curve.update()
                 currentBrush = context.scene.TexturePaintBrushNames.add()
                 currentBrush.name = surfaceName
+                bLTLogger('Scs','Surface brush \'{}\' created successfully.'.format(surfaceName))
                 
             bpy.ops.wm.save_as_mainfile(filepath='{}{}.blend'.format(ProjFolderPath,ProjectName))
             print('bLT_Info: Surface brushes and previews creation finished {}'.format(time.ctime()))
                 
         else:
+            bLTLogger('Err','{} is unsupported config file format! Use CFG instead.'.format(surfacesDefinitionPath.split('.')[-1]))
             print('\nbLT_Info: {} is unsupported config file format! Use CFG instead.'.format(surfacesDefinitionPath.split('.')[-1]))
             
 def update_devdriveletter(self, context):
     if not os.path.exists(context.scene.DevDriveLetter):
         context.scene.DevDriveValid = False
+        bLTLogger('Err','System drive {} doesn\'t exist!'.format(context.scene.DevDriveLetter))
         print('\nbLT_Info: System drive {} doesn\'t exist!'.format(context.scene.DevDriveLetter))
     else:
         context.scene.DevDriveValid = True
@@ -249,6 +282,7 @@ def update_switchpaintmode(self, context):
     else:
         bpy.context.area.type = 'IMAGE_EDITOR'
         bpy.ops.image.save()
+        bLTLogger('Scs','Surface mask changes saved successfully.')
         bpy.context.area.type = 'VIEW_3D'
         context.active_object.material_slots[0].material.use_textures[1] = False
         bpy.ops.object.mode_set(mode='OBJECT')
@@ -1027,6 +1061,7 @@ def createFlatTerrain(cellSize,gridResolution,defaultElevation):
         header = 'ncols         {}\nnrows         {}\nxllcorner     0\nyllcorner     0\ncellsize      {}\nNODATA_value  -9999'.format(gridResolution,gridResolution,cellSize) 
         savetxt('{}\\elevation.asc'.format(OutputPath),result,fmt='%.2f',delimiter=' ',newline='\r\n',comments='',header=header)
         print('Elevation file saved to {}\\elevation.asc'.format(OutputPath))
+        bLTLogger('Scs','{} saved successfully.'.format('{}\elevation.asc'.format(OutputPath)))
     
 def createSurfaceMask(imageResolution,defaultColor):
     OutputPath = bpy.context.user_preferences.addons["bLandscapeTools-master"].preferences.OutputPath
@@ -1038,6 +1073,7 @@ def createSurfaceMask(imageResolution,defaultColor):
         blank_image[:,:,2] = ones([imageResolution,imageResolution]) * defaultColor[0] * 255
         imwrite('{}\\surface_mask.png'.format(OutputPath), blank_image)
         print('Surface mask file saved to {}\\surface_mask.png'.format(OutputPath))
+        bLTLogger('Scs','{} saved successfully.'.format('{}\surface_mask.png'.format(OutputPath)))
         
 def update_checksurfacemaskpath(self, context):
     SurfaceMaskPath = context.scene.CheckSurfaceMaskPath
@@ -1144,7 +1180,7 @@ def checkSurfaceMask(context,cellSize,gridResolution,tileSize):
     alpha = zeros((maskWidth,maskWidth,1), uint8)
     colorGrid = genColoredGrid(maskWidth,actualTileSize)
     invalidRGBMask = zeros((maskWidth,maskWidth,1), uint8)
-    
+    invalidRGBsGlobal = 0
     print(actualTileSize,tilesInRow,lastTileMatches)
     for tileX in range(0,tilesInRow):
         for tileY in range(0,tilesInRow):
@@ -1160,7 +1196,6 @@ def checkSurfaceMask(context,cellSize,gridResolution,tileSize):
             tile = surfaceMask[tileY * actualTileSize: (tileY * actualTileSize) + tileTexRangeY,tileX * actualTileSize: (tileX * actualTileSize) + tileTexRangeX]
             tileColorList = {}
             invalidRGBs = 0
-            invalidRGBsGlobal = 0
             for k in range(0,tileTexRangeY):
                 for l in range(0,tileTexRangeX):
                     b = tile.item(k,l,0)
@@ -1175,7 +1210,7 @@ def checkSurfaceMask(context,cellSize,gridResolution,tileSize):
                     else:
                         invalidRGBs += 1
                         invalidRGBsGlobal += invalidRGBs
-                        invalidRGBMask[tileX * actualTileSize + k,tileY * actualTileSize + l] = 255
+                        invalidRGBMask[tileY * actualTileSize + k,tileX * actualTileSize + l] = 255
             multiplier = 1
             for key, value in tileColorList.items():
                 rectangle(colorGrid,((tileX * actualTileSize) + 20, (tileY * actualTileSize) + (20 * multiplier + 100)),((tileX * actualTileSize) + 50, (tileY * actualTileSize) + (20 * multiplier) + 120),(key[::-1]),-1)
@@ -1201,5 +1236,7 @@ def checkSurfaceMask(context,cellSize,gridResolution,tileSize):
     rgba = merge((colorGrid[:,:,0],colorGrid[:,:,1],colorGrid[:,:,2],alpha))
     OutputPath = bpy.context.user_preferences.addons["bLandscapeTools-master"].preferences.OutputPath
     imwrite('{}\surfacemask_check.png'.format(OutputPath),rgba)
+    bLTLogger('Scs','{} saved successfully.'.format('{}\surfacemask_check.png'.format(OutputPath)))
     if invalidRGBsGlobal != 0:
         imwrite('{}\invalidRGBMask.png'.format(OutputPath),invalidRGBMask)
+        bLTLogger('Scs','{} saved successfully.'.format('{}\invalidRGBMask.png'.format(OutputPath)))

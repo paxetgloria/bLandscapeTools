@@ -99,7 +99,7 @@ classes = (
 def register():
     for cls in classes:
         bpy.utils.register_class(cls)
-        
+    
     os.environ['PATH'] = ''.join(('{}\lib;'.format(bLT_utils.getPaths()[1]),os.environ['PATH']))
     
     try:
@@ -114,11 +114,12 @@ def register():
     bpy.types.Scene.TexturePaintBrushNames = CollectionProperty(type=bLT_main.TexturePaintBrush)
     
     dataFolder = bLT_utils.getPaths()[2]
+
     import zipfile
     zip_ref = zipfile.ZipFile('{}\\bLandscapeTools.zip'.format(dataFolder), 'r')
     zip_ref.extractall('{}\\AppData\\Roaming\\Blender Foundation\\Blender\\{}.{}\\scripts\\startup\\bl_app_templates_user'.format(os.environ['USERPROFILE'],bpy.app.version[0],bpy.app.version[1]))
     zip_ref.close()
-    
+
     bpy.context.user_preferences.filepaths.use_relative_paths = False
     bpy.context.user_preferences.filepaths.show_thumbnails = True
     bpy.context.user_preferences.system.use_mipmaps = False

@@ -153,6 +153,7 @@ class OP_CreateProject(bpy.types.Operator):
         ProjFolderPath = context.scene.ProjFolderPath
         ProjectName = 'Project_{}'.format(ProjFolderPath.split('\\')[-2])
         bpy.ops.wm.save_as_mainfile(filepath='{}{}.blend'.format(ProjFolderPath,ProjectName))
+        bLTLogger('Success', 'Project {}{}.blend succesfully created.'.format(ProjFolderPath,ProjectName))
         return {'FINISHED'}
         
 class OP_ImportLocation(bpy.types.Operator):
