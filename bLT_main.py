@@ -153,7 +153,7 @@ class OP_CreateProject(bpy.types.Operator):
         ProjFolderPath = context.scene.ProjFolderPath
         ProjectName = 'Project_{}'.format(ProjFolderPath.split('\\')[-2])
         bpy.ops.wm.save_as_mainfile(filepath='{}{}.blend'.format(ProjFolderPath,ProjectName))
-        bLTLogger('Success', 'Project {}{}.blend succesfully created.'.format(ProjFolderPath,ProjectName))
+        bLTLogger('Scs', 'Project {}{}.blend succesfully created.'.format(ProjFolderPath,ProjectName))
         return {'FINISHED'}
         
 class OP_ImportLocation(bpy.types.Operator):
@@ -662,6 +662,7 @@ class OP_CheckSurfaceMaskFull(bpy.types.Operator):
     ("2048", "2048", "", 3),
     ("4096", "4096", "", 4)]
     tileSize = EnumProperty(items=tileSizeList,name="Tile size(px):",default='512')
+    _timer = None
 
     @classmethod
     def poll(cls, context):
@@ -1169,7 +1170,7 @@ class VIEW3D_SurfacePainting(Panel,View3DPaintPanel):
         col = layout.column()
         
         if scene.PaintModeSwitch:
-            text = 'Disable Surface Painting'
+            text = 'Disable Surface Painting & Save Changes'
             
         else:
             text = 'Enable Surface Painting'

@@ -17,7 +17,13 @@ def bLTLogger(messageType,body):
         elif messageType == 'Inf':
             bpy.data.texts["bLTlog"].write('{} - {}\n'.format(datetime.datetime.strptime(time.ctime(), "%a %b %d %H:%M:%S %Y"),body))
         elif messageType == 'Wrn':
-            bpy.data.texts["bLTlog"].write('{} - {}\n "WARNING"\n'.format(datetime.datetime.strptime(time.ctime(), "%a %b %d %H:%M:%S %Y"),body))
+            bpy.data.texts["bLTlog"].write('{} - {} "WARNING"\n'.format(datetime.datetime.strptime(time.ctime(), "%a %b %d %H:%M:%S %Y"),body))
+        elif messageType == 'PgsUp':
+            bpy.data.texts["bLTlog"].current_line.body = '{} - {} "PROGRESS"'.format(datetime.datetime.strptime(time.ctime(), "%a %b %d %H:%M:%S %Y"),body)
+        elif messageType == 'PgsDn':
+            bpy.data.texts["bLTlog"].current_line.body = ''
+            bpy.data.texts["bLTlog"].write('{} - {} #SUCCESS\n'.format(datetime.datetime.strptime(time.ctime(), "%a %b %d %H:%M:%S %Y"),body))
+    bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
 
 def install_opencv():
     libFolder = '{}\lib'.format(getPaths()[1])
@@ -1182,6 +1188,7 @@ def checkSurfaceMask(context,cellSize,gridResolution,tileSize):
     invalidRGBMask = zeros((maskWidth,maskWidth,1), uint8)
     invalidRGBsGlobal = 0
     print(actualTileSize,tilesInRow,lastTileMatches)
+    tileCounter = 0
     for tileX in range(0,tilesInRow):
         for tileY in range(0,tilesInRow):
             print(tileX,tileY)
@@ -1226,7 +1233,10 @@ def checkSurfaceMask(context,cellSize,gridResolution,tileSize):
             invalidRGBTextColor = (0,255,0) if invalidRGBs == 0 else (0,0,255)
             putText(colorGrid, str(invalidRGBs), (int((tileX * actualTileSize) + 150), int((tileY * actualTileSize) + 80)), FONT_HERSHEY_DUPLEX, 3, invalidRGBTextColor, 5)
             putText(alpha, str(invalidRGBs), (int((tileX * actualTileSize) + 150), int((tileY * actualTileSize) + 80)), FONT_HERSHEY_DUPLEX, 3, (255), 5)
-
+            
+            tileCounter += 1
+            bLTLogger('PgsUp','Tile {} of {} checked...'.format(tileCounter,tilesInRow * tilesInRow))          
+    bLTLogger('PgsDn','All {} tiles checked. Saving results now.'.format(tilesInRow * tilesInRow))
     for i in range(0,tilesInRow):
         line(alpha,(i * actualTileSize,0),(i * actualTileSize,surfaceMask.shape[0]),(255),1)
         line(alpha,(i * actualTileSize + actualTileSize - 1,0),(i * actualTileSize + actualTileSize - 1,surfaceMask.shape[0]),(255),1)
@@ -1236,7 +1246,7 @@ def checkSurfaceMask(context,cellSize,gridResolution,tileSize):
     rgba = merge((colorGrid[:,:,0],colorGrid[:,:,1],colorGrid[:,:,2],alpha))
     OutputPath = bpy.context.user_preferences.addons["bLandscapeTools-master"].preferences.OutputPath
     imwrite('{}\surfacemask_check.png'.format(OutputPath),rgba)
-    bLTLogger('Scs','{} saved successfully.'.format('{}\surfacemask_check.png'.format(OutputPath)))
+    bLTLogger('Scs','{} saved successfully.'.format('{}surfacemask_check.png'.format(OutputPath)))
     if invalidRGBsGlobal != 0:
         imwrite('{}\invalidRGBMask.png'.format(OutputPath),invalidRGBMask)
-        bLTLogger('Scs','{} saved successfully.'.format('{}\invalidRGBMask.png'.format(OutputPath)))
+        bLTLogger('Scs','{} saved successfully.'.format('{}invalidRGBMask.png'.format(OutputPath)))
