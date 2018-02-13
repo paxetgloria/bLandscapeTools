@@ -23,7 +23,10 @@ def bLTLogger(messageType,body):
         elif messageType == 'PgsDn':
             bpy.data.texts["bLTlog"].current_line.body = ''
             bpy.data.texts["bLTlog"].write('{} - {} #SUCCESS\n'.format(datetime.datetime.strptime(time.ctime(), "%a %b %d %H:%M:%S %Y"),body))
-    bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
+    try:
+        bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
+    except:
+        pass
 
 def install_opencv():
     libFolder = '{}\lib'.format(getPaths()[1])
