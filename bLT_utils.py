@@ -289,13 +289,14 @@ def update_switchpaintmode(self, context):
         terrainObject.material_slots[0].material.use_textures[1] = True
         bpy.ops.object.mode_set(mode='TEXTURE_PAINT')
     else:
+        contextCopy = context.area
         context.area.type = 'IMAGE_EDITOR'
         bpy.ops.image.save()
-        context.area.type = 'VIEW_3D'
+        bLTLogger('Scs','Surface mask changes saved successfully.')
+        contextCopy.type = 'VIEW_3D'
         context.active_object.material_slots[0].material.use_textures[1] = False
         bpy.ops.object.mode_set(mode='OBJECT')
         bpy.ops.object.select_all(action='DESELECT')
-        bLTLogger('Scs','Surface mask changes saved successfully.')
         
 def update_flatterwidth(self, context):
     splineTerrainModifier = context.active_object
@@ -695,11 +696,13 @@ def exportSurfaceMask(overwriteSource):
         if overwriteSource:
             outputPath = terrainSurfaceMaskPath
         else:
-            outputPath = '{}\\Output\\surfaceMask.png'.format(ProjFolderPath)
+            outputPath = '{}Output\\surfaceMask.png'.format(ProjFolderPath)
         imwrite(outputPath, sourceSurfaceMask)
         print('bLT_Info: Surface map export finished ', time.ctime())
+        bLTLogger('Scs','{} saved successfully.'.format(outputPath))
     else:
         print('\nbLT_Info:No surface map data exported!!! Source surface mask path not defined in Data Sources panel.')
+        bLTLogger('Err','No surface map data exported!!! Source surface mask path not defined in Data Sources panel.')
     
     
 def createOccupiedLocation(locationName,topLeftRow,topLeftColumn,bottomRightRow,bottomRightColumn,copyTopEdge,copyRightEdge):
@@ -756,8 +759,9 @@ def createNewLocation(locationName,gridResX,gridResY,topLeftRow,topLeftColumn,bo
     terrainObject.select=True
     bpy.context.scene.objects.active = terrainObject
     
+    contextCopy = bpy.context.area
     print('\nbLT_Info: Location creation started ', time.ctime())
-    
+    bLTLogger('Inf','Location \'{}\' import in progress...'.format(locationName))
     if bpy.context.scene.TerrainTextureFormatValid:
         imageryResolution = worldInfo["ImageryResolution"]
         
@@ -798,6 +802,7 @@ def createNewLocation(locationName,gridResX,gridResY,topLeftRow,topLeftColumn,bo
         locationTexture = input_image_cv[topLeftPixelY:bottomRightPixelY,topLeftPixelX:bottomRightPixelX]
         imwrite(r'{}ProjectData\Textures\TerrainImage_{}.png'.format(ProjFolderPath,locationName), locationTexture)
         print(' Location\'s terrain texture extraction finished ', time.ctime())
+        bLTLogger('Scs','   Terrain texture extracted to {}ProjectData\Textures\TerrainImage_{}.png'.format(ProjFolderPath,locationName))
         terrainTexture= bpy.data.textures.new('TerrainTexture_{}'.format(locationName), type = 'IMAGE')
         terrainTexture.image = bpy.data.images.load('{}ProjectData\\Textures\\TerrainImage_{}.png'.format(ProjFolderPath,locationName))
         
@@ -807,6 +812,7 @@ def createNewLocation(locationName,gridResX,gridResY,topLeftRow,topLeftColumn,bo
             locationSurfaceMask = input_image_cv[topLeftPixelY:bottomRightPixelY,topLeftPixelX:bottomRightPixelX]
             imwrite(r'{}ProjectData\Textures\TerrainMask_{}.png'.format(ProjFolderPath,locationName), locationSurfaceMask)
             print(' Location\'s surface mask extraction finished ', time.ctime())
+            bLTLogger('Scs','   Surface mask extracted to {}ProjectData\Textures\TerrainMask_{}.png'.format(ProjFolderPath,locationName))
             
             terrainMask= bpy.data.textures.new('TerrainMask_{}'.format(locationName), type = 'IMAGE')
             terrainMask.image = bpy.data.images.load('{}ProjectData\\Textures\\TerrainMask_{}.png'.format(ProjFolderPath,locationName))
@@ -898,8 +904,7 @@ def createNewLocation(locationName,gridResX,gridResY,topLeftRow,topLeftColumn,bo
     bpy.ops.object.origin_set(type='ORIGIN_GEOMETRY')
     
     print('bLT_Info: Location creation finished {}\n'.format(time.ctime()))
-    
-    bpy.context.area.type = 'VIEW_3D'
+    contextCopy.type = 'VIEW_3D'
     screen = bpy.context.window.screen
     for area in screen.areas:
         if area.type == 'VIEW_3D':
@@ -908,6 +913,7 @@ def createNewLocation(locationName,gridResX,gridResY,topLeftRow,topLeftColumn,bo
                     override = {'window': bpy.context.window, 'screen': screen, 'area': area, 'region': region, 'scene': bpy.context.scene, 'edit_object': bpy.context.edit_object}
     
     bpy.ops.view3d.view_selected(override)
+    bLTLogger('Scs','   Terrain mesh/UVs generation done')
     
     setupLocationAppearance(locationName, hasMaterial = True if bpy.context.scene.TerrainTextureFormatValid else False)
     

@@ -94,6 +94,7 @@ class OP_UI_RemoveLocation(bpy.types.Operator):
         ProjFolderPath = context.scene.ProjFolderPath
         ProjectName = 'Project_{}'.format(ProjFolderPath.split('\\')[-2])
         bpy.ops.wm.save_as_mainfile(filepath='{}{}.blend'.format(ProjFolderPath,ProjectName))
+        bLTLogger('Scs','Location \'{}\' removed successfully.'.format(locationName))
         return {'FINISHED'}
         
     def invoke(self, context, event):
