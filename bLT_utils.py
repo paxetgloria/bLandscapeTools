@@ -782,11 +782,11 @@ def createNewLocation(locationName,gridResX,gridResY,topLeftRow,topLeftColumn,bo
         if copyRightEdge:
             bottomRightColumnChanged += 1
         
-        bottomRightPixelX = ceil(bottomRightColumnChanged * terrainUVcellsizeMap / textureUVcellsizeMap) - 1
-        bottomRightPixelY = ceil(round(bottomRightRowChanged * terrainUVcellsizeMap / textureUVcellsizeMap,6)) - 1
+        bottomRightPixelX = ceil(bottomRightColumnChanged * terrainUVcellsizeMap / textureUVcellsizeMap)
+        bottomRightPixelY = ceil(round(bottomRightRowChanged * terrainUVcellsizeMap / textureUVcellsizeMap,6))
         
-        locTextureResolutionX = bottomRightPixelX - topLeftPixelX + 1
-        locTextureResolutionY = bottomRightPixelY - topLeftPixelY + 1
+        locTextureResolutionX = bottomRightPixelX - topLeftPixelX
+        locTextureResolutionY = bottomRightPixelY - topLeftPixelY
          
         print(' Texture starts at: ', topLeftPixelX, topLeftPixelY)
         print(' Texture ends at: ', bottomRightPixelX, bottomRightPixelY)
@@ -795,7 +795,7 @@ def createNewLocation(locationName,gridResX,gridResY,topLeftRow,topLeftColumn,bo
         from cv2 import imread, imwrite, IMREAD_COLOR
         print(' Location\'s terrain texture extraction started ', time.ctime())
         input_image_cv = imread(terrainTexturePath, IMREAD_COLOR)
-        locationTexture = input_image_cv[topLeftPixelY:bottomRightPixelY + 1,topLeftPixelX:bottomRightPixelX + 1]
+        locationTexture = input_image_cv[topLeftPixelY:bottomRightPixelY,topLeftPixelX:bottomRightPixelX]
         imwrite(r'{}ProjectData\Textures\TerrainImage_{}.png'.format(ProjFolderPath,locationName), locationTexture)
         print(' Location\'s terrain texture extraction finished ', time.ctime())
         terrainTexture= bpy.data.textures.new('TerrainTexture_{}'.format(locationName), type = 'IMAGE')
@@ -804,7 +804,7 @@ def createNewLocation(locationName,gridResX,gridResY,topLeftRow,topLeftColumn,bo
         if bpy.context.scene.SurfaceMaskFormatValid:
             print(' Location\'s surface mask extraction started ', time.ctime())
             input_image_cv = imread(terrainSurfaceMaskPath, IMREAD_COLOR)
-            locationSurfaceMask = input_image_cv[topLeftPixelY:bottomRightPixelY + 1,topLeftPixelX:bottomRightPixelX + 1]
+            locationSurfaceMask = input_image_cv[topLeftPixelY:bottomRightPixelY,topLeftPixelX:bottomRightPixelX]
             imwrite(r'{}ProjectData\Textures\TerrainMask_{}.png'.format(ProjFolderPath,locationName), locationSurfaceMask)
             print(' Location\'s surface mask extraction finished ', time.ctime())
             
