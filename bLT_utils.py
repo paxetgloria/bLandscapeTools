@@ -804,7 +804,7 @@ def createNewLocation(locationName,gridResX,gridResY,topLeftRow,topLeftColumn,bo
         if bpy.context.scene.SurfaceMaskFormatValid:
             print(' Location\'s surface mask extraction started ', time.ctime())
             input_image_cv = imread(terrainSurfaceMaskPath, IMREAD_COLOR)
-            locationSurfaceMask = input_image_cv[topLeftPixelY:bottomRightPixelY,topLeftPixelX:bottomRightPixelX]
+            locationSurfaceMask = input_image_cv[topLeftPixelY:bottomRightPixelY + 1,topLeftPixelX:bottomRightPixelX + 1]
             imwrite(r'{}ProjectData\Textures\TerrainMask_{}.png'.format(ProjFolderPath,locationName), locationSurfaceMask)
             print(' Location\'s surface mask extraction finished ', time.ctime())
             
