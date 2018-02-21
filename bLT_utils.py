@@ -289,13 +289,13 @@ def update_switchpaintmode(self, context):
         terrainObject.material_slots[0].material.use_textures[1] = True
         bpy.ops.object.mode_set(mode='TEXTURE_PAINT')
     else:
-        bpy.context.area.type = 'IMAGE_EDITOR'
+        context.area.type = 'IMAGE_EDITOR'
         bpy.ops.image.save()
-        bLTLogger('Scs','Surface mask changes saved successfully.')
-        bpy.context.area.type = 'VIEW_3D'
+        context.area.type = 'VIEW_3D'
         context.active_object.material_slots[0].material.use_textures[1] = False
         bpy.ops.object.mode_set(mode='OBJECT')
         bpy.ops.object.select_all(action='DESELECT')
+        bLTLogger('Scs','Surface mask changes saved successfully.')
         
 def update_flatterwidth(self, context):
     splineTerrainModifier = context.active_object
