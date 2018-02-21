@@ -795,7 +795,7 @@ def createNewLocation(locationName,gridResX,gridResY,topLeftRow,topLeftColumn,bo
         from cv2 import imread, imwrite, IMREAD_COLOR
         print(' Location\'s terrain texture extraction started ', time.ctime())
         input_image_cv = imread(terrainTexturePath, IMREAD_COLOR)
-        locationTexture = input_image_cv[topLeftPixelY:bottomRightPixelY,topLeftPixelX:bottomRightPixelX]
+        locationTexture = input_image_cv[topLeftPixelY:bottomRightPixelY + 1,topLeftPixelX:bottomRightPixelX + 1]
         imwrite(r'{}ProjectData\Textures\TerrainImage_{}.png'.format(ProjFolderPath,locationName), locationTexture)
         print(' Location\'s terrain texture extraction finished ', time.ctime())
         terrainTexture= bpy.data.textures.new('TerrainTexture_{}'.format(locationName), type = 'IMAGE')
