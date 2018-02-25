@@ -155,6 +155,9 @@ class OP_CreateProject(bpy.types.Operator):
         ProjectName = 'Project_{}'.format(ProjFolderPath.split('\\')[-2])
         bpy.ops.wm.save_as_mainfile(filepath='{}{}.blend'.format(ProjFolderPath,ProjectName))
         bLTLogger('Scs', 'Project {}{}.blend succesfully created.'.format(ProjFolderPath,ProjectName))
+        bLTLogger('Inf', 'Find information about Data Source tab at https://github.com/paxetgloria/bLandscapeTools/wiki/Data-Source')
+        bLTLogger('Inf', 'Find information about Locations manager tab at https://github.com/paxetgloria/bLandscapeTools/wiki/Locations-manager')
+        
         return {'FINISHED'}
         
 class OP_ImportLocation(bpy.types.Operator):
@@ -215,6 +218,8 @@ class OP_CreateLocation(bpy.types.Operator):
         createOccupiedLocation(self.locationName,topLeftRow,topLeftColumn,bottomRightRow,bottomRightColumn,copyTopEdge,copyRightEdge)
         
         bpy.ops.wm.save_mainfile()
+        bLTLogger('Scs','Location \'{}\' imported successfully.'.format(self.locationName))
+        bLTLogger('Inf', 'Hint: press F key to initiate Fly-mode, press LMB to confirm current location, scroll MMB to speed up/slow down camera, hold SHIFT for instant speed shift.')
         return {'FINISHED'}
         
     def invoke(self, context, event):

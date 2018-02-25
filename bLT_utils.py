@@ -10,19 +10,24 @@ def bLTLogger(messageType,body):
     if bpy.data.texts.get("bLTlog") == None:
         bpy.data.texts.new('bLTlog')
     else:
+        log = bpy.data.texts["bLTlog"]
+        log.current_line_index = len(log.lines) if len(log.lines) != log.current_line_index else log.current_line_index
+        if len(log.current_line.body) != 0:
+            if log.current_line.body[0] != '~':
+                log.current_line.body = ''
         if messageType == 'Err':
-            bpy.data.texts["bLTlog"].write('{} - {} @ERROR\n'.format(datetime.datetime.strptime(time.ctime(), "%a %b %d %H:%M:%S %Y"),body))
+            log.write('~{} - {} @ERROR\n'.format(datetime.datetime.strptime(time.ctime(), "%a %b %d %H:%M:%S %Y"),body))
         elif messageType == 'Scs':
-            bpy.data.texts["bLTlog"].write('{} - {} #SUCCESS\n'.format(datetime.datetime.strptime(time.ctime(), "%a %b %d %H:%M:%S %Y"),body))
+            log.write('~{} - {} #SUCCESS\n'.format(datetime.datetime.strptime(time.ctime(), "%a %b %d %H:%M:%S %Y"),body))
         elif messageType == 'Inf':
-            bpy.data.texts["bLTlog"].write('{} - {}\n'.format(datetime.datetime.strptime(time.ctime(), "%a %b %d %H:%M:%S %Y"),body))
+            log.write('~{} - {}\n'.format(datetime.datetime.strptime(time.ctime(), "%a %b %d %H:%M:%S %Y"),body))
         elif messageType == 'Wrn':
-            bpy.data.texts["bLTlog"].write('{} - {} "WARNING"\n'.format(datetime.datetime.strptime(time.ctime(), "%a %b %d %H:%M:%S %Y"),body))
+            log.write('~{} - {} "WARNING"\n'.format(datetime.datetime.strptime(time.ctime(), "%a %b %d %H:%M:%S %Y"),body))
         elif messageType == 'PgsUp':
-            bpy.data.texts["bLTlog"].current_line.body = '{} - {} "PROGRESS"'.format(datetime.datetime.strptime(time.ctime(), "%a %b %d %H:%M:%S %Y"),body)
+            log.current_line.body = '~{} - {} "PROGRESS"'.format(datetime.datetime.strptime(time.ctime(), "%a %b %d %H:%M:%S %Y"),body)
         elif messageType == 'PgsDn':
-            bpy.data.texts["bLTlog"].current_line.body = ''
-            bpy.data.texts["bLTlog"].write('{} - {} #SUCCESS\n'.format(datetime.datetime.strptime(time.ctime(), "%a %b %d %H:%M:%S %Y"),body))
+            log.current_line.body = ''
+            log.write('~{} - {} #SUCCESS\n'.format(datetime.datetime.strptime(time.ctime(), "%a %b %d %H:%M:%S %Y"),body))
     try:
         bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
     except:
@@ -259,7 +264,7 @@ def update_importsurfacesdefinitionpath(self, context):
 def update_devdriveletter(self, context):
     if not os.path.exists(context.scene.DevDriveLetter):
         context.scene.DevDriveValid = False
-        bLTLogger('Err','System drive {} doesn\'t exist!'.format(context.scene.DevDriveLetter))
+        bLTLogger('Err','System drive {} does not exist!'.format(context.scene.DevDriveLetter))
         print('\nbLT_Info: System drive {} doesn\'t exist!'.format(context.scene.DevDriveLetter))
     else:
         context.scene.DevDriveValid = True
@@ -427,7 +432,7 @@ def setup2dMapPreview():
                 space.image = bpy.data.images['previewSatTex.png']        
 
     bpy.ops.image.view_all()
-    
+    bLTLogger('Inf', 'Hint: Cycle through available 2D maps with Backspace key.')
     screen = bpy.context.window.screen
     for area in screen.areas:
         if area.type == 'IMAGE_EDITOR':
@@ -913,7 +918,7 @@ def createNewLocation(locationName,gridResX,gridResY,topLeftRow,topLeftColumn,bo
                     override = {'window': bpy.context.window, 'screen': screen, 'area': area, 'region': region, 'scene': bpy.context.scene, 'edit_object': bpy.context.edit_object}
     
     bpy.ops.view3d.view_selected(override)
-    bLTLogger('Scs','   Terrain mesh/UVs generation done')
+    bLTLogger('Scs','   Terrain mesh/UV coordinates created.')
     
     setupLocationAppearance(locationName, hasMaterial = True if bpy.context.scene.TerrainTextureFormatValid else False)
     
