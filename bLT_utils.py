@@ -1,7 +1,7 @@
 import bpy,bgl,blf,bmesh
 import subprocess,os,time, struct,sys, datetime
 from shutil import copy,rmtree
-from math import floor, isnan, ceil
+from math import floor, isnan, ceil, sqrt
 from numpy import genfromtxt,vstack,hstack,array,savetxt,delete,ones,zeros,flipud,empty,fromfile,float16,float32,reshape,uint8
 from mathutils import Vector, Matrix
 
@@ -49,36 +49,86 @@ def install_opencv():
 
     
 
+
+def getTerrainTexTiles(texturePath):
+    folderPath = os.path.dirname(os.path.abspath(texturePath))
+    base = os.path.basename(texturePath)
+    fileAndExt = os.path.splitext(base)
+    fileNoNumber = fileAndExt[0].strip('_0')
+    
+    textureTiles = []
+    textureTiles.append(texturePath)
+    
+    i = 0
+    while True:
+        i += 1
+        if os.path.exists('{}\\{}_{}{}'.format(folderPath,fileNoNumber,i,fileAndExt[1])):
+            textureTiles.append('{}\\{}_{}{}'.format(folderPath,fileNoNumber,i,fileAndExt[1]))
+        else:
+            break
+    return textureTiles
     
 def update_importterraintexturepath(self, context):
     terrainTexturePath = context.scene.ImportTerrainTexturePath
     
     if terrainTexturePath != '':
+        
         if terrainTexturePath.split('.')[-1] in ['png','tif','tiff','jpg','jpeg','PNG','TIF','TIFF','JPG','JPEG']:
+            
             context.scene.TerrainTextureFormatValid = True
             from cv2 import imread, imwrite, resize , IMREAD_COLOR
             
             GDALPath = context.user_preferences.addons["bLandscapeTools-master"].preferences.GDALPath
             ProjFolderPath = context.scene.ProjFolderPath
             ProjectName = 'Project_{}'.format(ProjFolderPath.split('\\')[-2])
-            imagerySize = getImagerySize(GDALPath,terrainTexturePath)
             
             if os.path.exists('{}ProjectData\\Textures\\previewSatTex.png'.format(ProjFolderPath)):
-                os.remove('{}ProjectData\\Textures\\previewSatTex.png'.format(ProjFolderPath))
-            
+                os.remove('{}ProjectData\\Textures\\previewSatTex.png'.format(ProjFolderPath))   
+                
+            imagerySize = getImagerySize(GDALPath,terrainTexturePath)
             print('\nbLT_Info: Terrain texture preview creation started {}'.format(time.ctime()))
-            if imagerySize < 5000:
-                bLTLogger('Inf','Terrain texture size <= 5000x5000 px, no resizing necessary.')
-                print(' Input imagery size <= 5000x5000 px, no resizing necessary.')
-                copy(context.scene.ImportTerrainTexturePath,'{}ProjectData\\Textures\\'.format(ProjFolderPath))
-                oldName = context.scene.ImportTerrainTexturePath.split('\\')[-1]
-                os.rename('{}ProjectData\\Textures\\{}'.format(ProjFolderPath,oldName),'{}ProjectData\\Textures\\previewSatTex.png'.format(ProjFolderPath))
+            
+            if '_0.' in terrainTexturePath:
+                bLTLogger('Wrn','Tiled terrain texture detected, creation of preview from tiles may take a while!')
+                tilesList = getTerrainTexTiles(terrainTexturePath)
+                tilesInRow = int(sqrt(len(tilesList)))
+                tilePreviewRes = int(imagerySize / ((imagerySize * tilesInRow) / 5000))
+                print(tilesInRow, ' x ', tilesInRow)
+                print('Terrain texture resolution = ', int(tilesInRow * imagerySize))
+                print(tilePreviewRes)
+                previewImage = zeros((tilePreviewRes * tilesInRow,tilePreviewRes * tilesInRow,3), uint8)
+                
+                topLeftX = topLeftY = 0
+                bottomRightX = bottomRightY = tilePreviewRes
+                i = 0
+                for tile in tilesList:
+                    input_image_cv = imread(tile, IMREAD_COLOR)
+                    resizedImage = resize(input_image_cv, (tilePreviewRes, tilePreviewRes))
+                    previewImage[topLeftX:bottomRightX,topLeftY:bottomRightY] = resizedImage
+                    i += 1
+                    if i < tilesInRow:
+                        topLeftX += tilePreviewRes
+                        bottomRightX += tilePreviewRes
+                    else:
+                        i = 0
+                        topLeftX = 0
+                        bottomRightX = tilePreviewRes
+                        topLeftY += tilePreviewRes
+                        bottomRightY += tilePreviewRes
+                imwrite(r'{}ProjectData\Textures\previewSatTex.png'.format(ProjFolderPath), previewImage)
             else:
-                bLTLogger('Inf','Terrain texture size > 5000x5000 px, needs to be downscaled.')
-                print(' Input imagery size > 5000x5000 px, needs to be downscaled.')
-                input_image_cv = imread(terrainTexturePath, IMREAD_COLOR)
-                resizedImage = resize(input_image_cv, (5000, 5000))
-                imwrite(r'{}ProjectData\Textures\previewSatTex.png'.format(ProjFolderPath), resizedImage)
+                if imagerySize < 5000:
+                    bLTLogger('Inf','Terrain texture size <= 5000x5000 px, no resizing necessary.')
+                    print(' Input imagery size <= 5000x5000 px, no resizing necessary.')
+                    copy(context.scene.ImportTerrainTexturePath,'{}ProjectData\\Textures\\'.format(ProjFolderPath))
+                    oldName = context.scene.ImportTerrainTexturePath.split('\\')[-1]
+                    os.rename('{}ProjectData\\Textures\\{}'.format(ProjFolderPath,oldName),'{}ProjectData\\Textures\\previewSatTex.png'.format(ProjFolderPath))
+                else:
+                    bLTLogger('Wrn','Terrain texture size > 5000x5000 px, needs to be downscaled!')
+                    print(' Input imagery size > 5000x5000 px, needs to be downscaled.')
+                    input_image_cv = imread(terrainTexturePath, IMREAD_COLOR)
+                    resizedImage = resize(input_image_cv, (5000, 5000))
+                    imwrite(r'{}ProjectData\Textures\previewSatTex.png'.format(ProjFolderPath), resizedImage)
             
                 
             if bpy.data.images.get('previewSatTex.png') is None:
@@ -935,7 +985,7 @@ def createNewLocation(locationName,gridResX,gridResY,topLeftRow,topLeftColumn,bo
         waterLevel.name = 'WaterSurface_' + locationName
         waterLevel.select = False
         waterLevel.hide_select = True
-        bLTLogger('Wrn','   Below sea level elevation detected, water surface mesh added.')
+        bLTLogger('Wrn','   Below sea level elevation detected, water surface mesh added!')
     
 def assignMeshTerrainModifier(context):
     activeObject = context.active_object
