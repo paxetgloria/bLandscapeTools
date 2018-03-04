@@ -93,9 +93,6 @@ def update_importterraintexturepath(self, context):
                 tilesList = getTerrainTexTiles(terrainTexturePath)
                 tilesInRow = int(sqrt(len(tilesList)))
                 tilePreviewRes = int(imagerySize / ((imagerySize * tilesInRow) / 5000))
-                print(tilesInRow, ' x ', tilesInRow)
-                print('Terrain texture resolution = ', int(tilesInRow * imagerySize))
-                print(tilePreviewRes)
                 previewImage = zeros((tilePreviewRes * tilesInRow,tilePreviewRes * tilesInRow,3), uint8)
                 
                 topLeftX = topLeftY = 0
@@ -104,7 +101,7 @@ def update_importterraintexturepath(self, context):
                 for tile in tilesList:
                     input_image_cv = imread(tile, IMREAD_COLOR)
                     resizedImage = resize(input_image_cv, (tilePreviewRes, tilePreviewRes))
-                    previewImage[topLeftX:bottomRightX,topLeftY:bottomRightY] = resizedImage
+                    previewImage[topLeftY:bottomRightY,topLeftX:bottomRightX] = resizedImage
                     i += 1
                     if i < tilesInRow:
                         topLeftX += tilePreviewRes
