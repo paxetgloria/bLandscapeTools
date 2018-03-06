@@ -1283,6 +1283,7 @@ class VIEW3D_ViewportSettings(Panel):
         userPreferences = context.user_preferences
         systemTab = userPreferences.system
         
+        
         row = layout.row(align=True)
         row.operator("object.appearance_textured_nowire",icon='TEXTURE')
         row.operator("object.appearance_textured_wire",icon='ASSET_MANAGER')
@@ -1331,8 +1332,16 @@ class VIEW3D_ViewportSettings(Panel):
         colMipMap.prop(systemTab, "use_mipmaps",text='Textures mipmaps')
         if not scene.TerrainTextureFormatValid:
             colMipMap.enabled = False
+        colMipMap.separator()
+            
+        rowSea = layout.row(align=True)
+        seaMaterial = bpy.data.materials['SeaMaterial_{}'.format(context.scene.name)]
+        rowSea.prop(seaMaterial,'alpha', text='Sea transparency')
+        rowSea.prop(seaMaterial,'diffuse_color',text='')
+        
             
         colNearFar = layout.column(align=True)
+        colNearFar.separator()
         colNearFar.label(text="Clip Near/Far Plane(m):")
         colNearFar.prop(view, "clip_start", text="Start")
         colNearFar.prop(view, "clip_end", text="End")

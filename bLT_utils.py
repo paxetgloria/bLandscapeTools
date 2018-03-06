@@ -785,6 +785,27 @@ def createOccupiedLocation(locationName,topLeftRow,topLeftColumn,bottomRightRow,
     newStroke.points.add()
     newStroke.points[3].co = Vector((bottomRightX,topLeftY,0))
     
+def createSeaSurface(locationName,terrainObject):
+    bpy.ops.mesh.primitive_plane_add(radius=1.0, location=(terrainObject.location[0], terrainObject.location[1], 0.0))
+    seaSurface = bpy.context.active_object
+    seaSurface.dimensions = terrainObject.dimensions
+    seaSurface.name = 'WaterSurface_' + locationName
+    #-------------------------- Create new sea material ----------------------------------------------
+    seaMaterial = bpy.data.materials.new('SeaMaterial_{}'.format(locationName))
+    seaMaterial.diffuse_color = .009, .08, .036
+    seaMaterial.specular_intensity = 0
+    seaMaterial.use_transparency = True
+    if bpy.context.scene.hasSea:
+        seaMaterial.alpha = .5
+        bLTLogger('Wrn','   Below sea level elevation detected, water surface mesh added!')
+    else: 
+        seaMaterial.alpha = .0
+    bpy.ops.object.material_slot_add()
+    seaSurface.material_slots[0].material = seaMaterial
+    seaSurface.show_transparent = True
+    seaSurface.select = False
+    seaSurface.hide_select = True
+    
     
 def createNewLocation(locationName,gridResX,gridResY,topLeftRow,topLeftColumn,bottomRightRow,bottomRightColumn,copyTopEdge,copyRightEdge):
     worldInfo = bpy.data.scenes['Default_Location']
@@ -908,11 +929,10 @@ def createNewLocation(locationName,gridResX,gridResY,topLeftRow,topLeftColumn,bo
     print(' Terrain mesh/UVs generation started ', time.ctime())
     terrainTopLeftStartY = terrainDimensionY - (topLeftRow * cellSize)
     
-    addWaterLvl = False
     for row in range(gridResY):
         heightArray = terrainZvalues[row]
         for col in range(gridResX):
-            if heightArray[col] < 0: addWaterLvl = True
+            if heightArray[col] < 0: bpy.context.scene.hasSea = True
             bm.verts.new((terrainTopLeftStartX,terrainTopLeftStartY,heightArray[col]))
             terrainTopLeftStartX += cellSize
         terrainTopLeftStartX = topLeftColumn * cellSize
@@ -975,14 +995,7 @@ def createNewLocation(locationName,gridResX,gridResY,topLeftRow,topLeftColumn,bo
     terrainObject.select = False
     terrainObject.hide_select = True
     
-    if addWaterLvl:
-        bpy.ops.mesh.primitive_plane_add(radius=1.0, location=(terrainObject.location[0], terrainObject.location[1], 0.0))
-        waterLevel = bpy.context.active_object
-        waterLevel.dimensions = terrainObject.dimensions
-        waterLevel.name = 'WaterSurface_' + locationName
-        waterLevel.select = False
-        waterLevel.hide_select = True
-        bLTLogger('Wrn','   Below sea level elevation detected, water surface mesh added!')
+    createSeaSurface(locationName,terrainObject)
     
 def assignMeshTerrainModifier(context):
     activeObject = context.active_object

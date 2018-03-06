@@ -112,6 +112,7 @@ def register():
     bpy.types.Scene.locationgroups = CollectionProperty(type=bLT_main.LocationItems)
     bpy.types.Scene.locationgroups_index = IntProperty(default=-1)
     bpy.types.Scene.TexturePaintBrushNames = CollectionProperty(type=bLT_main.TexturePaintBrush)
+    bpy.types.Scene.hasSea = BoolProperty(default=False)
     
     dataFolder = bLT_utils.getPaths()[2]
 
@@ -139,6 +140,7 @@ def unregister():
     del bpy.types.Scene.locationgroups
     del bpy.types.Scene.locationgroups_index
     del bpy.types.Scene.TexturePaintBrushNames
+    del bpy.types.Scene.hasSea
 
 if __name__ == "__main__":
     register()
